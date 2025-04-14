@@ -26,7 +26,7 @@ public class SwaggerConfig {
     public GroupedOpenApi userApi() {
         return GroupedOpenApi.builder()
                 .group("user")
-                .pathsToMatch("/api/user/**")
+                .pathsToMatch("/api-user/**")
                 .addOpenApiCustomizer(openApi -> openApi
                         .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
                 )
@@ -37,7 +37,7 @@ public class SwaggerConfig {
     public GroupedOpenApi adminApi() {
         return GroupedOpenApi.builder()
                 .group("admin")
-                .pathsToMatch("/api/admin/**")
+                .pathsToMatch("/api-admin/**")
                 .addOpenApiCustomizer(openApi -> openApi
                         .addSecurityItem(new SecurityRequirement().addList(SECURITY_SCHEME_NAME))
                 )
