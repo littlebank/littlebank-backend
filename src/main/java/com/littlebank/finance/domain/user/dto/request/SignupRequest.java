@@ -43,8 +43,8 @@ public class SignupRequest {
     @Schema(description = "은행 교유 번호", example = "090")
     private String bankCode;
 
-    @Schema(description = "s3 이미지 업로드 경로")
-    private String profileImageUrl;
+    @Schema(description = "s3 이미지 업로드 경로 (path)")
+    private String profileImagePath;
 
     @Schema(description = "유저 역할", example = "PARENT or CHILD or TEACHER")
     private UserRole role;
@@ -59,7 +59,7 @@ public class SignupRequest {
                 .bankName(bankName)
                 .bankAccount(bankAccount)
                 .bankCode(bankCode)
-                .profileImageUrl(bankAccount)
+                .profileImagePath(profileImagePath)
                 .role(role)
                 .authority(authority)
                 .build();

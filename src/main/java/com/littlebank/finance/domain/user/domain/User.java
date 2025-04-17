@@ -47,7 +47,7 @@ public class User extends BaseEntity {
     private String bankAccount;
 
     @Column(length = 100)
-    private String profileImageUrl;
+    private String profileImagePath;
 
     @Column(name = "balance")
     private Integer balance;
@@ -69,7 +69,7 @@ public class User extends BaseEntity {
     @Builder
     public User(
             Long id, String email, String password, String name, String phone, String rrn, String bankName,
-            String bankCode, String bankAccount, String profileImageUrl, Integer balance, UserRole role,
+            String bankCode, String bankAccount, String profileImagePath, Integer balance, UserRole role,
             Authority authority, Boolean isSubscribe, LocalDateTime lastLoginAt, Boolean isDeleted
     ) {
         super(isDeleted);
@@ -82,7 +82,7 @@ public class User extends BaseEntity {
         this.bankName = bankName;
         this.bankCode = bankCode;
         this.bankAccount = bankAccount;
-        this.profileImageUrl = profileImageUrl;
+        this.profileImagePath = profileImagePath;
         this.balance = balance == null ? 0 : balance;
         this.role = role;
         this.authority = authority;
