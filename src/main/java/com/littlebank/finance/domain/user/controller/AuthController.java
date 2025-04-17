@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api-user/user")
 @RequiredArgsConstructor
-@Tag(name = "AUTH")
+@Tag(name = "Auth")
 public class AuthController {
     private final AuthService authService;
     private final CookieUtil cookieUtil;

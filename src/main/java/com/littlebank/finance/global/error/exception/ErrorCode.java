@@ -14,7 +14,10 @@ public enum ErrorCode {
     EMAIL_DUPLICATED(500, "U002", "중복된 이메일이 존재합니다"),
 
     // Auth
-    PASSWORD_NOT_MATCHED(500, "A001", "비밀번호가 일치하지 않습니다");
+    PASSWORD_NOT_MATCHED(500, "A001", "비밀번호가 일치하지 않습니다"),
+
+    // File
+    INVALID_MIMETYPE(500, "I001", "유효하지 않은 mimetype 입니다");
 
     private final String code;
     private final String message;
