@@ -27,7 +27,7 @@ public class UserService {
 
     private void verifyDuplicatedEmail(String email) {
         if (userRepository.existsByEmail(email)) {
-            throw new BusinessException(ErrorCode.EMAIL_DUPLICATED);
+            throw new UserException(ErrorCode.EMAIL_DUPLICATED);
         }
     }
 }

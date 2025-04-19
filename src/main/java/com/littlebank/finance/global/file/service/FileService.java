@@ -3,9 +3,9 @@ package com.littlebank.finance.global.file.service;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-import com.littlebank.finance.global.error.exception.BusinessException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.file.dto.FileUploadResponse;
+import com.littlebank.finance.global.file.exception.FileException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class FileService {
 
     public List<FileUploadResponse> generatePreSignedUrls(String mimeType, String type, String target, int num) {
         if (type.equals("image") && !mimeType.startsWith("image/")) {
-            throw new BusinessException(ErrorCode.INVALID_MIMETYPE);
+            throw new FileException(ErrorCode.INVALID_MIMETYPE);
         }
 
         List<FileUploadResponse> result = new ArrayList<>();
