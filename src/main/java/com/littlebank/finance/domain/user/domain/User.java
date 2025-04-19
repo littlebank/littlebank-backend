@@ -97,4 +97,12 @@ public class User extends BaseEntity {
     public void updateProfileImagePath(String profileImagePath) {
         this.profileImagePath = profileImagePath;
     }
+
+    public void update(User updateInfo) {
+        this.email = updateInfo.getEmail();
+        this.name = updateInfo.getName();
+        this.bankName = updateInfo.getBankName();
+        this.bankAccount = updateInfo.getBankAccount();
+        this.bankCode = updateInfo.getBankCode();
+    }
 }

@@ -43,6 +43,15 @@ public class UserService {
         return UserInfoResponse.of(user);
     }
 
+    public UserInfoResponse updateMyInfo(long userId, User updateInfo) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.update(updateInfo);
+
+        return UserInfoResponse.of(user);
+    }
+
     private void verifyDuplicatedEmail(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new UserException(ErrorCode.EMAIL_DUPLICATED);
