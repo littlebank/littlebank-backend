@@ -1,9 +1,12 @@
 package com.littlebank.finance.domain.user.controller;
 
 import com.littlebank.finance.domain.user.domain.Authority;
+import com.littlebank.finance.domain.user.dto.request.ProfileImagePathUpdateRequest;
 import com.littlebank.finance.domain.user.dto.request.SignupRequest;
+import com.littlebank.finance.domain.user.dto.response.ProfileImagePathUpdateResponse;
 import com.littlebank.finance.domain.user.dto.response.SignupResponse;
 import com.littlebank.finance.domain.user.service.UserService;
+import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,6 +32,16 @@ public class UserController {
     ) {
         SignupResponse response = userService.saveUser(request.toEntity(Authority.USER));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "프로필 이미지 path 업데이트 API")
+    @PatchMapping("/profile-image")
+    public ResponseEntity<ProfileImagePathUpdateResponse> updateProfileImagePath(
+            @RequestBody @Valid ProfileImagePathUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            ) {
+        ProfileImagePathUpdateResponse response = userService.updateProfileImagePath(customUserDetails.getId(), request.getProfileImagePath());
+        return ResponseEntity.ok(response);
     }
 
 }
