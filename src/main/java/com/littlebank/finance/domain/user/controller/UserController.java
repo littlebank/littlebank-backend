@@ -3,6 +3,7 @@ package com.littlebank.finance.domain.user.controller;
 import com.littlebank.finance.domain.user.domain.Authority;
 import com.littlebank.finance.domain.user.dto.request.ProfileImagePathUpdateRequest;
 import com.littlebank.finance.domain.user.dto.request.SignupRequest;
+import com.littlebank.finance.domain.user.dto.request.UserInfoUpdateRequest;
 import com.littlebank.finance.domain.user.dto.response.ProfileImagePathUpdateResponse;
 import com.littlebank.finance.domain.user.dto.response.SignupResponse;
 import com.littlebank.finance.domain.user.dto.response.UserInfoResponse;
@@ -51,6 +52,16 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         UserInfoResponse response = userService.getMyInfo(customUserDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "내 정보 수정 API")
+    @PutMapping("/info")
+    public ResponseEntity<UserInfoResponse> updateMyInfo(
+            @RequestBody @Valid UserInfoUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        UserInfoResponse response = userService.updateMyInfo(customUserDetails.getId(), request.toEntity());
         return ResponseEntity.ok(response);
     }
 
