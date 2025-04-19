@@ -4,6 +4,7 @@ import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.dto.response.ProfileImagePathUpdateResponse;
 import com.littlebank.finance.domain.user.dto.response.SignupResponse;
+import com.littlebank.finance.domain.user.dto.response.UserInfoResponse;
 import com.littlebank.finance.domain.user.excption.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,13 @@ public class UserService {
         user.updateProfileImagePath(profileImagePath);
 
         return ProfileImagePathUpdateResponse.of(user);
+    }
+
+    public UserInfoResponse getMyInfo(long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        return UserInfoResponse.of(user);
     }
 
     private void verifyDuplicatedEmail(String email) {

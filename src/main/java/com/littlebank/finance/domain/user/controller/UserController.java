@@ -5,6 +5,7 @@ import com.littlebank.finance.domain.user.dto.request.ProfileImagePathUpdateRequ
 import com.littlebank.finance.domain.user.dto.request.SignupRequest;
 import com.littlebank.finance.domain.user.dto.response.ProfileImagePathUpdateResponse;
 import com.littlebank.finance.domain.user.dto.response.SignupResponse;
+import com.littlebank.finance.domain.user.dto.response.UserInfoResponse;
 import com.littlebank.finance.domain.user.service.UserService;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +42,15 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
             ) {
         ProfileImagePathUpdateResponse response = userService.updateProfileImagePath(customUserDetails.getId(), request.getProfileImagePath());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "내 정보 조회 API")
+    @GetMapping("/info")
+    public ResponseEntity<UserInfoResponse> getMyInfo(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        UserInfoResponse response = userService.getMyInfo(customUserDetails.getId());
         return ResponseEntity.ok(response);
     }
 
