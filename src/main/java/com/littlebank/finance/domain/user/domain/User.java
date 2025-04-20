@@ -25,7 +25,7 @@ public class User extends BaseEntity {
     @Column(length = 50, unique = true, nullable = false)
     private String email;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100)
     private String password;
 
     @Column(length = 20, nullable = false)
@@ -34,7 +34,7 @@ public class User extends BaseEntity {
     @Column(length = 11)
     private String phone;
 
-    @Column(length = 6, nullable = false)
+    @Column(length = 6)
     private String rrn;
 
     @Column(length = 10)
@@ -53,7 +53,6 @@ public class User extends BaseEntity {
     private Integer balance;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private UserRole role;
 
     @Enumerated(EnumType.STRING)
