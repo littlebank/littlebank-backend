@@ -46,7 +46,7 @@ public class User extends BaseEntity {
     @Column(length = 20)
     private String bankAccount;
 
-    @Column(length = 100)
+    @Column(length = 150)
     private String profileImagePath;
 
     @Column(name = "balance")
