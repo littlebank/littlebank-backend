@@ -104,4 +104,10 @@ public class User extends BaseEntity {
         this.bankAccount = updateInfo.getBankAccount();
         this.bankCode = updateInfo.getBankCode();
     }
+
+    public void updateRequiredInfo(User updateInfo) {
+        this.rrn = updateInfo.getRrn();
+        this.role = updateInfo.getRole();
+    }
+
 }

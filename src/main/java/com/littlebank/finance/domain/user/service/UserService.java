@@ -2,8 +2,10 @@ package com.littlebank.finance.domain.user.service;
 
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
+import com.littlebank.finance.domain.user.dto.request.SocialLoginAdditionalInfoRequest;
 import com.littlebank.finance.domain.user.dto.response.ProfileImagePathUpdateResponse;
 import com.littlebank.finance.domain.user.dto.response.SignupResponse;
+import com.littlebank.finance.domain.user.dto.response.SocialLoginAdditionalInfoResponse;
 import com.littlebank.finance.domain.user.dto.response.UserInfoResponse;
 import com.littlebank.finance.domain.user.excption.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
@@ -57,6 +59,15 @@ public class UserService {
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
         userRepository.deleteById(user.getId());
+    }
+
+    public SocialLoginAdditionalInfoResponse updateAdditionalInfoAfterSocialLogin(SocialLoginAdditionalInfoRequest request, long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateRequiredInfo(request.toEntity());
+
+        return SocialLoginAdditionalInfoResponse.of(user);
     }
 
     private void verifyDuplicatedEmail(String email) {
