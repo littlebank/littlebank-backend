@@ -15,29 +15,5 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableJpaAuditing
 public class JpaConfig {
-    @Slf4j
-    @Configuration
-    @EnableWebSocket
-    @EnableWebSocketMessageBroker //stomp 사용 명시
-    public static class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-        final TokenProvider tokenProvider;
-        public WebSocketConfig(TokenProvider tokenProvider) {
-            this.tokenProvider = tokenProvider;
-        }
-        @Override
-        public void registerStompEndpoints(StompEndpointRegistry registry) {
-            log.info("register stomp endpoint 실행 완료");
-            registry.addEndpoint("/ws-chat")
-                    .setAllowedOriginPatterns("*")
-                    //.addInterceptors(new StompAuthenticationInterceptor(tokenProvider))
-                    .withSockJS();
-        }
 
-        @Override
-        public void configureMessageBroker(MessageBrokerRegistry registry) {
-            log.info("configure message broker 실행 완료");
-            registry.enableSimpleBroker("/topic"); //서버 -> 클라이언트
-            registry.setApplicationDestinationPrefixes("/app"); //클라이언트 -> 서버
-        }
-    }
 }

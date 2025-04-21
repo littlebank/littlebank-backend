@@ -14,6 +14,5 @@ public class ChatRoomSummary {
     private LocalDateTime lastMessageTime;
     private Long unreadCount;
 
-//    @QueryProjection
 
 }

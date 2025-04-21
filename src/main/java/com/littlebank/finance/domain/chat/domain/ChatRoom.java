@@ -11,8 +11,6 @@ import lombok.*;
 @Table(name="chat_room")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 public class ChatRoom extends BaseEntity {
     @Id
     @Column(length=100)
@@ -20,4 +18,10 @@ public class ChatRoom extends BaseEntity {
 
     @Column(name="room_name",nullable = false,length = 50)
     private String name;
+
+    @Builder
+    public ChatRoom(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }
