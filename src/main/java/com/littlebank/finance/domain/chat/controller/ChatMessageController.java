@@ -1,22 +1,18 @@
 package com.littlebank.finance.domain.chat.controller;
 
-import com.littlebank.finance.domain.chat.dto.ChatMessageDto;
-import com.littlebank.finance.domain.chat.dto.ChatMessageResponse;
-import com.littlebank.finance.domain.chat.entity.ChatMessage;
+import com.littlebank.finance.domain.chat.dto.request.ChatMessageDto;
+import com.littlebank.finance.domain.chat.dto.response.ChatMessageResponse;
+import com.littlebank.finance.domain.chat.exception.ChatException;
 import com.littlebank.finance.domain.chat.service.ChatService;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.service.UserService;
-import com.littlebank.finance.global.error.exception.BusinessException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,7 +41,7 @@ public class ChatMessageController {
         //방 입장 권한 체크
         String email = principal.getName();
         User sender = userRepository.findByEmail(email)
-                .orElseThrow(()-> new BusinessException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(()-> new ChatException(ErrorCode.USER_NOT_FOUND));
         Long senderId = sender.getId();
         if (!chatService.isParticipant( roomId, senderId.toString())) {
             throw new RuntimeException("이 채팅방 참여자가 아닙니다.");

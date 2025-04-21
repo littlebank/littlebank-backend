@@ -1,7 +1,6 @@
-package com.littlebank.finance.domain.chat.dto;
+package com.littlebank.finance.domain.chat.dto.request;
 
-import com.littlebank.finance.domain.chat.entity.ChatMessage;
-import com.littlebank.finance.domain.user.domain.User;
+import com.littlebank.finance.domain.chat.domain.ChatMessage;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.chat.dto;
+package com.littlebank.finance.domain.chat.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

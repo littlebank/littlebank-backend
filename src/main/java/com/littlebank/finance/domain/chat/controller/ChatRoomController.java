@@ -1,10 +1,10 @@
 package com.littlebank.finance.domain.chat.controller;
 
-import com.littlebank.finance.domain.chat.dto.ChatRoomRequest;
-import com.littlebank.finance.domain.chat.entity.ChatRoom;
-import com.littlebank.finance.domain.chat.entity.ChatRoomParticipant;
-import com.littlebank.finance.domain.chat.repository.ChatRoomParticipantRepository;
-import com.littlebank.finance.domain.chat.repository.ChatRoomRepository;
+import com.littlebank.finance.domain.chat.dto.request.ChatRoomRequest;
+import com.littlebank.finance.domain.chat.domain.ChatRoom;
+import com.littlebank.finance.domain.chat.domain.ChatRoomParticipant;
+import com.littlebank.finance.domain.chat.domain.repository.ChatRoomParticipantRepository;
+import com.littlebank.finance.domain.chat.domain.repository.ChatRoomRepository;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

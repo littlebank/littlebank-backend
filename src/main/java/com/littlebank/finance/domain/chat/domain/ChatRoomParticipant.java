@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.chat.entity;
+package com.littlebank.finance.domain.chat.domain;
 
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.common.BaseEntity;

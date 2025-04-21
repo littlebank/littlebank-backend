@@ -1,13 +1,13 @@
 package com.littlebank.finance.domain.chat.service;
 
-import com.littlebank.finance.domain.chat.dto.ChatMessageDto;
-import com.littlebank.finance.domain.chat.dto.ChatMessageResponse;
-import com.littlebank.finance.domain.chat.entity.ChatMessage;
-import com.littlebank.finance.domain.chat.repository.ChatMessageRepository;
-import com.littlebank.finance.domain.chat.repository.ChatRoomParticipantRepository;
+import com.littlebank.finance.domain.chat.dto.request.ChatMessageDto;
+import com.littlebank.finance.domain.chat.dto.response.ChatMessageResponse;
+import com.littlebank.finance.domain.chat.domain.ChatMessage;
+import com.littlebank.finance.domain.chat.domain.repository.ChatMessageRepository;
+import com.littlebank.finance.domain.chat.domain.repository.ChatRoomParticipantRepository;
+import com.littlebank.finance.domain.chat.exception.ChatException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
-import com.littlebank.finance.global.error.exception.BusinessException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -27,7 +27,7 @@ public class ChatService {
 
     public void sendToParticipants(ChatMessageDto dto) {
         User sender = userRepository.findById(dto.getSenderId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new ChatException(ErrorCode.USER_NOT_FOUND));
 
         // 채팅방 참여자 전체 조회
         List<User> participants = chatRoomParticipantRepository.findUsersByRoomId(dto.getRoomId());

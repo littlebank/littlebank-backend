@@ -1,6 +1,6 @@
-package com.littlebank.finance.domain.chat.repository;
+package com.littlebank.finance.domain.chat.domain.repository;
 
-import com.littlebank.finance.domain.chat.entity.ChatMessage;
+import com.littlebank.finance.domain.chat.domain.ChatMessage;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

@@ -1,6 +1,6 @@
-package com.littlebank.finance.domain.chat.repository;
+package com.littlebank.finance.domain.chat.domain.repository;
 
-import com.littlebank.finance.domain.chat.entity.ChatRoomParticipant;
+import com.littlebank.finance.domain.chat.domain.ChatRoomParticipant;
 import com.littlebank.finance.domain.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
