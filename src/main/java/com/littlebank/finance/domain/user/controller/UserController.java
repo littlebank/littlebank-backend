@@ -3,9 +3,11 @@ package com.littlebank.finance.domain.user.controller;
 import com.littlebank.finance.domain.user.domain.Authority;
 import com.littlebank.finance.domain.user.dto.request.ProfileImagePathUpdateRequest;
 import com.littlebank.finance.domain.user.dto.request.SignupRequest;
+import com.littlebank.finance.domain.user.dto.request.SocialLoginAdditionalInfoRequest;
 import com.littlebank.finance.domain.user.dto.request.UserInfoUpdateRequest;
 import com.littlebank.finance.domain.user.dto.response.ProfileImagePathUpdateResponse;
 import com.littlebank.finance.domain.user.dto.response.SignupResponse;
+import com.littlebank.finance.domain.user.dto.response.SocialLoginAdditionalInfoResponse;
 import com.littlebank.finance.domain.user.dto.response.UserInfoResponse;
 import com.littlebank.finance.domain.user.service.UserService;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -72,6 +74,16 @@ public class UserController {
     ) {
         userService.deleteUser(customUserDetails.getId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @Operation(summary = "최초 소셜 로그인 추가 정보 저장 API")
+    @PatchMapping("/social/additional-info")
+    public ResponseEntity<SocialLoginAdditionalInfoResponse> updateAdditionalInfoAfterSocialLogin(
+            @RequestBody @Valid SocialLoginAdditionalInfoRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        SocialLoginAdditionalInfoResponse response = userService.updateAdditionalInfoAfterSocialLogin(request, customUserDetails.getId());
+        return ResponseEntity.ok(response);
     }
 
 }
