@@ -36,28 +36,9 @@ public class ChatMessageController {
     }
 
     @MessageMapping("/api-user/chat.send.{roomId}")
-    //@SendTo("/topic/chat/{roomId}")
     public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessageDto dto, Principal principal) {
-        //방 입장 권한 체크
         String email = principal.getName();
-        User sender = userRepository.findByEmail(email)
-                .orElseThrow(()-> new ChatException(ErrorCode.USER_NOT_FOUND));
-        Long senderId = sender.getId();
-        if (!chatService.isParticipant( roomId, senderId.toString())) {
-            throw new RuntimeException("이 채팅방 참여자가 아닙니다.");
-        }
-        dto.setRoomId(roomId);
-        dto.setSenderId(senderId);
-        chatService.sendToParticipants(dto);
-        ChatMessageResponse response = ChatMessageResponse.builder()
-                .sender(String.valueOf(senderId))
-                .message(dto.getMessage())
-                .type(dto.getType().name())
-                .build();
 
-        String destination = "/topic/chat/"+roomId;
-        messagingTemplate.convertAndSend(destination, response);
-        log.info("📢 메시지 브로드캐스트: {}", destination);
-
+        chatService.handleChatMessage(roomId, dto, email);
     }
 }

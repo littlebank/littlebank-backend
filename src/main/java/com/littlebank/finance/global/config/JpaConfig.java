@@ -39,14 +39,5 @@ public class JpaConfig {
             registry.enableSimpleBroker("/topic"); //서버 -> 클라이언트
             registry.setApplicationDestinationPrefixes("/app"); //클라이언트 -> 서버
         }
-
-
-        @Autowired
-        private S3Config.StompChannelInterceptor stompChannelInterceptor;
-
-        @Override
-        public void configureClientInboundChannel(ChannelRegistration registration) {
-            registration.interceptors(stompChannelInterceptor);
-        }
     }
 }
