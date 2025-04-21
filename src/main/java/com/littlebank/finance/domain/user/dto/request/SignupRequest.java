@@ -27,6 +27,7 @@ public class SignupRequest {
     @Schema(description = "이름", example = "김동규")
     private String name;
 
+    @NotBlank
     @Schema(description = "핸드폰 번호", example = "01012345678")
     private String phone;
 
@@ -43,6 +44,7 @@ public class SignupRequest {
     @Schema(description = "은행 교유 번호", example = "090")
     private String bankCode;
 
+    @NotBlank
     @Schema(description = "유저 역할", example = "PARENT or CHILD or TEACHER")
     private UserRole role;
 
