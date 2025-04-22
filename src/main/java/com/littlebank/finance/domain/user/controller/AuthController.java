@@ -49,4 +49,16 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, cookieUtil.getCookie(tokenDto.getRefreshToken()).toString())
                 .body(LoginResponse.of(tokenDto.getAccessToken()));
     }
+
+    @Operation(summary = "네이버 API 로그인", description = "네이버 인증 토큰(accessToken)을 담아서 요청")
+    @SecurityRequirements()
+    @PostMapping("/public/naver/login")
+    public ResponseEntity<LoginResponse> naverLogin(
+            @RequestBody @Valid SocialLoginRequest request
+    ) {
+        TokenDto tokenDto = authService.naverLogin(request);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookieUtil.getCookie(tokenDto.getRefreshToken()).toString())
+                .body(LoginResponse.of(tokenDto.getAccessToken()));
+    }
 }

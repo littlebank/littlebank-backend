@@ -74,6 +74,42 @@ public class AuthService {
         return authenticateAndGenerateTokens(user.getEmail(), null);
     }
 
+    public TokenDto naverLogin(SocialLoginRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(request.getAccessToken());
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                "https://openapi.naver.com/v1/nid/me",
+                HttpMethod.GET,
+                entity,
+                Map.class
+        );
+
+        Map naverAccount = (Map) response.getBody().get("response");
+
+        String email = naverAccount.get("email").toString();
+        String nickname = naverAccount.get("name").toString();
+        String profileImageUrl;
+        if (naverAccount.containsKey("profile_image")) {
+            profileImageUrl = naverAccount.get("profile_image").toString();
+        } else {
+            profileImageUrl = null;
+        }
+
+
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> userRepository.save(User.builder()
+                        .email(email)
+                        .name(nickname)
+                        .profileImagePath(profileImageUrl)
+                        .authority(Authority.USER)
+                        .build())
+                );
+
+        return authenticateAndGenerateTokens(user.getEmail(), null);
+    }
+
     private TokenDto authenticateAndGenerateTokens(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
