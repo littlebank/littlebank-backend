@@ -23,9 +23,4 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage,Long> {
             "AND c.receiver=:receiver AND c.isRead=false")
     void markAsRead(@Param("roomId") String roomId, @Param("receiver") String receiver);
 
-    //마지막 메시지 한 개 조회
-    ChatMessage findTopByRoomIdOrderByCreatedAtDesc(String roomId);
-    default ChatMessage findLastMessageByRoomId(String roomId, String receiver) {
-        return findTopByRoomIdOrderByCreatedAtDesc(roomId);
-    }
 }

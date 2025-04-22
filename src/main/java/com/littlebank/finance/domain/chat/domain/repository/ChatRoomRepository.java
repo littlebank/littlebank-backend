@@ -30,7 +30,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom,String> {
             nativeQuery = true)
     List<Object[]> findChatRoomSummariesWithLatestMessage(
             @Param("roomIds") List<String> roomIds,
-            @Param("userId") String userId
+            @Param("userId") Long userId
     );
 
 

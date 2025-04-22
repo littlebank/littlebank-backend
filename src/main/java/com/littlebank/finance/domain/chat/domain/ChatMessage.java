@@ -4,7 +4,6 @@ import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,8 +11,6 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatMessage extends BaseEntity {
-
-    public enum MessageType {ENTER, TALK, LEAVE}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,13 +37,6 @@ public class ChatMessage extends BaseEntity {
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
 
     @Builder
     public ChatMessage(String roomId, User sender, User receiver, String message, MessageType type, boolean isRead) {

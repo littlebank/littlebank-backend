@@ -27,7 +27,6 @@ public class ChatMessageResponse  {
                 .message(message.getMessage())
                 .type(message.getType().name())
                 .isRead(message.isRead())
-                .createdAt(message.getCreatedAt())
                 .build();
     }
 }

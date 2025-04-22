@@ -13,6 +13,4 @@ public class ChatRoomSummary {
     private String lastMessage;
     private LocalDateTime lastMessageTime;
     private Long unreadCount;
-
-
 }

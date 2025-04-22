@@ -1,6 +1,6 @@
 package com.littlebank.finance.domain.chat.dto.request;
 
-import com.littlebank.finance.domain.chat.domain.ChatMessage;
+import com.littlebank.finance.domain.chat.domain.MessageType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,5 +11,5 @@ public class ChatMessageDto {
     private Long senderId;
     private Long receiverId;
     private String message;
-    private ChatMessage.MessageType type;
+    private MessageType type;
 }

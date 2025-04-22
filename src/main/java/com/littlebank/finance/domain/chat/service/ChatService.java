@@ -8,17 +8,15 @@ import com.littlebank.finance.domain.chat.domain.repository.ChatRoomParticipantR
 import com.littlebank.finance.domain.chat.exception.ChatException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
+import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -32,11 +30,11 @@ public class ChatService {
     public void handleChatMessage(String roomId, ChatMessageDto dto, String senderEmail) {
         // 유저 정보 조회
         User sender = userRepository.findByEmail(senderEmail)
-                .orElseThrow(() -> new ChatException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         Long senderId = sender.getId();
 
         // 채팅방 참여 여부 확인
-        if (!isParticipant(roomId, senderId.toString())) {
+        if (!isParticipant(roomId, senderId)) {
             throw new ChatException(ErrorCode.USER_NOT_FOUND); // or 커스텀 메시지
         }
 
@@ -58,7 +56,7 @@ public class ChatService {
         log.info("📢 메시지 전송 완료: {}", destination);
     }
 
-    public void sendToParticipants(ChatMessageDto dto) {
+    private void sendToParticipants(ChatMessageDto dto) {
         User sender = userRepository.findById(dto.getSenderId())
                 .orElseThrow(() -> new ChatException(ErrorCode.USER_NOT_FOUND));
 
@@ -82,23 +80,9 @@ public class ChatService {
         }
     }
 
-    public boolean isParticipant(String roomId, String userId) {
+    private boolean isParticipant(String roomId, Long userId) {
         return chatRoomParticipantRepository.existsByRoomIdAndUserId(roomId, userId);
     }
 
-    public void markAsRead(String roomId, String receiver) {
-        chatMessageRepository.markAsRead(roomId, receiver);
-    }
 
-    public List<ChatMessageResponse> getMessages(String roomId, Long cursor, int size) {
-        Pageable pageable= PageRequest.of(0,size, Sort.by("id").descending());
-        return chatMessageRepository.findMessages(roomId,cursor,pageable).stream()
-                .map(ChatMessageResponse::from)
-                .collect(Collectors.toList());
-    }
-    private User loadUserById(Long userId) {
-        // Placeholder for actual implementation to fetch or create a User entity
-        // Replace this with the actual logic from your application (e.g., userRepository.findById(userId).orElseThrow())
-        return User.builder().id(userId).build();
-    }
 }
