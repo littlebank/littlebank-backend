@@ -7,7 +7,7 @@ import com.littlebank.finance.domain.user.dto.response.ProfileImagePathUpdateRes
 import com.littlebank.finance.domain.user.dto.response.SignupResponse;
 import com.littlebank.finance.domain.user.dto.response.SocialLoginAdditionalInfoResponse;
 import com.littlebank.finance.domain.user.dto.response.UserInfoResponse;
-import com.littlebank.finance.domain.user.excption.UserException;
+import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

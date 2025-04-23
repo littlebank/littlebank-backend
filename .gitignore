@@ -39,3 +39,6 @@ out/
 ### application ###
 application.yml
 application-*.yml
+
+### stomp test file ###
+/src/main/resources/static

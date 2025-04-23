@@ -18,7 +18,11 @@ public enum ErrorCode {
     PASSWORD_NOT_MATCHED(500, "A001", "비밀번호가 일치하지 않습니다"),
 
     // File
-    INVALID_MIMETYPE(500, "I001", "유효하지 않은 mimetype 입니다");
+    INVALID_MIMETYPE(500, "I001", "유효하지 않은 mimetype 입니다"),
+
+    // Chat
+    CHAT_ROOM_NOT_FOUND(404,"C001","채팅방이 존재하지 않습니다"),
+    FORBIDDEN_CHAT_DELETE(403,"C002","채팅방을 삭제할 수 없습니다");
 
     private final String code;
     private final String message;
