@@ -31,7 +31,7 @@ public class User extends BaseEntity {
     @Column(length = 20, nullable = false)
     private String name;
 
-    @Column(length = 11)
+    @Column(length = 11, unique = true)
     private String phone;
 
     @Column(length = 6)
@@ -67,12 +67,11 @@ public class User extends BaseEntity {
 
     @Builder
     public User(
-            Long id, String email, String password, String name, String phone, String rrn, String bankName,
+            String email, String password, String name, String phone, String rrn, String bankName,
             String bankCode, String bankAccount, String profileImagePath, Integer balance, UserRole role,
             Authority authority, Boolean isSubscribe, LocalDateTime lastLoginAt, Boolean isDeleted
     ) {
         super(isDeleted);
-        this.id = id;
         this.email = email;
         this.password = password;
         this.name = name;
@@ -106,6 +105,7 @@ public class User extends BaseEntity {
     }
 
     public void updateRequiredInfo(User updateInfo) {
+        this.phone = updateInfo.getPhone();
         this.rrn = updateInfo.getRrn();
         this.role = updateInfo.getRole();
     }

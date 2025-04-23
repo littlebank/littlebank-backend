@@ -11,6 +11,10 @@ import lombok.Getter;
 public class SocialLoginAdditionalInfoRequest {
 
     @NotBlank
+    @Schema(description = "핸드폰 번호", example = "01012345678")
+    private String phone;
+
+    @NotBlank
     @Schema(description = "생년월일 6자리", example = "020625")
     private String rrn;
 
@@ -20,6 +24,7 @@ public class SocialLoginAdditionalInfoRequest {
 
     public User toEntity() {
         return User.builder()
+                .phone(phone)
                 .rrn(rrn)
                 .role(role)
                 .build();
