@@ -4,6 +4,7 @@ import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
@@ -13,7 +14,7 @@ public class SocialLoginAdditionalInfoRequest {
     @Schema(description = "생년월일 6자리", example = "020625")
     private String rrn;
 
-    @NotBlank
+    @NotNull
     @Schema(description = "유저 역할", example = "CHILD")
     private UserRole role;
 
