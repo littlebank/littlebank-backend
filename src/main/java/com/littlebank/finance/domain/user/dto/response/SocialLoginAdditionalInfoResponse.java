@@ -12,12 +12,14 @@ import lombok.Getter;
 public class SocialLoginAdditionalInfoResponse {
 
     private Long userId;
+    private String phone;
     private String rrn;
     private UserRole role;
 
     public static SocialLoginAdditionalInfoResponse of(User user) {
         return SocialLoginAdditionalInfoResponse.builder()
                 .userId(user.getId())
+                .phone(user.getPhone())
                 .rrn(user.getRrn())
                 .role(user.getRole())
                 .build();

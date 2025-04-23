@@ -33,7 +33,7 @@ public class SignupRequest {
     private String phone;
 
     @NotBlank
-    @Schema(description = "주민등록번호", example = "020625")
+    @Schema(description = "생년월일 6자리", example = "020625")
     private String rrn;
 
     @Schema(description = "은행 이름", example = "카카오페이")
