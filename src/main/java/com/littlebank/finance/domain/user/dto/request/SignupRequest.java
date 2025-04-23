@@ -7,6 +7,7 @@ import com.littlebank.finance.domain.user.domain.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
@@ -44,7 +45,7 @@ public class SignupRequest {
     @Schema(description = "은행 교유 번호", example = "090")
     private String bankCode;
 
-    @NotBlank
+    @NotNull
     @Schema(description = "유저 역할", example = "PARENT or CHILD or TEACHER")
     private UserRole role;
 
