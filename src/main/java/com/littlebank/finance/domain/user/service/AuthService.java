@@ -7,6 +7,8 @@ import com.littlebank.finance.domain.user.dto.request.LoginRequest;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginRequest;
 import com.littlebank.finance.global.jwt.TokenProvider;
 import com.littlebank.finance.global.jwt.dto.TokenDto;
+import com.littlebank.finance.global.redis.RedisDao;
+import com.littlebank.finance.global.redis.RedisPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,24 +18,37 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
+    private final RedisDao redisDao;
 
     @Transactional(readOnly = true)
     public TokenDto login(LoginRequest request) {
         return authenticateAndGenerateTokens(request.getEmail(), request.getPassword());
+    }
+
+    public void logout(String refreshToken) {
+        redisDao.setValues(
+                RedisPolicy.BLACKLIST_KEY + refreshToken,
+                "registered",
+                Duration.ofMillis(tokenProvider.getExpiration(refreshToken))
+        );
     }
 
     public TokenDto kakaoLogin(SocialLoginRequest request) {
@@ -49,6 +64,7 @@ public class AuthService {
                 Map.class
         );
 
+        String kakaoUserId = response.getBody().get("id").toString();
         Map kakaoAccount = (Map) response.getBody().get("kakao_account");
         Map kakaoProfile = (Map) kakaoAccount.get("profile");
 
@@ -61,17 +77,19 @@ public class AuthService {
             profileImageUrl = null;
         }
 
-
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.save(User.builder()
                         .email(email)
+                        .password(kakaoUserId)
                         .name(nickname)
                         .profileImagePath(profileImageUrl)
                         .authority(Authority.USER)
                         .build())
                 );
 
-        return authenticateAndGenerateTokens(user.getEmail(), null);
+        user.encodePassword(passwordEncoder);
+
+        return authenticateAndGenerateTokens(user.getEmail(), user.getPassword());
     }
 
     public TokenDto naverLogin(SocialLoginRequest request) {
@@ -88,6 +106,7 @@ public class AuthService {
 
         Map naverAccount = (Map) response.getBody().get("response");
 
+        String naverUserId = naverAccount.get("id").toString();
         String email = naverAccount.get("email").toString();
         String nickname = naverAccount.get("name").toString();
         String profileImageUrl;
@@ -97,17 +116,19 @@ public class AuthService {
             profileImageUrl = null;
         }
 
-
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.save(User.builder()
                         .email(email)
+                        .password(naverUserId)
                         .name(nickname)
                         .profileImagePath(profileImageUrl)
                         .authority(Authority.USER)
                         .build())
                 );
 
-        return authenticateAndGenerateTokens(user.getEmail(), null);
+        user.encodePassword(passwordEncoder);
+
+        return authenticateAndGenerateTokens(user.getEmail(), user.getPassword());
     }
 
     private TokenDto authenticateAndGenerateTokens(String email, String password) {

@@ -11,14 +11,14 @@ public enum ErrorCode {
     NOT_AUTHENTICATED(401, "C007", "Unauthorized"),
 
     // User
-    USER_NOT_FOUND(500, "U001", "유저가 존재하지 않습니다"),
-    EMAIL_DUPLICATED(500, "U002", "중복된 이메일이 존재합니다"),
+    USER_NOT_FOUND(404, "U001", "유저가 존재하지 않습니다"),
+    EMAIL_DUPLICATED(409, "U002", "중복된 이메일이 존재합니다"),
 
     // Auth
-    PASSWORD_NOT_MATCHED(500, "A001", "비밀번호가 일치하지 않습니다"),
+    PASSWORD_NOT_MATCHED(401, "A001", "비밀번호가 일치하지 않습니다"),
 
     // File
-    INVALID_MIMETYPE(500, "I001", "유효하지 않은 mimetype 입니다"),
+    INVALID_MIMETYPE(415, "I001", "유효하지 않은 mimetype 입니다"),
 
     // Chat
     CHAT_ROOM_NOT_FOUND(404,"C001","채팅방이 존재하지 않습니다"),
