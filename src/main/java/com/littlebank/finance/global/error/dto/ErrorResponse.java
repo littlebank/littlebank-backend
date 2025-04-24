@@ -35,17 +35,12 @@ public class ErrorResponse {
         this.errors = new ArrayList<>();
     }
 
-
     public static ErrorResponse of(final ErrorCode code, final BindingResult bindingResult) {
         return new ErrorResponse(code, CustomFieldError.of(bindingResult));
     }
 
     public static ErrorResponse of(final ErrorCode code) {
         return new ErrorResponse(code);
-    }
-
-    public static ErrorResponse of(final ErrorCode code, final List<CustomFieldError> errors) {
-        return new ErrorResponse(code, errors);
     }
 
     public static ErrorResponse of(MethodArgumentTypeMismatchException e) {
