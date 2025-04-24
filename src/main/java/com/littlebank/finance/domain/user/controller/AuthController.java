@@ -9,6 +9,7 @@ import com.littlebank.finance.global.util.CookieUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -34,8 +35,19 @@ public class AuthController {
     ) {
         TokenDto tokenDto = authService.login(request);
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookieUtil.getCookie(tokenDto.getRefreshToken()).toString())
+                .header(HttpHeaders.SET_COOKIE, cookieUtil.createCookie(tokenDto.getRefreshToken()).toString())
                 .body(LoginResponse.of(tokenDto.getAccessToken()));
+    }
+
+    @Operation(summary = "로그아웃 API")
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            HttpServletRequest request
+    ) {
+        authService.logout(cookieUtil.getCookieValue(request));
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, cookieUtil.deleteCookie().toString())
+                .build();
     }
 
     @Operation(summary = "카카오 API 로그인", description = "카카오 인증 토큰(accessToken)을 담아서 요청")
@@ -46,7 +58,7 @@ public class AuthController {
     ) {
         TokenDto tokenDto = authService.kakaoLogin(request);
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookieUtil.getCookie(tokenDto.getRefreshToken()).toString())
+                .header(HttpHeaders.SET_COOKIE, cookieUtil.createCookie(tokenDto.getRefreshToken()).toString())
                 .body(LoginResponse.of(tokenDto.getAccessToken()));
     }
 
@@ -58,7 +70,7 @@ public class AuthController {
     ) {
         TokenDto tokenDto = authService.naverLogin(request);
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookieUtil.getCookie(tokenDto.getRefreshToken()).toString())
+                .header(HttpHeaders.SET_COOKIE, cookieUtil.createCookie(tokenDto.getRefreshToken()).toString())
                 .body(LoginResponse.of(tokenDto.getAccessToken()));
     }
 }

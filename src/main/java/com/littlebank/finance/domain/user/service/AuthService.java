@@ -7,6 +7,8 @@ import com.littlebank.finance.domain.user.dto.request.LoginRequest;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginRequest;
 import com.littlebank.finance.global.jwt.TokenProvider;
 import com.littlebank.finance.global.jwt.dto.TokenDto;
+import com.littlebank.finance.global.redis.RedisDao;
+import com.littlebank.finance.global.redis.RedisPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -32,10 +36,19 @@ public class AuthService {
     private final RestTemplate restTemplate;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
+    private final RedisDao redisDao;
 
     @Transactional(readOnly = true)
     public TokenDto login(LoginRequest request) {
         return authenticateAndGenerateTokens(request.getEmail(), request.getPassword());
+    }
+
+    public void logout(String refreshToken) {
+        redisDao.setValues(
+                RedisPolicy.BLACKLIST_KEY + refreshToken,
+                "registered",
+                Duration.ofMillis(tokenProvider.getExpiration(refreshToken))
+        );
     }
 
     public TokenDto kakaoLogin(SocialLoginRequest request) {

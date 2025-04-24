@@ -1,11 +1,14 @@
 package com.littlebank.finance.global.config;
 
+import com.littlebank.finance.global.jwt.BlackListFilter;
 import com.littlebank.finance.global.jwt.JwtFilter;
 import com.littlebank.finance.global.jwt.TokenProvider;
+import com.littlebank.finance.global.redis.RedisDao;
 import com.littlebank.finance.global.security.CustomAuthenticationProvider;
 import com.littlebank.finance.global.security.CustomUserDetailsService;
 import com.littlebank.finance.global.security.exception.CustomAccessDeniedHandler;
 import com.littlebank.finance.global.security.exception.CustomAuthenticationEntryPoint;
+import com.littlebank.finance.global.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +32,9 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomUserDetailsService customUserDetailsService;
+    private final CookieUtil cookieUtil;
     private final TokenProvider tokenProvider;
+    private final RedisDao redisDao;
 
     private final String[] AUTH_WHITELIST = {
             // swagger 관련
@@ -53,6 +58,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new BlackListFilter(cookieUtil, tokenProvider, redisDao), JwtFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH_WHITELIST).permitAll()
