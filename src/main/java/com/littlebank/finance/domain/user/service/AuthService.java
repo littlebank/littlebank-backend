@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -27,6 +28,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
@@ -49,6 +51,7 @@ public class AuthService {
                 Map.class
         );
 
+        String kakaoUserId = response.getBody().get("id").toString();
         Map kakaoAccount = (Map) response.getBody().get("kakao_account");
         Map kakaoProfile = (Map) kakaoAccount.get("profile");
 
@@ -61,17 +64,19 @@ public class AuthService {
             profileImageUrl = null;
         }
 
-
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.save(User.builder()
                         .email(email)
+                        .password(kakaoUserId)
                         .name(nickname)
                         .profileImagePath(profileImageUrl)
                         .authority(Authority.USER)
                         .build())
                 );
 
-        return authenticateAndGenerateTokens(user.getEmail(), null);
+        user.encodePassword(passwordEncoder);
+
+        return authenticateAndGenerateTokens(user.getEmail(), user.getPassword());
     }
 
     public TokenDto naverLogin(SocialLoginRequest request) {
@@ -88,6 +93,7 @@ public class AuthService {
 
         Map naverAccount = (Map) response.getBody().get("response");
 
+        String naverUserId = naverAccount.get("id").toString();
         String email = naverAccount.get("email").toString();
         String nickname = naverAccount.get("name").toString();
         String profileImageUrl;
@@ -97,17 +103,19 @@ public class AuthService {
             profileImageUrl = null;
         }
 
-
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.save(User.builder()
                         .email(email)
+                        .password(naverUserId)
                         .name(nickname)
                         .profileImagePath(profileImageUrl)
                         .authority(Authority.USER)
                         .build())
                 );
 
-        return authenticateAndGenerateTokens(user.getEmail(), null);
+        user.encodePassword(passwordEncoder);
+
+        return authenticateAndGenerateTokens(user.getEmail(), user.getPassword());
     }
 
     private TokenDto authenticateAndGenerateTokens(String email, String password) {

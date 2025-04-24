@@ -22,11 +22,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
-        if (password != null
-                && !(
-                        passwordEncoder.matches(password, userDetails.getPassword())
-                                || userDetails.getPassword().equals(password)
-        )) {
+        if (
+                !(passwordEncoder.matches(password, userDetails.getPassword())
+                || userDetails.getPassword().equals(password))
+        ) {
             throw new UserException(ErrorCode.PASSWORD_NOT_MATCHED);
         }
 
