@@ -16,7 +16,6 @@ public class CookieUtil {
     public ResponseCookie createCookie(String refreshToken) {
         return ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, refreshToken)
                 .httpOnly(true)
-                .secure(true)
                 .path("/")
                 .maxAge(refreshTokenValidityInSecond)
                 .build();
