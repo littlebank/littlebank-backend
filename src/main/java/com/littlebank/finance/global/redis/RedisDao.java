@@ -13,6 +13,10 @@ public class RedisDao {
 
     private final RedisTemplate<String, String> redisTemplate;
 
+    public boolean existData(String key) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
+
     public void setValues(String key, String data, Duration duration) {
         ValueOperations<String, String> values = redisTemplate.opsForValue();
         values.set(key, data, duration);

@@ -25,7 +25,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -38,16 +37,15 @@ public class AuthService {
     private final TokenProvider tokenProvider;
     private final RedisDao redisDao;
 
-    @Transactional(readOnly = true)
     public TokenDto login(LoginRequest request) {
-        return authenticateAndGenerateTokens(request.getEmail(), request.getPassword());
+        TokenDto dto = authenticateAndGenerateTokens(request.getEmail(), request.getPassword());
+        registerRefreshTokenToRedis(dto.getRefreshToken());
+        return dto;
     }
 
     public void logout(String refreshToken) {
-        redisDao.setValues(
-                RedisPolicy.BLACKLIST_KEY + refreshToken,
-                "registered",
-                Duration.ofMillis(tokenProvider.getExpiration(refreshToken))
+        redisDao.deleteValues(
+                RedisPolicy.LOGIN_USER_KEY_PREFIX + tokenProvider.getAuthentication(refreshToken).getName()
         );
     }
 
@@ -89,7 +87,9 @@ public class AuthService {
 
         user.encodePassword(passwordEncoder);
 
-        return authenticateAndGenerateTokens(user.getEmail(), user.getPassword());
+        TokenDto dto = authenticateAndGenerateTokens(user.getEmail(), user.getPassword());
+        registerRefreshTokenToRedis(dto.getRefreshToken());
+        return dto;
     }
 
     public TokenDto naverLogin(SocialLoginRequest request) {
@@ -128,7 +128,9 @@ public class AuthService {
 
         user.encodePassword(passwordEncoder);
 
-        return authenticateAndGenerateTokens(user.getEmail(), user.getPassword());
+        TokenDto dto = authenticateAndGenerateTokens(user.getEmail(), user.getPassword());
+        registerRefreshTokenToRedis(dto.getRefreshToken());
+        return dto;
     }
 
     private TokenDto authenticateAndGenerateTokens(String email, String password) {
@@ -141,5 +143,13 @@ public class AuthService {
         String refreshToken = tokenProvider.provideRefreshToken(authentication);
 
         return TokenDto.of(accessToken, refreshToken);
+    }
+
+    private void registerRefreshTokenToRedis(String refreshToken) {
+        redisDao.setValues(
+                RedisPolicy.LOGIN_USER_KEY_PREFIX + tokenProvider.getAuthentication(refreshToken).getName(),
+                refreshToken,
+                Duration.ofMillis(tokenProvider.getExpiration(refreshToken))
+        );
     }
 }

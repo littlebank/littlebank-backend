@@ -14,7 +14,7 @@ import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
-public class BlackListFilter extends OncePerRequestFilter {
+public class LogoutFilter extends OncePerRequestFilter {
     private final CookieUtil cookieUtil;
     private final TokenProvider tokenProvider;
     private final RedisDao redisDao;
@@ -23,17 +23,18 @@ public class BlackListFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpRequest = request;
         String refreshToken = cookieUtil.getCookieValue(httpRequest);
-        log.info("토큰 check : " + refreshToken);
+        log.info("refresh 토큰 check : " + refreshToken);
 
         if (refreshToken != null && tokenProvider.validateToken(refreshToken)) {
-            String blackListKey = RedisPolicy.BLACKLIST_KEY + refreshToken;
-            String blacklistToken = redisDao.getValues(blackListKey);
+            String loginUserKey = RedisPolicy.LOGIN_USER_KEY_PREFIX + tokenProvider.getAuthentication(refreshToken).getName();
 
-            if (blacklistToken != null && blacklistToken.equals("registered")) {
-                log.warn("블랙리스트에 등록된 RefreshToken입니다. 요청 차단. token={}", refreshToken);
+            if (redisDao.getValues(loginUserKey) != null) {
+                log.info("redis 토큰 확인 : " + redisDao.getValues(loginUserKey));
+            }
+            if (!redisDao.existData(loginUserKey) || !refreshToken.equals(redisDao.getValues(loginUserKey))) {
+                log.warn("로그아웃된 상태입니다. token={}", refreshToken);
 
-                HttpServletResponse httpResponse = (HttpServletResponse) response;
-                httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 토큰입니다.");
                 return;
             }
         }
