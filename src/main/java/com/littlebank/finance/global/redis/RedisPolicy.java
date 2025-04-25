@@ -6,5 +6,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RedisPolicy {
 
-    public static final String BLACKLIST_KEY = "BLACKLIST:";
+    public static final String LOGIN_USER_KEY_PREFIX = "LOGIN:";
 }
