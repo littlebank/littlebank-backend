@@ -28,9 +28,6 @@ public class LogoutFilter extends OncePerRequestFilter {
         if (refreshToken != null && tokenProvider.validateToken(refreshToken)) {
             String loginUserKey = RedisPolicy.LOGIN_USER_KEY_PREFIX + tokenProvider.getAuthentication(refreshToken).getName();
 
-            if (redisDao.getValues(loginUserKey) != null) {
-                log.info("redis 토큰 확인 : " + redisDao.getValues(loginUserKey));
-            }
             if (!redisDao.existData(loginUserKey) || !refreshToken.equals(redisDao.getValues(loginUserKey))) {
                 log.warn("로그아웃된 상태입니다. token={}", refreshToken);
 

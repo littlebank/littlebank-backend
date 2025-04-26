@@ -1,8 +1,10 @@
 package com.littlebank.finance.domain.user.controller;
 
 import com.littlebank.finance.domain.user.dto.request.LoginRequest;
+import com.littlebank.finance.domain.user.dto.request.ReissueRequest;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginRequest;
 import com.littlebank.finance.domain.user.dto.response.LoginResponse;
+import com.littlebank.finance.domain.user.dto.response.ReissueResponse;
 import com.littlebank.finance.domain.user.service.AuthService;
 import com.littlebank.finance.global.jwt.dto.TokenDto;
 import com.littlebank.finance.global.util.CookieUtil;
@@ -48,6 +50,15 @@ public class AuthController {
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, cookieUtil.deleteCookie().toString())
                 .build();
+    }
+
+    @Operation(summary = "access token 재발급 API")
+    @PostMapping("/public/reissue")
+    public ResponseEntity<ReissueResponse> reissue(
+            @RequestBody @Valid ReissueRequest request
+    ) {
+        authService.reissue(request.getRefreshToken());
+        return null;
     }
 
     @Operation(summary = "카카오 API 로그인", description = "카카오 인증 토큰(accessToken)을 담아서 요청")
