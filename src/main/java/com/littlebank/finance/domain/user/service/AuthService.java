@@ -5,6 +5,9 @@ import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.dto.request.LoginRequest;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginRequest;
+import com.littlebank.finance.domain.user.dto.response.ReissueResponse;
+import com.littlebank.finance.domain.user.exception.AuthException;
+import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.jwt.TokenProvider;
 import com.littlebank.finance.global.jwt.dto.TokenDto;
 import com.littlebank.finance.global.redis.RedisDao;
@@ -17,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,12 +43,6 @@ public class AuthService {
         TokenDto dto = authenticateAndGenerateTokens(request.getEmail(), request.getPassword());
         registerRefreshTokenToRedis(dto.getRefreshToken());
         return dto;
-    }
-
-    public void logout(String refreshToken) {
-        redisDao.deleteValues(
-                RedisPolicy.LOGIN_USER_KEY_PREFIX + tokenProvider.getAuthentication(refreshToken).getName()
-        );
     }
 
     public TokenDto kakaoLogin(SocialLoginRequest request) {
@@ -133,11 +129,27 @@ public class AuthService {
         return dto;
     }
 
+    public void logout(String refreshToken) {
+        redisDao.deleteValues(
+                RedisPolicy.LOGIN_USER_KEY_PREFIX + tokenProvider.getAuthentication(refreshToken).getName()
+        );
+    }
+
+    public ReissueResponse reissue(String refreshToken) {
+        String loginUserKey = RedisPolicy.LOGIN_USER_KEY_PREFIX + tokenProvider.getAuthentication(refreshToken).getName();
+        if (!refreshToken.equals(redisDao.getValues(loginUserKey)) || !tokenProvider.validateToken(refreshToken)) {
+            throw new AuthException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+        Authentication authentication = tokenProvider.getAuthentication(refreshToken);
+        String accessToken = tokenProvider.provideAccessToken(authentication);
+
+        return ReissueResponse.of(accessToken);
+    }
+
     private TokenDto authenticateAndGenerateTokens(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = tokenProvider.provideAccessToken(authentication);
         String refreshToken = tokenProvider.provideRefreshToken(authentication);
