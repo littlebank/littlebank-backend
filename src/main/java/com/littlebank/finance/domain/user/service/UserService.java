@@ -38,6 +38,7 @@ public class UserService {
         return ProfileImagePathUpdateResponse.of(user);
     }
 
+    @Transactional(readOnly = true)
     public UserInfoResponse getMyInfo(long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
