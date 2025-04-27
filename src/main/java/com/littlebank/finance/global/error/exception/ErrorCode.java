@@ -20,6 +20,8 @@ public enum ErrorCode {
 
     // File
     INVALID_MIMETYPE(415, "I001", "유효하지 않은 mimetype 입니다"),
+    // Mail
+    MAIL_SEND_ERROR(500, "M001", "메일 전송 과정에서 오류가 발생했습니다"),
 
     // Chat
     CHAT_ROOM_NOT_FOUND(404,"C001","채팅방이 존재하지 않습니다"),
