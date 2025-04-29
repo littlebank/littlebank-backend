@@ -4,6 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class FeedImageRequestDto {
-    private String path;
     private String url;
 }

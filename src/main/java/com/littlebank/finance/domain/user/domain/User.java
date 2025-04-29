@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.user.domain;
 
 import com.littlebank.finance.domain.chat.domain.ChatMessage;
+import com.littlebank.finance.domain.feed.domain.Feed;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -73,6 +74,9 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> receiverMessages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Feed> feeds = new ArrayList<>();
 
     @Builder
     public User(

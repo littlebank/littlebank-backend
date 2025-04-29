@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "feed")
 @Getter
@@ -18,8 +21,8 @@ public class Feed extends BaseEntity {
     @Column(name = "feed_id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(length = 100, nullable = false)
@@ -40,6 +43,9 @@ public class Feed extends BaseEntity {
     private int viewCount = 0;
     private int likeCount = 0;
     private int commentCount = 0;
+
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeedImage> images = new ArrayList<>();
 
     @Builder
     public Feed(User user, String title, GradeCategory gradeCategory, SubjectCategory subjectCategory, TagCategory tagCategory, String content,

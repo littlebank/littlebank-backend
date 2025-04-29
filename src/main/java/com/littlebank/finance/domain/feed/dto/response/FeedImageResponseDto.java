@@ -9,4 +9,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class FeedImageResponseDto {
     private String url;
+    public FeedImageResponseDto of(String url) {
+        return FeedImageResponseDto.builder()
+                .url(url)
+                .build();
+    }
 }
