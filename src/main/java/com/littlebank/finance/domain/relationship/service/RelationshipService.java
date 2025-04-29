@@ -30,7 +30,7 @@ public class RelationshipService {
 
         verifyExistsRelationship(fromUser, toUser, request.getRelationshipType());
 
-        Relationship relationship = relationshipRepository.save(
+        Relationship relationshipByFromUser = relationshipRepository.save(
                 Relationship.builder()
                         .customName(toUser.getName())
                         .fromUser(fromUser)
@@ -40,13 +40,23 @@ public class RelationshipService {
                         .build()
         );
 
-        return RelationshipResponse.of(relationship);
+        relationshipRepository.save(
+                Relationship.builder()
+                        .customName(fromUser.getName())
+                        .fromUser(toUser)
+                        .toUser(fromUser)
+                        .relationshipType(request.getRelationshipType())
+                        .relationshipStatus(RelationshipStatus.REQUESTED_BY_OTHER)
+                        .build()
+        );
+
+        return RelationshipResponse.of(relationshipByFromUser);
     }
 
     private void verifyExistsRelationship(User fromUser, User toUser, RelationshipType relationshipType) {
         if (relationshipRepository.existsSameTypeBetweenUsers(
-                fromUser.getId(), toUser.getId(), relationshipType)
-        ) {
+                fromUser.getId(), toUser.getId(), relationshipType
+        )) {
             throw new RelationshipException(ErrorCode.ALREADY_RELATIONSHIP_EXISTS);
         }
     }
