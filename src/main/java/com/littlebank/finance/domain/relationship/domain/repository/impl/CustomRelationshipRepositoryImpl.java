@@ -23,8 +23,6 @@ public class CustomRelationshipRepositoryImpl implements CustomRelationshipRepos
                         r.relationshipType.eq(relationshipType)
                                 .and(
                                         r.fromUser.id.eq(userAId).and(r.toUser.id.eq(userBId))
-                                                .or(r.fromUser.id.eq(userBId).and(r.toUser.id.eq(userAId))
-                                                )
                                 ),
                         r.isDeleted.isFalse()
                 )
