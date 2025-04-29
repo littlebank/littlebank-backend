@@ -1,12 +1,11 @@
 package com.littlebank.finance.domain.user.service;
 
+import com.littlebank.finance.domain.relationship.domain.Relationship;
+import com.littlebank.finance.domain.relationship.domain.repository.RelationshipRepository;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginAdditionalInfoRequest;
-import com.littlebank.finance.domain.user.dto.response.ProfileImagePathUpdateResponse;
-import com.littlebank.finance.domain.user.dto.response.SignupResponse;
-import com.littlebank.finance.domain.user.dto.response.SocialLoginAdditionalInfoResponse;
-import com.littlebank.finance.domain.user.dto.response.UserInfoResponse;
+import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +13,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final RelationshipRepository relationshipRepository;
     private final PasswordEncoder passwordEncoder;
 
     public SignupResponse saveUser(User user) {
@@ -74,6 +76,17 @@ public class UserService {
         user.updateRequiredInfo(request.toEntity());
 
         return SocialLoginAdditionalInfoResponse.of(user);
+    }
+
+    public UserSearchResponse searchUser(String phone, long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        User searchUser = userRepository.findByPhone(phone)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        List<Relationship> relationship = relationshipRepository.findAllByFromUserIdAndToUserId(user.getId(), searchUser.getId());
+
+        return UserSearchResponse.of(searchUser, relationship);
     }
 
     private void verifyDuplicatedEmail(String email) {

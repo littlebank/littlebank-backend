@@ -5,13 +5,12 @@ import com.littlebank.finance.domain.user.dto.request.ProfileImagePathUpdateRequ
 import com.littlebank.finance.domain.user.dto.request.SignupRequest;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginAdditionalInfoRequest;
 import com.littlebank.finance.domain.user.dto.request.UserInfoUpdateRequest;
-import com.littlebank.finance.domain.user.dto.response.ProfileImagePathUpdateResponse;
-import com.littlebank.finance.domain.user.dto.response.SignupResponse;
-import com.littlebank.finance.domain.user.dto.response.SocialLoginAdditionalInfoResponse;
-import com.littlebank.finance.domain.user.dto.response.UserInfoResponse;
+import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.service.UserService;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -83,6 +82,23 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         SocialLoginAdditionalInfoResponse response = userService.updateAdditionalInfoAfterSocialLogin(request, customUserDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "유저 검색 API")
+    @GetMapping("/search")
+    public ResponseEntity<UserSearchResponse> searchUser(
+            @Parameter(
+                    name = "phone",
+                    description = "'-'를 제외한 11자리 전화번호",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "01012345678"
+            )
+            @RequestParam(value = "phone") String phone,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        UserSearchResponse response = userService.searchUser(phone, customUserDetails.getId());
         return ResponseEntity.ok(response);
     }
 
