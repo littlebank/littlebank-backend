@@ -23,6 +23,7 @@ public class UserService {
 
     public SignupResponse saveUser(User user) {
         verifyDuplicatedEmail(user.getEmail());
+        verifyDuplicatedPhone(user.getPhone());
 
         user.encodePassword(passwordEncoder);
 
@@ -47,6 +48,8 @@ public class UserService {
     }
 
     public UserInfoResponse updateMyInfo(long userId, User updateInfo) {
+        verifyDuplicatedPhone(updateInfo.getPhone());
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
@@ -63,6 +66,8 @@ public class UserService {
     }
 
     public SocialLoginAdditionalInfoResponse updateAdditionalInfoAfterSocialLogin(SocialLoginAdditionalInfoRequest request, long userId) {
+        verifyDuplicatedPhone(request.getPhone());
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
@@ -74,6 +79,12 @@ public class UserService {
     private void verifyDuplicatedEmail(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new UserException(ErrorCode.EMAIL_DUPLICATED);
+        }
+    }
+
+    private void verifyDuplicatedPhone(String phone) {
+        if (userRepository.existsByPhone(phone)) {
+            throw new UserException(ErrorCode.PHONE_DUPLICATED);
         }
     }
 }

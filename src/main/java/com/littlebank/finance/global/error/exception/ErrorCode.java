@@ -13,6 +13,7 @@ public enum ErrorCode {
     // User
     USER_NOT_FOUND(404, "U001", "유저가 존재하지 않습니다"),
     EMAIL_DUPLICATED(409, "U002", "중복된 이메일이 존재합니다"),
+    PHONE_DUPLICATED(409, "U003", "전화번호가 중복되었습니다"),
 
     // Auth
     PASSWORD_NOT_MATCHED(401, "A001", "비밀번호가 일치하지 않습니다"),
