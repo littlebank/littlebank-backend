@@ -1,6 +1,5 @@
 package com.littlebank.finance.domain.user.service;
 
-import com.littlebank.finance.domain.relationship.domain.Relationship;
 import com.littlebank.finance.domain.relationship.domain.repository.RelationshipRepository;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
@@ -12,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Transactional
@@ -84,9 +81,8 @@ public class UserService {
         User searchUser = userRepository.findByPhone(phone)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        List<Relationship> relationship = relationshipRepository.findAllByFromUserIdAndToUserId(user.getId(), searchUser.getId());
-
-        return UserSearchResponse.of(searchUser, relationship);
+        return relationshipRepository.findUserSearchResponse(user.getId(), searchUser)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
     }
 
     private void verifyDuplicatedEmail(String email) {

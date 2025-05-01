@@ -1,10 +1,13 @@
 package com.littlebank.finance.domain.relationship.service;
 
+import com.littlebank.finance.domain.relationship.domain.CustomNameMapping;
 import com.littlebank.finance.domain.relationship.domain.Relationship;
 import com.littlebank.finance.domain.relationship.domain.RelationshipStatus;
 import com.littlebank.finance.domain.relationship.domain.RelationshipType;
+import com.littlebank.finance.domain.relationship.domain.repository.CustomNameMappingRepository;
 import com.littlebank.finance.domain.relationship.domain.repository.RelationshipRepository;
 import com.littlebank.finance.domain.relationship.dto.request.RelationshipRequest;
+import com.littlebank.finance.domain.relationship.dto.response.RelationshipRequestsReceivedResponse;
 import com.littlebank.finance.domain.relationship.dto.response.RelationshipResponse;
 import com.littlebank.finance.domain.relationship.exception.RelationshipException;
 import com.littlebank.finance.domain.user.domain.User;
@@ -15,14 +18,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class RelationshipService {
     private final UserRepository userRepository;
     private final RelationshipRepository relationshipRepository;
+    private final CustomNameMappingRepository customNameMappingRepository;
 
-    public RelationshipResponse createRelationship(RelationshipRequest request, long userId) {
+    public RelationshipResponse createRelationship(RelationshipRequest request, Long userId) {
         User fromUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         User toUser = userRepository.findById(request.getTargetUserId())
@@ -30,27 +36,45 @@ public class RelationshipService {
 
         verifyExistsRelationship(fromUser, toUser, request.getRelationshipType());
 
-        Relationship relationshipByFromUser = relationshipRepository.save(
-                Relationship.builder()
-                        .customName(toUser.getName())
-                        .fromUser(fromUser)
-                        .toUser(toUser)
-                        .relationshipType(request.getRelationshipType())
-                        .relationshipStatus(RelationshipStatus.REQUESTED)
-                        .build()
-        );
+        Relationship relationshipByFromUser = saveRelationship(fromUser, toUser, request.getRelationshipType(), RelationshipStatus.REQUESTED);
+        if (!customNameMappingRepository.existsByFromUserIdAndToUserId(fromUser.getId(), toUser.getId())) {
+            saveCustomName(fromUser, toUser);
+        }
 
-        relationshipRepository.save(
-                Relationship.builder()
-                        .customName(fromUser.getName())
-                        .fromUser(toUser)
-                        .toUser(fromUser)
-                        .relationshipType(request.getRelationshipType())
-                        .relationshipStatus(RelationshipStatus.REQUESTED_BY_OTHER)
-                        .build()
-        );
+        saveRelationship(toUser, fromUser, request.getRelationshipType(), RelationshipStatus.REQUESTED_BY_OTHER);
+        if (!customNameMappingRepository.existsByFromUserIdAndToUserId(toUser.getId(), fromUser.getId())) {
+            saveCustomName(toUser, fromUser);
+        }
 
         return RelationshipResponse.of(relationshipByFromUser);
+    }
+
+    @Transactional(readOnly = true)
+    public List<RelationshipRequestsReceivedResponse> getReceivedRelationshipRequests(Long userId) {
+        return relationshipRepository.findRequestsReceived(userId);
+    }
+
+    private Relationship saveRelationship(
+            User from, User to, RelationshipType relationshipType, RelationshipStatus relationshipStatus
+    ) {
+        return relationshipRepository.save(
+                Relationship.builder()
+                        .fromUser(from)
+                        .toUser(to)
+                        .relationshipType(relationshipType)
+                        .relationshipStatus(relationshipStatus)
+                        .build()
+        );
+    }
+
+    private CustomNameMapping saveCustomName(User from, User to) {
+        return customNameMappingRepository.save(
+                CustomNameMapping.builder()
+                        .fromUser(from)
+                        .toUser(to)
+                        .customName(to.getName())
+                        .build()
+        );
     }
 
     private void verifyExistsRelationship(User fromUser, User toUser, RelationshipType relationshipType) {
@@ -60,4 +84,5 @@ public class RelationshipService {
             throw new RelationshipException(ErrorCode.ALREADY_RELATIONSHIP_EXISTS);
         }
     }
+
 }

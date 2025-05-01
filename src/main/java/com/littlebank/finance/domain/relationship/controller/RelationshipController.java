@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.relationship.controller;
 
 import com.littlebank.finance.domain.relationship.dto.request.RelationshipRequest;
+import com.littlebank.finance.domain.relationship.dto.response.RelationshipRequestsReceivedResponse;
 import com.littlebank.finance.domain.relationship.dto.response.RelationshipResponse;
 import com.littlebank.finance.domain.relationship.service.RelationshipService;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -11,10 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api-user/relationship")
@@ -31,5 +31,14 @@ public class RelationshipController {
     ) {
         RelationshipResponse response = relationshipService.createRelationship(request, customUserDetails.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "요청 온 관계 내역 조회 API")
+    @GetMapping("/inbox")
+    public ResponseEntity<List<RelationshipRequestsReceivedResponse>> getRelationshipRequestsReceived(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        List<RelationshipRequestsReceivedResponse> response = relationshipService.getReceivedRelationshipRequests(customUserDetails.getId());
+        return ResponseEntity.ok(response);
     }
 }

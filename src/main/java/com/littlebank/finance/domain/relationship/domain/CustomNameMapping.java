@@ -8,18 +8,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 @Entity
-@SQLDelete(sql = "UPDATE relationship SET is_deleted = true WHERE relationship_id = ?")
-@Where(clause = "is_deleted = false")
+@SQLDelete(sql = "UPDATE relationship_custom_name SET is_deleted = true WHERE relationship_custom_name_id = ?")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Relationship extends BaseEntity {
-
+@Table(name = "custom_name_mapping",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"from_user_id", "to_user_id"}))
+public class CustomNameMapping extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "relationship_id")
+    @Column(name = "custom_name_mapping_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,23 +29,19 @@ public class Relationship extends BaseEntity {
     @JoinColumn(name = "to_user", nullable = false)
     private User toUser;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private RelationshipType relationshipType;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private RelationshipStatus relationshipStatus;
+    @Column(length = 50, nullable = false)
+    private String customName;
 
     @Builder
-    public Relationship(
-            User fromUser, User toUser, RelationshipType relationshipType,
-            RelationshipStatus relationshipStatus, Boolean isDeleted
-    ) {
+    public CustomNameMapping(Boolean isDeleted, User fromUser, User toUser, String customName) {
         super(isDeleted);
         this.fromUser = fromUser;
         this.toUser = toUser;
-        this.relationshipType = relationshipType;
-        this.relationshipStatus = relationshipStatus;
+        this.customName = customName;
     }
+
+    public void updateCustomName(String customName) {
+        this.customName = customName;
+    }
+
 }

@@ -1,21 +1,28 @@
 package com.littlebank.finance.domain.relationship.domain.repository.impl;
 
-import com.littlebank.finance.domain.relationship.domain.QRelationship;
-import com.littlebank.finance.domain.relationship.domain.RelationshipType;
+import com.littlebank.finance.domain.relationship.domain.*;
 import com.littlebank.finance.domain.relationship.domain.repository.CustomRelationshipRepository;
+import com.littlebank.finance.domain.relationship.dto.response.RelationshipRequestsReceivedResponse;
+import com.littlebank.finance.domain.user.domain.User;
+import com.littlebank.finance.domain.user.dto.response.UserSearchResponse;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import java.util.Optional;
+
+import static com.littlebank.finance.domain.relationship.domain.QCustomNameMapping.customNameMapping;
 import static com.littlebank.finance.domain.relationship.domain.QRelationship.relationship;
 
 @RequiredArgsConstructor
 public class CustomRelationshipRepositoryImpl implements CustomRelationshipRepository {
     private final JPAQueryFactory queryFactory;
+    private final QRelationship r = relationship;
+    private final QCustomNameMapping cnm = customNameMapping;
 
     @Override
     public boolean existsSameTypeBetweenUsers(Long userAId, Long userBId, RelationshipType relationshipType) {
-        QRelationship r = relationship;
-
         Integer result = queryFactory
                 .selectOne()
                 .from(r)
@@ -29,5 +36,70 @@ public class CustomRelationshipRepositoryImpl implements CustomRelationshipRepos
                 .fetchFirst();
 
         return result != null;
+    }
+
+    @Override
+    public Optional<UserSearchResponse> findUserSearchResponse(Long requesterId, User searchUser) {
+        List<UserSearchResponse.RelationResponse> relations = queryFactory
+                .select(
+                        Projections.constructor(UserSearchResponse.RelationResponse.class,
+                                cnm.customName,
+                                r.relationshipType,
+                                r.relationshipStatus
+                        )
+                )
+                .from(r)
+                .innerJoin(cnm).on(
+                        cnm.fromUser.id.eq(requesterId)
+                                .and(cnm.toUser.id.eq(r.toUser.id))
+                )
+                .where(
+                        r.fromUser.id.eq(requesterId)
+                                .and(r.toUser.id.eq(searchUser.getId()))
+                )
+                .fetch();
+
+        return Optional.ofNullable(
+                UserSearchResponse.builder()
+                .searchUserId(searchUser.getId())
+                .email(searchUser.getEmail())
+                .name(searchUser.getName())
+                .profileImagePath(searchUser.getProfileImagePath())
+                .role(searchUser.getRole())
+                .relationships(relations)
+                .build()
+        );
+    }
+
+    @Override
+    public List<RelationshipRequestsReceivedResponse> findRequestsReceived(Long fromUserId) {
+        return queryFactory
+                .select(Projections.constructor(
+                        RelationshipRequestsReceivedResponse.class,
+                        Projections.constructor(
+                                RelationshipRequestsReceivedResponse.UserInfo.class,
+                                r.toUser.id,
+                                cnm.customName,
+                                r.toUser.profileImagePath,
+                                r.toUser.role
+                        ),
+                        Projections.constructor(
+                                RelationshipRequestsReceivedResponse.RelationInfo.class,
+                                r.id,
+                                r.relationshipType,
+                                r.relationshipStatus,
+                                r.createdDate
+                        )
+                ))
+                .from(r)
+                .innerJoin(cnm).on(
+                        cnm.fromUser.id.eq(fromUserId)
+                                .and(cnm.toUser.id.eq(r.toUser.id))
+                )
+                .where(
+                        r.fromUser.id.eq(fromUserId)
+                                .and(r.relationshipStatus.eq(RelationshipStatus.REQUESTED_BY_OTHER))
+                )
+                .fetch();
     }
 }
