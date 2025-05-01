@@ -49,6 +49,11 @@ public class RelationshipService {
         return RelationshipResponse.of(relationshipByFromUser);
     }
 
+    @Transactional(readOnly = true)
+    public List<RelationshipRequestsReceivedResponse> getReceivedRelationshipRequests(Long userId) {
+        return relationshipRepository.findRequestsReceived(userId);
+    }
+
     private Relationship saveRelationship(
             User from, User to, RelationshipType relationshipType, RelationshipStatus relationshipStatus
     ) {
