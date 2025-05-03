@@ -49,20 +49,31 @@ public class UserController {
 
     @Operation(summary = "내 정보 조회 API")
     @GetMapping("/info")
-    public ResponseEntity<UserInfoResponse> getMyInfo(
+    public ResponseEntity<MyInfoResponse> getMyInfo(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        UserInfoResponse response = userService.getMyInfo(customUserDetails.getId());
+        MyInfoResponse response = userService.getMyInfo(customUserDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "유저 상세 정보 조회 API")
+    @GetMapping("/info/{id}")
+    public ResponseEntity<UserDetailsInfoResponse> getUserDetailsInfo(
+            @Parameter(description = "조회할 유저 ID")
+            @PathVariable("id") Long searchUserId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        UserDetailsInfoResponse response = userService.getUserDetailsInfo(searchUserId, customUserDetails.getId());
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "내 정보 수정 API")
     @PutMapping("/info")
-    public ResponseEntity<UserInfoResponse> updateMyInfo(
+    public ResponseEntity<MyInfoResponse> updateMyInfo(
             @RequestBody @Valid UserInfoUpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        UserInfoResponse response = userService.updateMyInfo(customUserDetails.getId(), request.toEntity());
+        MyInfoResponse response = userService.updateMyInfo(customUserDetails.getId(), request.toEntity());
         return ResponseEntity.ok(response);
     }
 

@@ -29,7 +29,7 @@ public class UserService {
         return SignupResponse.of(userRepository.save(user));
     }
 
-    public ProfileImagePathUpdateResponse updateProfileImagePath(long userId, String profileImagePath) {
+    public ProfileImagePathUpdateResponse updateProfileImagePath(Long userId, String profileImagePath) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
@@ -39,14 +39,20 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserInfoResponse getMyInfo(long userId) {
+    public MyInfoResponse getMyInfo(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        return UserInfoResponse.of(user);
+        return MyInfoResponse.of(user);
     }
 
-    public UserInfoResponse updateMyInfo(long userId, User updateInfo) {
+    @Transactional(readOnly = true)
+    public UserDetailsInfoResponse getUserDetailsInfo(Long searchUserId, Long userId) {
+        return userRepository.findUserDetailsInfo(searchUserId, userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    public MyInfoResponse updateMyInfo(Long userId, User updateInfo) {
         verifyDuplicatedPhone(updateInfo.getPhone());
 
         User user = userRepository.findById(userId)
@@ -54,10 +60,10 @@ public class UserService {
 
         user.update(updateInfo);
 
-        return UserInfoResponse.of(user);
+        return MyInfoResponse.of(user);
     }
 
-    public void deleteUser(long userId) {
+    public void deleteUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
@@ -75,7 +81,8 @@ public class UserService {
         return SocialLoginAdditionalInfoResponse.of(user);
     }
 
-    public UserSearchResponse searchUser(String phone, long userId) {
+    @Transactional(readOnly = true)
+    public UserSearchResponse searchUser(String phone, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         User searchUser = userRepository.findByPhone(phone)
