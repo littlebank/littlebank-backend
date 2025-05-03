@@ -1,6 +1,5 @@
 package com.littlebank.finance.global.config;
 
-import com.littlebank.finance.global.jwt.LogoutFilter;
 import com.littlebank.finance.global.jwt.JwtFilter;
 import com.littlebank.finance.global.jwt.TokenProvider;
 import com.littlebank.finance.global.redis.RedisDao;
@@ -57,8 +56,7 @@ public class SecurityConfig {
                 .formLogin((form) -> form.disable())
                 .httpBasic(AbstractHttpConfigurer::disable)
 
-                .addFilterBefore(new JwtFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new LogoutFilter(cookieUtil, tokenProvider, redisDao), JwtFilter.class)
+                .addFilterBefore(new JwtFilter(cookieUtil, tokenProvider, redisDao), UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH_WHITELIST).permitAll()
