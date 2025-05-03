@@ -1,6 +1,8 @@
 package com.littlebank.finance.domain.relationship.controller;
 
+import com.littlebank.finance.domain.relationship.dto.request.RelationshipReqAcceptRequest;
 import com.littlebank.finance.domain.relationship.dto.request.RelationshipRequest;
+import com.littlebank.finance.domain.relationship.dto.response.RelationshipReqAcceptResponse;
 import com.littlebank.finance.domain.relationship.dto.response.RelationshipRequestsReceivedResponse;
 import com.littlebank.finance.domain.relationship.dto.response.RelationshipResponse;
 import com.littlebank.finance.domain.relationship.service.RelationshipService;
@@ -39,6 +41,16 @@ public class RelationshipController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         List<RelationshipRequestsReceivedResponse> response = relationshipService.getReceivedRelationshipRequests(customUserDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "관계 요청 수락 API")
+    @PatchMapping("/accept")
+    public ResponseEntity<RelationshipReqAcceptResponse> acceptRelationshipRequest(
+            @RequestBody @Valid RelationshipReqAcceptRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        RelationshipReqAcceptResponse response = relationshipService.acceptRelationshipRequest(request, customUserDetails.getId());
         return ResponseEntity.ok(response);
     }
 }
