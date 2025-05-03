@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor
-public class UserInfoResponse {
+public class MyInfoResponse {
 
     private Long userId;
     private String email;
@@ -27,8 +27,8 @@ public class UserInfoResponse {
     private boolean isSubscribe;
     private LocalDateTime lastLoginAt;
 
-    public static UserInfoResponse of(User user) {
-        return UserInfoResponse.builder()
+    public static MyInfoResponse of(User user) {
+        return MyInfoResponse.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
