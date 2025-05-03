@@ -46,6 +46,12 @@ public class UserService {
         return MyInfoResponse.of(user);
     }
 
+    @Transactional(readOnly = true)
+    public UserDetailsInfoResponse getUserDetailsInfo(Long searchUserId, Long userId) {
+        return userRepository.findUserDetailsInfo(searchUserId, userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+    }
+
     public MyInfoResponse updateMyInfo(Long userId, User updateInfo) {
         verifyDuplicatedPhone(updateInfo.getPhone());
 

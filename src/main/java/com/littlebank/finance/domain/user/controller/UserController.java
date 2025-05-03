@@ -56,6 +56,17 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "유저 상세 정보 조회 API")
+    @GetMapping("/info/{id}")
+    public ResponseEntity<UserDetailsInfoResponse> getUserDetailsInfo(
+            @Parameter(description = "조회할 유저 ID")
+            @PathVariable("id") Long searchUserId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        UserDetailsInfoResponse response = userService.getUserDetailsInfo(searchUserId, customUserDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "내 정보 수정 API")
     @PutMapping("/info")
     public ResponseEntity<MyInfoResponse> updateMyInfo(
