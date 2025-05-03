@@ -16,7 +16,8 @@ public enum ErrorCode {
     PHONE_DUPLICATED(409, "U003", "전화번호가 중복되었습니다"),
 
     // Relationship
-    ALREADY_RELATIONSHIP_EXISTS(409, "R001", "이미 관계를 맺은 상태이거나 요청한 상태입니다"),
+    RELATIONSHIP_NOT_FOUND(404, "R001", "관계가 존재하지 않습니다"),
+    ALREADY_RELATIONSHIP_EXISTS(409, "R002", "이미 관계를 맺은 상태이거나 요청한 상태입니다"),
 
     // Auth
     PASSWORD_NOT_MATCHED(401, "A001", "비밀번호가 일치하지 않습니다"),

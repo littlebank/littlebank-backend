@@ -49,4 +49,8 @@ public class Relationship extends BaseEntity {
         this.relationshipType = relationshipType;
         this.relationshipStatus = relationshipStatus;
     }
+
+    public void updateStatusByConnection() {
+        this.relationshipStatus = RelationshipStatus.CONNECTED;
+    }
 }

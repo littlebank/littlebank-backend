@@ -6,7 +6,9 @@ import com.littlebank.finance.domain.relationship.domain.RelationshipStatus;
 import com.littlebank.finance.domain.relationship.domain.RelationshipType;
 import com.littlebank.finance.domain.relationship.domain.repository.CustomNameMappingRepository;
 import com.littlebank.finance.domain.relationship.domain.repository.RelationshipRepository;
+import com.littlebank.finance.domain.relationship.dto.request.RelationshipReqAcceptRequest;
 import com.littlebank.finance.domain.relationship.dto.request.RelationshipRequest;
+import com.littlebank.finance.domain.relationship.dto.response.RelationshipReqAcceptResponse;
 import com.littlebank.finance.domain.relationship.dto.response.RelationshipRequestsReceivedResponse;
 import com.littlebank.finance.domain.relationship.dto.response.RelationshipResponse;
 import com.littlebank.finance.domain.relationship.exception.RelationshipException;
@@ -54,6 +56,17 @@ public class RelationshipService {
         return relationshipRepository.findRequestsReceived(userId);
     }
 
+    public RelationshipReqAcceptResponse acceptRelationshipRequest(RelationshipReqAcceptRequest request, Long userId) {
+        Relationship relationship = relationshipRepository.findById(request.getRelationshipId())
+                .orElseThrow(() -> new RelationshipException(ErrorCode.RELATIONSHIP_NOT_FOUND));
+        Relationship oppositeRelationship = relationshipRepository.findByFromUserIdAndToUserIdAndRelationshipType(relationship.getToUser().getId(), userId, relationship.getRelationshipType())
+                .orElseThrow(() -> new RelationshipException(ErrorCode.RELATIONSHIP_NOT_FOUND));
+        relationship.updateStatusByConnection();
+        oppositeRelationship.updateStatusByConnection();
+
+        return RelationshipReqAcceptResponse.of(relationship);
+    }
+
     private Relationship saveRelationship(
             User from, User to, RelationshipType relationshipType, RelationshipStatus relationshipStatus
     ) {
@@ -84,5 +97,4 @@ public class RelationshipService {
             throw new RelationshipException(ErrorCode.ALREADY_RELATIONSHIP_EXISTS);
         }
     }
-
 }
