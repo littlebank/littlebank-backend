@@ -8,6 +8,7 @@ import com.littlebank.finance.domain.relationship.dto.response.RelationshipRespo
 import com.littlebank.finance.domain.relationship.service.RelationshipService;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,5 +53,15 @@ public class RelationshipController {
     ) {
         RelationshipReqAcceptResponse response = relationshipService.acceptRelationshipRequest(request, customUserDetails.getId());
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "관계 삭제 API")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRelationship(
+            @Parameter(description = "조회할 유저 ID")
+            @PathVariable("id") Long relationshipId
+    ) {
+        relationshipService.deleteRelationship(relationshipId);
+        return ResponseEntity.noContent().build();
     }
 }
