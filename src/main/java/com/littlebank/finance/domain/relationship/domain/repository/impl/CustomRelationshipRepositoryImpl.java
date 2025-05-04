@@ -30,8 +30,7 @@ public class CustomRelationshipRepositoryImpl implements CustomRelationshipRepos
                         r.relationshipType.eq(relationshipType)
                                 .and(
                                         r.fromUser.id.eq(userAId).and(r.toUser.id.eq(userBId))
-                                ),
-                        r.isDeleted.isFalse()
+                                )
                 )
                 .fetchFirst();
 

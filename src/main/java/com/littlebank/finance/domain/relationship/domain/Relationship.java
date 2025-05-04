@@ -7,12 +7,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 @Entity
-@SQLDelete(sql = "UPDATE relationship SET is_deleted = true, relationship_status = 'DELETED' WHERE relationship_id = ?")
-@Where(clause = "is_deleted = false")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Relationship extends BaseEntity {
@@ -41,9 +37,8 @@ public class Relationship extends BaseEntity {
     @Builder
     public Relationship(
             User fromUser, User toUser, RelationshipType relationshipType,
-            RelationshipStatus relationshipStatus, Boolean isDeleted
+            RelationshipStatus relationshipStatus
     ) {
-        super(isDeleted);
         this.fromUser = fromUser;
         this.toUser = toUser;
         this.relationshipType = relationshipType;

@@ -78,13 +78,15 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Feed> feeds = new ArrayList<>();
 
+    @Column(nullable = false)
+    private Boolean isDeleted;
+
     @Builder
     public User(
             String email, String password, String name, String phone, String rrn, String bankName,
             String bankCode, String bankAccount, String profileImagePath, Integer balance, UserRole role,
             Authority authority, Boolean isSubscribe, LocalDateTime lastLoginAt, Boolean isDeleted
     ) {
-        super(isDeleted);
         this.email = email;
         this.password = password;
         this.name = name;
@@ -99,6 +101,7 @@ public class User extends BaseEntity {
         this.authority = authority;
         this.isSubscribe = isSubscribe == null ? false : isSubscribe;
         this.lastLoginAt = lastLoginAt;
+        this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 
     public void encodePassword(PasswordEncoder passwordEncoder) {
