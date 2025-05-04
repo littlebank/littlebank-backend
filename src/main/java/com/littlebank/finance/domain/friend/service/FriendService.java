@@ -5,11 +5,14 @@ import com.littlebank.finance.domain.friend.domain.Friend;
 import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
 import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
 import com.littlebank.finance.domain.friend.dto.response.FriendAddResponse;
+import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,5 +37,10 @@ public class FriendService {
         );
 
         return FriendAddResponse.of(friend);
+    }
+
+    @Transactional(readOnly = true)
+    public CustomPageResponse<FriendInfoResponse> getFriendList(Long userId, Pageable pageable) {
+        return CustomPageResponse.of(friendRepository.findFriendsByUserId(userId, pageable));
     }
 }
