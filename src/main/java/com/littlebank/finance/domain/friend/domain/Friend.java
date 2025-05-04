@@ -39,4 +39,8 @@ public class Friend extends BaseEntity {
     public void blocking() {
         this.isBlocked = true;
     }
+
+    public void unblocking() {
+        this.isBlocked = false;
+    }
 }

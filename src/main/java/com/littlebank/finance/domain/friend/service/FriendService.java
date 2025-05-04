@@ -62,6 +62,15 @@ public class FriendService {
         return FriendBlockStatusResponse.of(friend);
     }
 
+    public FriendBlockStatusResponse unblockFriend(Long friendId) {
+        Friend friend = friendRepository.findByIdWithLock(friendId)
+                .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
+
+        friend.unblocking();
+
+        return FriendBlockStatusResponse.of(friend);
+    }
+
     private void verifyExistsFriend(Long fromUserId, Long toUserId) {
         if (friendRepository.existsByFromUserIdAndToUserId(fromUserId, toUserId)) {
             throw new FriendException(ErrorCode.ALREADY_FRIEND_EXISTS);
