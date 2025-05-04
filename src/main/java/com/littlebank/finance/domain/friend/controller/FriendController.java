@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.friend.controller;
 
 import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
 import com.littlebank.finance.domain.friend.dto.response.FriendAddResponse;
+import com.littlebank.finance.domain.friend.dto.response.FriendBlockStatusResponse;
 import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
 import com.littlebank.finance.domain.friend.service.FriendService;
 import com.littlebank.finance.global.common.CustomPageResponse;
@@ -56,5 +57,15 @@ public class FriendController {
     ) {
         friendService.deleteFriend(friendId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "친구 차단 API")
+    @PatchMapping("/block/{friendId}")
+    public ResponseEntity<FriendBlockStatusResponse> blockFriend(
+            @Parameter(description = "차단할 친구 id")
+            @PathVariable(name = "friendId") Long friendId
+    ) {
+        FriendBlockStatusResponse response = friendService.blockFriend(friendId);
+        return ResponseEntity.ok(response);
     }
 }

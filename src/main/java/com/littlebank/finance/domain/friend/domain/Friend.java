@@ -35,4 +35,8 @@ public class Friend extends BaseEntity {
         this.customName = customName;
         this.isBlocked = isBlocked == null ? false : isBlocked;
     }
+
+    public void blocking() {
+        this.isBlocked = true;
+    }
 }
