@@ -11,6 +11,7 @@ import lombok.Getter;
 public class FriendInfoResponse {
     private Long friendId;
     private String customName;
+    private Boolean isBlocked;
     private UserInfo userInfo;
 
     @Getter

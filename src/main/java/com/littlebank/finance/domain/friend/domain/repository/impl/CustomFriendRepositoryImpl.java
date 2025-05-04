@@ -22,6 +22,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
     private final JPAQueryFactory queryFactory;
     QUser u = user;
     QFriend f = friend;
+    QFriend theOtherF = new QFriend("theOtherF");
 
     public Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable) {
         List<FriendInfoResponse> results =
@@ -29,6 +30,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                         FriendInfoResponse.class,
                         f.id,
                         f.customName,
+                        f.isBlocked,
                         Projections.constructor(
                                 FriendInfoResponse.UserInfo.class,
                                 u.id,
@@ -42,11 +44,11 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                 .where(
                         f.fromUser.id.eq(userId),
                         JPAExpressions.selectOne()
-                                .from(f)
+                                .from(theOtherF)
                                 .where(
-                                        f.fromUser.id.eq(f.toUser.id),
-                                        f.toUser.id.eq(userId),
-                                        f.isBlocked.isTrue()
+                                        theOtherF.fromUser.id.eq(f.toUser.id),
+                                        theOtherF.toUser.id.eq(userId),
+                                        theOtherF.isBlocked.isTrue()
                                 )
                                 .notExists()
                 )
