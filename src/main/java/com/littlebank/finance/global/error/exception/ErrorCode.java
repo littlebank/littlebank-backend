@@ -15,6 +15,10 @@ public enum ErrorCode {
     EMAIL_DUPLICATED(409, "U002", "중복된 이메일이 존재합니다"),
     PHONE_DUPLICATED(409, "U003", "전화번호가 중복되었습니다"),
 
+    // Friend
+    FRIEND_NOT_FOUND(404, "F001", "친구가 존재하지 않습니다"),
+    ALREADY_FRIEND_EXISTS(409, "F002", "이미 친구 추가 되어있습니다"),
+
     // Relationship
     RELATIONSHIP_NOT_FOUND(404, "R001", "관계가 존재하지 않습니다"),
     ALREADY_RELATIONSHIP_EXISTS(409, "R002", "이미 관계를 맺은 상태이거나 요청한 상태입니다"),
@@ -24,7 +28,7 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN(401, "A002", "리프레쉬 토큰이 유효하지 않습니다"),
 
     // File
-    INVALID_MIMETYPE(415, "I001", "유효하지 않은 mimetype 입니다"),
+    INVALID_MIMETYPE(415, "FI001", "유효하지 않은 mimetype 입니다"),
 
     // Mail
     MAIL_SEND_ERROR(500, "M001", "메일 전송 과정에서 오류가 발생했습니다"),

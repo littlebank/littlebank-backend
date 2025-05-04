@@ -47,4 +47,14 @@ public class FriendController {
         CustomPageResponse<FriendInfoResponse> response = friendService.getFriendList(customUserDetails.getId(), pageable);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "친구 삭제 API")
+    @DeleteMapping("/{friendId}")
+    public ResponseEntity<Void> deleteFriend(
+            @Parameter(description = "삭제할 친구 id")
+            @PathVariable(name = "friendId") Long friendId
+    ) {
+        friendService.deleteFriend(friendId);
+        return ResponseEntity.noContent().build();
+    }
 }
