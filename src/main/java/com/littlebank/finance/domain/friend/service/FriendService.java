@@ -24,6 +24,8 @@ public class FriendService {
     private final FriendRepository friendRepository;
 
     public FriendAddResponse addFriend(FriendAddRequest request, Long userId) {
+        verifyExistsFriend(userId, request.getTargetUserId());
+
         User fromUser = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         User toUser = userRepository.findById(request.getTargetUserId())
