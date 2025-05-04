@@ -1,0 +1,38 @@
+package com.littlebank.finance.domain.friend.service;
+
+
+import com.littlebank.finance.domain.friend.domain.Friend;
+import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
+import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
+import com.littlebank.finance.domain.friend.dto.response.FriendAddResponse;
+import com.littlebank.finance.domain.user.domain.User;
+import com.littlebank.finance.domain.user.domain.repository.UserRepository;
+import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.error.exception.ErrorCode;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class FriendService {
+    private final UserRepository userRepository;
+    private final FriendRepository friendRepository;
+
+    public FriendAddResponse addFriend(FriendAddRequest request, Long userId) {
+        User fromUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        User toUser = userRepository.findById(request.getTargetUserId())
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        Friend friend = friendRepository.save(
+                Friend.builder()
+                .fromUser(fromUser)
+                .toUser(toUser)
+                .customName(toUser.getName())
+                .build()
+        );
+
+        return FriendAddResponse.of(friend);
+    }
+}

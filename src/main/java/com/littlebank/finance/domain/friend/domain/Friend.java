@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.relationship.domain;
+package com.littlebank.finance.domain.friend.domain;
 
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.common.BaseEntity;
@@ -11,46 +11,32 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Entity
-@SQLDelete(sql = "UPDATE relationship SET is_deleted = true, relationship_status = 'DELETED' WHERE relationship_id = ?")
+@SQLDelete(sql = "UPDATE friend SET is_deleted = true WHERE friend_id = ?")
 @Where(clause = "is_deleted = false")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Relationship extends BaseEntity {
-
+public class Friend extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "relationship_id")
+    @Column(name = "friend_id")
     private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "from_user", nullable = false)
     private User fromUser;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "to_user", nullable = false)
     private User toUser;
-
-    @Enumerated(EnumType.STRING)
+    @Column(length = 50, nullable = false)
+    private String customName;
     @Column(nullable = false)
-    private RelationshipType relationshipType;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private RelationshipStatus relationshipStatus;
+    private Boolean isBlocked;
 
     @Builder
-    public Relationship(
-            User fromUser, User toUser, RelationshipType relationshipType,
-            RelationshipStatus relationshipStatus, Boolean isDeleted
-    ) {
+    public Friend(Boolean isDeleted, User fromUser, User toUser, String customName, Boolean isBlocked) {
         super(isDeleted);
         this.fromUser = fromUser;
         this.toUser = toUser;
-        this.relationshipType = relationshipType;
-        this.relationshipStatus = relationshipStatus;
-    }
-
-    public void updateStatusByConnection() {
-        this.relationshipStatus = RelationshipStatus.CONNECTED;
+        this.customName = customName;
+        this.isBlocked = isBlocked == null ? false : isBlocked;
     }
 }
