@@ -68,4 +68,14 @@ public class FriendController {
         FriendBlockStatusResponse response = friendService.blockFriend(friendId);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "친구 차단 해제 API")
+    @PatchMapping("/unblock/{friendId}")
+    public ResponseEntity<FriendBlockStatusResponse> unblockFriend(
+            @Parameter(description = "차단 해제할 친구 id")
+            @PathVariable(name = "friendId") Long friendId
+    ) {
+        FriendBlockStatusResponse response = friendService.unblockFriend(friendId);
+        return ResponseEntity.ok(response);
+    }
 }
