@@ -7,14 +7,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 @Entity
-@SQLDelete(sql = "UPDATE friend SET is_deleted = true WHERE friend_id = ?")
-@Where(clause = "is_deleted = false")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "friend", uniqueConstraints = @UniqueConstraint(columnNames = {"from_user", "to_user"}))
 public class Friend extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,8 +29,7 @@ public class Friend extends BaseEntity {
     private Boolean isBlocked;
 
     @Builder
-    public Friend(Boolean isDeleted, User fromUser, User toUser, String customName, Boolean isBlocked) {
-        super(isDeleted);
+    public Friend(User fromUser, User toUser, String customName, Boolean isBlocked) {
         this.fromUser = fromUser;
         this.toUser = toUser;
         this.customName = customName;

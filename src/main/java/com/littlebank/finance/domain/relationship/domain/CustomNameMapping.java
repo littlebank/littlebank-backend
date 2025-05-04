@@ -7,14 +7,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
 
 @Entity
-@SQLDelete(sql = "UPDATE relationship_custom_name SET is_deleted = true WHERE relationship_custom_name_id = ?")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "custom_name_mapping",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"from_user_id", "to_user_id"}))
+        uniqueConstraints = @UniqueConstraint(columnNames = {"from_user", "to_user"}))
 public class CustomNameMapping extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +31,7 @@ public class CustomNameMapping extends BaseEntity {
     private String customName;
 
     @Builder
-    public CustomNameMapping(Boolean isDeleted, User fromUser, User toUser, String customName) {
-        super(isDeleted);
+    public CustomNameMapping(User fromUser, User toUser, String customName) {
         this.fromUser = fromUser;
         this.toUser = toUser;
         this.customName = customName;
