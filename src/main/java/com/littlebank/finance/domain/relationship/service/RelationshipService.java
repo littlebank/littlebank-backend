@@ -67,6 +67,12 @@ public class RelationshipService {
         return RelationshipReqAcceptResponse.of(relationship);
     }
 
+    public void deleteRelationship(Long relationshipId) {
+        Relationship relationship = relationshipRepository.findById(relationshipId)
+                        .orElseThrow(() -> new RelationshipException(ErrorCode.RELATIONSHIP_NOT_FOUND));
+        relationshipRepository.deleteById(relationship.getId());
+    }
+
     private Relationship saveRelationship(
             User from, User to, RelationshipType relationshipType, RelationshipStatus relationshipStatus
     ) {

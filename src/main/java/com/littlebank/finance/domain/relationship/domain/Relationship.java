@@ -11,7 +11,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Entity
-@SQLDelete(sql = "UPDATE relationship SET is_deleted = true WHERE relationship_id = ?")
+@SQLDelete(sql = "UPDATE relationship SET is_deleted = true, relationship_status = 'DELETED' WHERE relationship_id = ?")
 @Where(clause = "is_deleted = false")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -52,5 +52,9 @@ public class Relationship extends BaseEntity {
 
     public void updateStatusByConnection() {
         this.relationshipStatus = RelationshipStatus.CONNECTED;
+    }
+
+    public void updateStatusByDelete() {
+        this.relationshipStatus = RelationshipStatus.DELETED;
     }
 }
