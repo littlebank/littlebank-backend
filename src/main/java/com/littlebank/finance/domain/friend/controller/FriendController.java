@@ -80,6 +80,16 @@ public class FriendController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "친한 친구 등록 취소 API")
+    @PatchMapping("/unmark-best/{friendId}")
+    public ResponseEntity<BestFriendMarkResponse> unmarkBestFriend(
+            @Parameter(description = "친한 친구 등록 취소할 friend id")
+            @PathVariable(name = "friendId") Long friendId
+    ) {
+        BestFriendMarkResponse response = friendService.unmarkBestFriend(friendId);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "친구 차단 API")
     @PatchMapping("/block/{friendId}")
     public ResponseEntity<FriendBlockStatusResponse> blockFriend(
