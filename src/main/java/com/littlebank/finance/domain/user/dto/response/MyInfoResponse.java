@@ -13,10 +13,10 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 public class MyInfoResponse {
-
     private Long userId;
     private String email;
     private String name;
+    private String statusMessage;
     private String phone;
     private String bankName;
     private String bankCode;
@@ -32,6 +32,7 @@ public class MyInfoResponse {
                 .userId(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
+                .statusMessage(user.getStatusMessage())
                 .phone(user.getPhone())
                 .bankName(user.getBankName())
                 .bankCode(user.getBankCode())
