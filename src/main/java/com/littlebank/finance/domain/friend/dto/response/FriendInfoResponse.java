@@ -9,9 +9,6 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class FriendInfoResponse {
-    private Long friendId;
-    private String customName;
-    private Boolean isBlocked;
-    private Boolean isBestFriend;
     private CommonUserInfoResponse userInfo;
+    private CommonFriendInfoResponse friendInfo;
 }

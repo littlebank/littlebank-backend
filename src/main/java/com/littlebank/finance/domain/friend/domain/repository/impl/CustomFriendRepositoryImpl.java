@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.friend.domain.repository.impl;
 
 import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.friend.domain.repository.CustomFriendRepository;
+import com.littlebank.finance.domain.friend.dto.response.CommonFriendInfoResponse;
 import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.littlebank.finance.domain.user.dto.response.CommonUserInfoResponse;
@@ -29,36 +30,39 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
     public Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable) {
         List<FriendInfoResponse> results =
                 queryFactory.select(Projections.constructor(
-                        FriendInfoResponse.class,
-                        f.id,
-                        f.customName,
-                        f.isBlocked,
-                        f.isBestFriend,
-                        Projections.constructor(
-                                CommonUserInfoResponse.class,
-                                u.id,
-                                u.name,
-                                u.statusMessage,
-                                u.profileImagePath,
-                                u.role
-                        )
-                ))
-                .from(f)
-                .join(u).on(u.id.eq(f.toUser.id))
-                .where(
-                        f.fromUser.id.eq(userId),
-                        JPAExpressions.selectOne()
-                                .from(f1)
-                                .where(
-                                        f1.fromUser.id.eq(f.toUser.id),
-                                        f1.toUser.id.eq(userId),
-                                        f1.isBlocked.isTrue()
+                                FriendInfoResponse.class,
+                                Projections.constructor(
+                                        CommonUserInfoResponse.class,
+                                        u.id,
+                                        u.name,
+                                        u.statusMessage,
+                                        u.profileImagePath,
+                                        u.role
+                                ),
+                                Projections.constructor(
+                                        CommonFriendInfoResponse.class,
+                                        f.id,
+                                        f.customName,
+                                        f.isBlocked,
+                                        f.isBestFriend
                                 )
-                                .notExists()
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+                        ))
+                        .from(f)
+                        .join(u).on(u.id.eq(f.toUser.id))
+                        .where(
+                                f.fromUser.id.eq(userId),
+                                JPAExpressions.selectOne()
+                                        .from(f1)
+                                        .where(
+                                                f1.fromUser.id.eq(f.toUser.id),
+                                                f1.toUser.id.eq(userId),
+                                                f1.isBlocked.isTrue()
+                                        )
+                                        .notExists()
+                        )
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .fetch();
 
         return new PageImpl<>(results, pageable, results.size());
     }
@@ -68,10 +72,6 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
         List<FriendInfoResponse> results =
                 queryFactory.select(Projections.constructor(
                                 FriendInfoResponse.class,
-                                f1.id,
-                                f1.customName,
-                                f1.isBlocked,
-                                f1.isBestFriend,
                                 Projections.constructor(
                                         CommonUserInfoResponse.class,
                                         u.id,
@@ -79,13 +79,20 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                         u.statusMessage,
                                         u.profileImagePath,
                                         u.role
+                                ),
+                                Projections.constructor(
+                                        CommonFriendInfoResponse.class,
+                                        f.id,
+                                        f.customName,
+                                        f.isBlocked,
+                                        f.isBestFriend
                                 )
                         ))
                         .from(f)
                         .join(u).on(u.id.eq(f.fromUser.id))
                         .leftJoin(f1).on(
                                 f1.toUser.id.eq(f.fromUser.id)
-                                .and(f1.fromUser.id.eq(f.toUser.id))
+                                        .and(f1.fromUser.id.eq(f.toUser.id))
                         )
                         .where(
                                 f.toUser.id.eq(userId),
