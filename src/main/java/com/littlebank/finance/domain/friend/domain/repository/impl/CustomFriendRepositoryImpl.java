@@ -20,9 +20,9 @@ import static com.littlebank.finance.domain.user.domain.QUser.user;
 @RequiredArgsConstructor
 public class CustomFriendRepositoryImpl implements CustomFriendRepository {
     private final JPAQueryFactory queryFactory;
-    QUser u = user;
-    QFriend f = friend;
-    QFriend theOtherF = new QFriend("theOtherF");
+    private QUser u = user;
+    private QFriend f = friend;
+    private QFriend theOtherF = new QFriend("theOtherF");
 
     @Override
     public Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable) {

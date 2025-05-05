@@ -94,12 +94,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserSearchResponse searchUser(String phone, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-        User searchUser = userRepository.findByPhone(phone)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        return relationshipRepository.findUserSearchResponse(user.getId(), searchUser)
+        return userRepository.findUserSearchResponse(userId, phone)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
     }
 

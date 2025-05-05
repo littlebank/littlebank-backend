@@ -1,20 +1,24 @@
 package com.littlebank.finance.domain.user.domain.repository.impl;
 
+import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.relationship.domain.QCustomNameMapping;
 import com.littlebank.finance.domain.relationship.domain.QRelationship;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.littlebank.finance.domain.user.domain.repository.CustomUserRepository;
 import com.littlebank.finance.domain.user.dto.response.UserDetailsInfoResponse;
+import com.littlebank.finance.domain.user.dto.response.UserSearchResponse;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.littlebank.finance.domain.friend.domain.QFriend.friend;
 import static com.littlebank.finance.domain.relationship.domain.QCustomNameMapping.customNameMapping;
 import static com.littlebank.finance.domain.relationship.domain.QRelationship.relationship;
 import static com.littlebank.finance.domain.user.domain.QUser.user;
@@ -23,7 +27,9 @@ import static com.littlebank.finance.domain.user.domain.QUser.user;
 public class CustomUserRepositoryImpl implements CustomUserRepository {
     private final JPAQueryFactory queryFactory;
     private final QUser u = user;
+    private final QFriend f = friend;
     private final QRelationship r = relationship;
+    private QFriend theOtherF = new QFriend("theOtherF");
     private final QCustomNameMapping cnm = customNameMapping;
 
     @Override
@@ -71,6 +77,46 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
                         .role(userTuple.get(u.role))
                         .relation(relationList)
                         .build()
+        );
+    }
+
+    @Override
+    public Optional<UserSearchResponse> findUserSearchResponse(Long requesterId, String phone) {
+        return Optional.ofNullable(
+                queryFactory
+                        .select(Projections.constructor(
+                                UserSearchResponse.class,
+                                u.id.as("searchUserId"),
+                                u.email,
+                                u.name,
+                                u.statusMessage,
+                                u.profileImagePath,
+                                u.role,
+                                Projections.constructor(
+                                        UserSearchResponse.FriendInfoResponse.class,
+                                        f.id,
+                                        f.customName,
+                                        f.isBlocked,
+                                        f.isBestFriend
+                                )
+                        ))
+                        .from(u)
+                        .leftJoin(f).on(f.fromUser.id.eq(requesterId)
+                                .and(f.toUser.id.eq(u.id))
+                        )
+                        .where(u.phone.eq(phone)
+                                .and(
+                                        JPAExpressions.selectOne()
+                                                .from(theOtherF)
+                                                .where(
+                                                        theOtherF.fromUser.id.eq(u.id),
+                                                        theOtherF.toUser.id.eq(requesterId),
+                                                        theOtherF.isBlocked.isTrue()
+                                                )
+                                                .notExists()
+                                )
+                        )
+                        .fetchOne()
         );
     }
 }

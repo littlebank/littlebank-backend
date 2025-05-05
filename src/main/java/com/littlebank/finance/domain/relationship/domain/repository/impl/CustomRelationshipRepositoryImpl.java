@@ -3,14 +3,11 @@ package com.littlebank.finance.domain.relationship.domain.repository.impl;
 import com.littlebank.finance.domain.relationship.domain.*;
 import com.littlebank.finance.domain.relationship.domain.repository.CustomRelationshipRepository;
 import com.littlebank.finance.domain.relationship.dto.response.RelationshipRequestsReceivedResponse;
-import com.littlebank.finance.domain.user.domain.User;
-import com.littlebank.finance.domain.user.dto.response.UserSearchResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.littlebank.finance.domain.relationship.domain.QCustomNameMapping.customNameMapping;
 import static com.littlebank.finance.domain.relationship.domain.QRelationship.relationship;
@@ -35,39 +32,6 @@ public class CustomRelationshipRepositoryImpl implements CustomRelationshipRepos
                 .fetchFirst();
 
         return result != null;
-    }
-
-    @Override
-    public Optional<UserSearchResponse> findUserSearchResponse(Long requesterId, User searchUser) {
-        List<UserSearchResponse.RelationResponse> relations = queryFactory
-                .select(
-                        Projections.constructor(UserSearchResponse.RelationResponse.class,
-                                cnm.customName,
-                                r.relationshipType,
-                                r.relationshipStatus
-                        )
-                )
-                .from(r)
-                .innerJoin(cnm).on(
-                        cnm.fromUser.id.eq(requesterId)
-                                .and(cnm.toUser.id.eq(r.toUser.id))
-                )
-                .where(
-                        r.fromUser.id.eq(requesterId)
-                                .and(r.toUser.id.eq(searchUser.getId()))
-                )
-                .fetch();
-
-        return Optional.ofNullable(
-                UserSearchResponse.builder()
-                .searchUserId(searchUser.getId())
-                .email(searchUser.getEmail())
-                .name(searchUser.getName())
-                .profileImagePath(searchUser.getProfileImagePath())
-                .role(searchUser.getRole())
-                .relationships(relations)
-                .build()
-        );
     }
 
     @Override
