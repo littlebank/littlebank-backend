@@ -24,6 +24,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
     QFriend f = friend;
     QFriend theOtherF = new QFriend("theOtherF");
 
+    @Override
     public Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable) {
         List<FriendInfoResponse> results =
                 queryFactory.select(Projections.constructor(
@@ -55,6 +56,39 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+        return new PageImpl<>(results, pageable, results.size());
+    }
+
+    @Override
+    public Page<FriendInfoResponse> findFriendAddedMeByUserId(Long userId, Pageable pageable) {
+        List<FriendInfoResponse> results =
+                queryFactory.select(Projections.constructor(
+                                FriendInfoResponse.class,
+                                theOtherF.id,
+                                theOtherF.customName,
+                                theOtherF.isBlocked,
+                                Projections.constructor(
+                                        FriendInfoResponse.UserInfo.class,
+                                        u.id,
+                                        u.name,
+                                        u.profileImagePath,
+                                        u.role
+                                )
+                        ))
+                        .from(f)
+                        .join(u).on(u.id.eq(f.fromUser.id))
+                        .join(theOtherF).on(
+                                theOtherF.toUser.id.eq(f.fromUser.id)
+                                .and(theOtherF.fromUser.id.eq(f.toUser.id))
+                        )
+                        .where(
+                                f.toUser.id.eq(userId),
+                                f.isBlocked.isFalse()
+                        )
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .fetch();
 
         return new PageImpl<>(results, pageable, results.size());
     }

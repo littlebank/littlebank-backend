@@ -49,6 +49,18 @@ public class FriendController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "나를 친구로 추가한 유저 목록 조회 API")
+    @GetMapping("/added-me")
+    public ResponseEntity<CustomPageResponse<FriendInfoResponse>> getFriendAddedMe(
+            @Parameter(description = "페이지 번호, 0부터 시작")
+            @RequestParam(name = "pageNumber") Integer pageNumber,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.ADDED_ME_FRIEND_LIST_PAGE_SIZE);
+        CustomPageResponse<FriendInfoResponse> response = friendService.getFriendAddedMe(customUserDetails.getId(), pageable);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "친구 삭제 API")
     @DeleteMapping("/{friendId}")
     public ResponseEntity<Void> deleteFriend(
