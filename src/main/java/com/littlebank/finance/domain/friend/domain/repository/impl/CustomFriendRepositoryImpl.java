@@ -32,6 +32,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                         f.id,
                         f.customName,
                         f.isBlocked,
+                        f.isBestFriend,
                         Projections.constructor(
                                 FriendInfoResponse.UserInfo.class,
                                 u.id,
@@ -68,6 +69,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                 theOtherF.id,
                                 theOtherF.customName,
                                 theOtherF.isBlocked,
+                                theOtherF.isBestFriend,
                                 Projections.constructor(
                                         FriendInfoResponse.UserInfo.class,
                                         u.id,

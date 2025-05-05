@@ -4,10 +4,7 @@ import com.littlebank.finance.domain.friend.domain.Friend;
 import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
 import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
 import com.littlebank.finance.domain.friend.dto.request.FriendRenameRequest;
-import com.littlebank.finance.domain.friend.dto.response.FriendAddResponse;
-import com.littlebank.finance.domain.friend.dto.response.FriendBlockStatusResponse;
-import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
-import com.littlebank.finance.domain.friend.dto.response.FriendRenameResponse;
+import com.littlebank.finance.domain.friend.dto.response.*;
 import com.littlebank.finance.domain.friend.exception.FriendException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
@@ -58,6 +55,15 @@ public class FriendService {
         Friend friend = friendRepository.findById(friendId)
                         .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
         friendRepository.deleteById(friend.getId());
+    }
+
+    public BestFriendMarkResponse markBestFriend(Long friendId) {
+        Friend friend = friendRepository.findByIdWithLock(friendId)
+                .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
+
+        friend.markBestFriend();
+
+        return BestFriendMarkResponse.of(friend);
     }
 
     public FriendBlockStatusResponse blockFriend(Long friendId) {
