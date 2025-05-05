@@ -4,6 +4,7 @@ import com.littlebank.finance.domain.relationship.domain.repository.Relationship
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginAdditionalInfoRequest;
+import com.littlebank.finance.domain.user.dto.request.UpdateStatusMessageRequest;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
@@ -47,8 +48,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserDetailsInfoResponse getUserDetailsInfo(Long searchUserId, Long userId) {
-        return userRepository.findUserDetailsInfo(searchUserId, userId)
+    public UserDetailsInfoResponse getUserDetailsInfo(Long targetUserId, Long userId) {
+        return userRepository.findUserDetailsInfo(targetUserId, userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
     }
 
@@ -61,6 +62,16 @@ public class UserService {
         user.update(updateInfo);
 
         return MyInfoResponse.of(user);
+    }
+
+
+    public UpdateStatusMessageResponse updateStatusMessage(Long userId, UpdateStatusMessageRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateStatusMessage(request.getStatusMessage());
+
+        return UpdateStatusMessageResponse.of(user);
     }
 
     public void deleteUser(Long userId) {
@@ -83,12 +94,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserSearchResponse searchUser(String phone, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-        User searchUser = userRepository.findByPhone(phone)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
-        return relationshipRepository.findUserSearchResponse(user.getId(), searchUser)
+        return userRepository.findUserSearchResponse(userId, phone)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
     }
 

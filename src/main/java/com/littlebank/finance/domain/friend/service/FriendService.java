@@ -3,7 +3,9 @@ package com.littlebank.finance.domain.friend.service;
 import com.littlebank.finance.domain.friend.domain.Friend;
 import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
 import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
+import com.littlebank.finance.domain.friend.dto.request.FriendBlockRequest;
 import com.littlebank.finance.domain.friend.dto.request.FriendRenameRequest;
+import com.littlebank.finance.domain.friend.dto.request.FriendUnblockRequest;
 import com.littlebank.finance.domain.friend.dto.response.*;
 import com.littlebank.finance.domain.friend.exception.FriendException;
 import com.littlebank.finance.domain.user.domain.User;
@@ -75,17 +77,33 @@ public class FriendService {
         return BestFriendMarkResponse.of(friend);
     }
 
-    public FriendBlockStatusResponse blockFriend(Long friendId) {
-        Friend friend = friendRepository.findByIdWithLock(friendId)
-                .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
+    public FriendBlockStatusResponse blockFriend(Long userId, FriendBlockRequest request) {
+        Friend friend = friendRepository.findByFromUserIdAndToUserIdWithLock(userId, request.getTargetUserId())
+                .orElseGet(() -> {
+                    verifyExistsFriend(userId, request.getTargetUserId());
 
-        friend.blocking();
+                    User fromUser = userRepository.findById(userId)
+                            .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+                    User toUser = userRepository.findById(request.getTargetUserId())
+                            .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+                    return friendRepository.save(Friend.builder()
+                            .fromUser(fromUser)
+                            .toUser(toUser)
+                            .customName(toUser.getName())
+                            .isBlocked(true)
+                            .build());
+                });
+
+        if (!friend.getIsBlocked()) {
+            friend.blocking();
+        }
 
         return FriendBlockStatusResponse.of(friend);
     }
 
-    public FriendBlockStatusResponse unblockFriend(Long friendId) {
-        Friend friend = friendRepository.findByIdWithLock(friendId)
+    public FriendBlockStatusResponse unblockFriend(FriendUnblockRequest request) {
+        Friend friend = friendRepository.findByIdWithLock(request.getFriendId())
                 .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
 
         friend.unblocking();

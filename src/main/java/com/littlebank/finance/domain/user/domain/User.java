@@ -20,76 +20,60 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
-
     @Column(length = 50, unique = true, nullable = false)
     private String email;
-
     @Column(length = 100, nullable = false)
     private String password;
-
     @Column(length = 20, nullable = false)
     private String name;
-
+    @Column(length = 100, nullable = false)
+    private String statusMessage;
     @Column(length = 11, unique = true)
     private String phone;
-
     @Column(length = 6)
     private String rrn;
-
     @Column(length = 10)
     private String bankName;
-
     @Column(length = 3)
     private String bankCode;
-
     @Column(length = 20)
     private String bankAccount;
-
     @Column(length = 150)
     private String profileImagePath;
-
     @Column(name = "balance")
     private Integer balance;
-
     @Enumerated(EnumType.STRING)
     private UserRole role;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Authority authority;
-
     @Column(nullable = false)
     private Boolean isSubscribe;
-
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
-
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> senderMessages = new ArrayList<>();
-
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> receiverMessages = new ArrayList<>();
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Feed> feeds = new ArrayList<>();
-
     @Column(nullable = false)
     private Boolean isDeleted;
 
     @Builder
     public User(
-            String email, String password, String name, String phone, String rrn, String bankName,
-            String bankCode, String bankAccount, String profileImagePath, Integer balance, UserRole role,
-            Authority authority, Boolean isSubscribe, LocalDateTime lastLoginAt, Boolean isDeleted
+            String email, String password, String name, String statusMessage, String phone, String rrn,
+            String bankName, String bankCode, String bankAccount, String profileImagePath, Integer balance,
+            UserRole role, Authority authority, Boolean isSubscribe, LocalDateTime lastLoginAt, Boolean isDeleted
     ) {
         this.email = email;
         this.password = password;
         this.name = name;
+        this.statusMessage = statusMessage == null ? "" : statusMessage;
         this.phone = phone;
         this.rrn = rrn;
         this.bankName = bankName;
@@ -126,4 +110,7 @@ public class User extends BaseEntity {
         this.role = updateInfo.getRole();
     }
 
+    public void updateStatusMessage(String statusMessage) {
+        this.statusMessage = statusMessage;
+    }
 }
