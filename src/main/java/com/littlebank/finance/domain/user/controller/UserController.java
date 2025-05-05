@@ -1,10 +1,7 @@
 package com.littlebank.finance.domain.user.controller;
 
 import com.littlebank.finance.domain.user.domain.Authority;
-import com.littlebank.finance.domain.user.dto.request.ProfileImagePathUpdateRequest;
-import com.littlebank.finance.domain.user.dto.request.SignupRequest;
-import com.littlebank.finance.domain.user.dto.request.SocialLoginAdditionalInfoRequest;
-import com.littlebank.finance.domain.user.dto.request.UserInfoUpdateRequest;
+import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.service.UserService;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -74,6 +71,16 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         MyInfoResponse response = userService.updateMyInfo(customUserDetails.getId(), request.toEntity());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "상태 메시지 수정 API")
+    @PatchMapping("/status-message")
+    public ResponseEntity<UpdateStatusMessageResponse> updateStatusMessage(
+            @RequestBody @Valid UpdateStatusMessageRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        UpdateStatusMessageResponse response = userService.updateStatusMessage(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
 
