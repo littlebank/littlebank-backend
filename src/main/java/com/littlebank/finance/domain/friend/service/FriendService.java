@@ -47,6 +47,11 @@ public class FriendService {
         return CustomPageResponse.of(friendRepository.findFriendsByUserId(userId, pageable));
     }
 
+    @Transactional(readOnly = true)
+    public CustomPageResponse<FriendInfoResponse> getFriendAddedMe(Long userId, Pageable pageable) {
+        return CustomPageResponse.of(friendRepository.findFriendAddedMeByUserId(userId, pageable));
+    }
+
     public void deleteFriend(Long friendId) {
         Friend friend = friendRepository.findById(friendId)
                         .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));

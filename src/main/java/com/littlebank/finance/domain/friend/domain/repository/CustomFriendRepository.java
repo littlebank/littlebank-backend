@@ -6,4 +6,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface CustomFriendRepository {
     Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable);
+    Page<FriendInfoResponse> findFriendAddedMeByUserId(Long userId, Pageable pageable);
 }
