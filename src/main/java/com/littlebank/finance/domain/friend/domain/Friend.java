@@ -27,13 +27,20 @@ public class Friend extends BaseEntity {
     private String customName;
     @Column(nullable = false)
     private Boolean isBlocked;
+    @Column(nullable = false)
+    private Boolean isBestFriend;
 
     @Builder
-    public Friend(User fromUser, User toUser, String customName, Boolean isBlocked) {
+    public Friend(User fromUser, User toUser, String customName, Boolean isBlocked, Boolean isBestFriend) {
         this.fromUser = fromUser;
         this.toUser = toUser;
         this.customName = customName;
         this.isBlocked = isBlocked == null ? false : isBlocked;
+        this.isBestFriend = isBestFriend == null ? false : isBestFriend;
+    }
+
+    public void markBestFriend() {
+        this.isBestFriend = true;
     }
 
     public void blocking() {

@@ -2,10 +2,7 @@ package com.littlebank.finance.domain.friend.controller;
 
 import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
 import com.littlebank.finance.domain.friend.dto.request.FriendRenameRequest;
-import com.littlebank.finance.domain.friend.dto.response.FriendAddResponse;
-import com.littlebank.finance.domain.friend.dto.response.FriendBlockStatusResponse;
-import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
-import com.littlebank.finance.domain.friend.dto.response.FriendRenameResponse;
+import com.littlebank.finance.domain.friend.dto.response.*;
 import com.littlebank.finance.domain.friend.service.FriendService;
 import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.common.PaginationPolicy;
@@ -71,6 +68,16 @@ public class FriendController {
     ) {
         friendService.deleteFriend(friendId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "친한 친구 등록 API")
+    @PatchMapping("/mark-best/{friendId}")
+    public ResponseEntity<BestFriendMarkResponse> markBestFriend(
+            @Parameter(description = "친한 친구로 등록할 친구 id")
+            @PathVariable(name = "friendId") Long friendId
+    ) {
+        BestFriendMarkResponse response = friendService.markBestFriend(friendId);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "친구 차단 API")
