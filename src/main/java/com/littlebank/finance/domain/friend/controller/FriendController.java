@@ -1,9 +1,11 @@
 package com.littlebank.finance.domain.friend.controller;
 
 import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
+import com.littlebank.finance.domain.friend.dto.request.FriendRenameRequest;
 import com.littlebank.finance.domain.friend.dto.response.FriendAddResponse;
 import com.littlebank.finance.domain.friend.dto.response.FriendBlockStatusResponse;
 import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
+import com.littlebank.finance.domain.friend.dto.response.FriendRenameResponse;
 import com.littlebank.finance.domain.friend.service.FriendService;
 import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.common.PaginationPolicy;
@@ -88,6 +90,16 @@ public class FriendController {
             @PathVariable(name = "friendId") Long friendId
     ) {
         FriendBlockStatusResponse response = friendService.unblockFriend(friendId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "친구 이름 설정 API")
+    @PatchMapping("/rename")
+    public ResponseEntity<FriendRenameResponse> renameFriend(
+            @RequestBody @Valid FriendRenameRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        FriendRenameResponse response = friendService.renameFriend(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
 }

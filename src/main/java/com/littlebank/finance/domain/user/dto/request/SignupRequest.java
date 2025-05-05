@@ -25,6 +25,7 @@ public class SignupRequest {
     private String password;
 
     @NotBlank
+    @Size(max = 20, message = "이름은 20자 이하여야 합니다.")
     @Schema(description = "이름", example = "김동규")
     private String name;
 
