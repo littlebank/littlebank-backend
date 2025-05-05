@@ -3,9 +3,11 @@ package com.littlebank.finance.domain.friend.service;
 import com.littlebank.finance.domain.friend.domain.Friend;
 import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
 import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
+import com.littlebank.finance.domain.friend.dto.request.FriendRenameRequest;
 import com.littlebank.finance.domain.friend.dto.response.FriendAddResponse;
 import com.littlebank.finance.domain.friend.dto.response.FriendBlockStatusResponse;
 import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
+import com.littlebank.finance.domain.friend.dto.response.FriendRenameResponse;
 import com.littlebank.finance.domain.friend.exception.FriendException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
@@ -76,9 +78,25 @@ public class FriendService {
         return FriendBlockStatusResponse.of(friend);
     }
 
+    public FriendRenameResponse renameFriend(Long userId, FriendRenameRequest request) {
+        Friend friend = friendRepository.findById(request.getTargetFriendId())
+                .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
+        verifyUserMatched(friend, userId);
+
+        friend.rename(request.getChangeName());
+
+        return FriendRenameResponse.of(friend);
+    }
+
     private void verifyExistsFriend(Long fromUserId, Long toUserId) {
         if (friendRepository.existsByFromUserIdAndToUserId(fromUserId, toUserId)) {
             throw new FriendException(ErrorCode.ALREADY_FRIEND_EXISTS);
+        }
+    }
+
+    private void verifyUserMatched(Friend friend, Long userId) {
+        if (friend.getFromUser().getId() != userId) {
+            throw new FriendException(ErrorCode.NO_PERMISSION_TO_MODIFY);
         }
     }
 }

@@ -43,4 +43,8 @@ public class Friend extends BaseEntity {
     public void unblocking() {
         this.isBlocked = false;
     }
+
+    public void rename(String chaneName) {
+        this.customName = chaneName;
+    }
 }
