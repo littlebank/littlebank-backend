@@ -80,7 +80,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                         ))
                         .from(f)
                         .join(u).on(u.id.eq(f.fromUser.id))
-                        .join(theOtherF).on(
+                        .leftJoin(theOtherF).on(
                                 theOtherF.toUser.id.eq(f.fromUser.id)
                                 .and(theOtherF.fromUser.id.eq(f.toUser.id))
                         )
