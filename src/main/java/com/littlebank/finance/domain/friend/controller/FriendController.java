@@ -63,7 +63,7 @@ public class FriendController {
     @Operation(summary = "친구 삭제 API")
     @DeleteMapping("/{friendId}")
     public ResponseEntity<Void> deleteFriend(
-            @Parameter(description = "삭제할 친구 id")
+            @Parameter(description = "삭제할 friend id")
             @PathVariable(name = "friendId") Long friendId
     ) {
         friendService.deleteFriend(friendId);
@@ -73,7 +73,7 @@ public class FriendController {
     @Operation(summary = "친한 친구 등록 API")
     @PatchMapping("/mark-best/{friendId}")
     public ResponseEntity<BestFriendMarkResponse> markBestFriend(
-            @Parameter(description = "친한 친구로 등록할 친구 id")
+            @Parameter(description = "친한 친구로 등록할 friend id")
             @PathVariable(name = "friendId") Long friendId
     ) {
         BestFriendMarkResponse response = friendService.markBestFriend(friendId);
@@ -83,7 +83,7 @@ public class FriendController {
     @Operation(summary = "친구 차단 API")
     @PatchMapping("/block/{friendId}")
     public ResponseEntity<FriendBlockStatusResponse> blockFriend(
-            @Parameter(description = "차단할 친구 id")
+            @Parameter(description = "차단할 friend id")
             @PathVariable(name = "friendId") Long friendId
     ) {
         FriendBlockStatusResponse response = friendService.blockFriend(friendId);
@@ -93,7 +93,7 @@ public class FriendController {
     @Operation(summary = "친구 차단 해제 API")
     @PatchMapping("/unblock/{friendId}")
     public ResponseEntity<FriendBlockStatusResponse> unblockFriend(
-            @Parameter(description = "차단 해제할 친구 id")
+            @Parameter(description = "차단 해제할 friend id")
             @PathVariable(name = "friendId") Long friendId
     ) {
         FriendBlockStatusResponse response = friendService.unblockFriend(friendId);

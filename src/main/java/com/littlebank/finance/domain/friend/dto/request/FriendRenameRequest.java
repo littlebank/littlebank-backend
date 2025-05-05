@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 public class FriendRenameRequest {
     @NotNull
-    @Schema(description = "친구 id", example = "1")
+    @Schema(description = "friend id", example = "1")
     private Long targetFriendId;
     @NotBlank
     @Size(max = 20, message = "이름은 20자 이하여야 합니다.")
