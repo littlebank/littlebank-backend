@@ -66,6 +66,15 @@ public class FriendService {
         return BestFriendMarkResponse.of(friend);
     }
 
+    public BestFriendMarkResponse unmarkBestFriend(Long friendId) {
+        Friend friend = friendRepository.findByIdWithLock(friendId)
+                .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
+
+        friend.unmarkBestFriend();
+
+        return BestFriendMarkResponse.of(friend);
+    }
+
     public FriendBlockStatusResponse blockFriend(Long friendId) {
         Friend friend = friendRepository.findByIdWithLock(friendId)
                 .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));

@@ -43,6 +43,10 @@ public class Friend extends BaseEntity {
         this.isBestFriend = true;
     }
 
+    public void unmarkBestFriend() {
+        this.isBestFriend = false;
+    }
+
     public void blocking() {
         this.isBlocked = true;
     }
