@@ -1,7 +1,9 @@
 package com.littlebank.finance.domain.friend.controller;
 
 import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
+import com.littlebank.finance.domain.friend.dto.request.FriendBlockRequest;
 import com.littlebank.finance.domain.friend.dto.request.FriendRenameRequest;
+import com.littlebank.finance.domain.friend.dto.request.FriendUnblockRequest;
 import com.littlebank.finance.domain.friend.dto.response.*;
 import com.littlebank.finance.domain.friend.service.FriendService;
 import com.littlebank.finance.global.common.CustomPageResponse;
@@ -91,22 +93,21 @@ public class FriendController {
     }
 
     @Operation(summary = "친구 차단 API")
-    @PatchMapping("/block/{friendId}")
+    @PatchMapping("/block")
     public ResponseEntity<FriendBlockStatusResponse> blockFriend(
-            @Parameter(description = "차단할 friend id")
-            @PathVariable(name = "friendId") Long friendId
+            @RequestBody @Valid FriendBlockRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        FriendBlockStatusResponse response = friendService.blockFriend(friendId);
+        FriendBlockStatusResponse response = friendService.blockFriend(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "친구 차단 해제 API")
-    @PatchMapping("/unblock/{friendId}")
+    @PatchMapping("/unblock")
     public ResponseEntity<FriendBlockStatusResponse> unblockFriend(
-            @Parameter(description = "차단 해제할 friend id")
-            @PathVariable(name = "friendId") Long friendId
+            @RequestBody @Valid FriendUnblockRequest request
     ) {
-        FriendBlockStatusResponse response = friendService.unblockFriend(friendId);
+        FriendBlockStatusResponse response = friendService.unblockFriend(request);
         return ResponseEntity.ok(response);
     }
 
