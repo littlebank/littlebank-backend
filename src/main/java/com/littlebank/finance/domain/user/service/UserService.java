@@ -48,8 +48,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserDetailsInfoResponse getUserDetailsInfo(Long searchUserId, Long userId) {
-        return userRepository.findUserDetailsInfo(searchUserId, userId)
+    public UserDetailsInfoResponse getUserDetailsInfo(Long targetUserId, Long userId) {
+        return userRepository.findUserDetailsInfo(targetUserId, userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
     }
 

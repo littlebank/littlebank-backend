@@ -6,6 +6,6 @@ import com.littlebank.finance.domain.user.dto.response.UserSearchResponse;
 import java.util.Optional;
 
 public interface CustomUserRepository {
-    Optional<UserDetailsInfoResponse> findUserDetailsInfo(Long searchUserId, Long userId);
+    Optional<UserDetailsInfoResponse> findUserDetailsInfo(Long targetUserId, Long userId);
     Optional<UserSearchResponse> findUserSearchResponse(Long requesterId, String phone);
 }

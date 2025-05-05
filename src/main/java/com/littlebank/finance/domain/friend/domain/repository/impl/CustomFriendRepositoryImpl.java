@@ -4,6 +4,7 @@ import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.friend.domain.repository.CustomFriendRepository;
 import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
 import com.littlebank.finance.domain.user.domain.QUser;
+import com.littlebank.finance.domain.user.dto.response.CommonUserInfoResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -22,7 +23,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
     private final JPAQueryFactory queryFactory;
     private QUser u = user;
     private QFriend f = friend;
-    private QFriend theOtherF = new QFriend("theOtherF");
+    private QFriend f1 = new QFriend("f1");
 
     @Override
     public Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable) {
@@ -34,9 +35,10 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                         f.isBlocked,
                         f.isBestFriend,
                         Projections.constructor(
-                                FriendInfoResponse.UserInfo.class,
+                                CommonUserInfoResponse.class,
                                 u.id,
                                 u.name,
+                                u.statusMessage,
                                 u.profileImagePath,
                                 u.role
                         )
@@ -46,11 +48,11 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                 .where(
                         f.fromUser.id.eq(userId),
                         JPAExpressions.selectOne()
-                                .from(theOtherF)
+                                .from(f1)
                                 .where(
-                                        theOtherF.fromUser.id.eq(f.toUser.id),
-                                        theOtherF.toUser.id.eq(userId),
-                                        theOtherF.isBlocked.isTrue()
+                                        f1.fromUser.id.eq(f.toUser.id),
+                                        f1.toUser.id.eq(userId),
+                                        f1.isBlocked.isTrue()
                                 )
                                 .notExists()
                 )
@@ -66,23 +68,24 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
         List<FriendInfoResponse> results =
                 queryFactory.select(Projections.constructor(
                                 FriendInfoResponse.class,
-                                theOtherF.id,
-                                theOtherF.customName,
-                                theOtherF.isBlocked,
-                                theOtherF.isBestFriend,
+                                f1.id,
+                                f1.customName,
+                                f1.isBlocked,
+                                f1.isBestFriend,
                                 Projections.constructor(
-                                        FriendInfoResponse.UserInfo.class,
+                                        CommonUserInfoResponse.class,
                                         u.id,
                                         u.name,
+                                        u.statusMessage,
                                         u.profileImagePath,
                                         u.role
                                 )
                         ))
                         .from(f)
                         .join(u).on(u.id.eq(f.fromUser.id))
-                        .leftJoin(theOtherF).on(
-                                theOtherF.toUser.id.eq(f.fromUser.id)
-                                .and(theOtherF.fromUser.id.eq(f.toUser.id))
+                        .leftJoin(f1).on(
+                                f1.toUser.id.eq(f.fromUser.id)
+                                .and(f1.fromUser.id.eq(f.toUser.id))
                         )
                         .where(
                                 f.toUser.id.eq(userId),

@@ -1,6 +1,5 @@
 package com.littlebank.finance.domain.friend.dto.response;
 
-import com.littlebank.finance.domain.user.dto.response.CommonUserInfoResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,10 +7,9 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class FriendInfoResponse {
+public class CommonFriendInfoResponse {
     private Long friendId;
     private String customName;
     private Boolean isBlocked;
     private Boolean isBestFriend;
-    private CommonUserInfoResponse userInfo;
 }
