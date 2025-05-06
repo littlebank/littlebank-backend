@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FeedRepositoryCustom {
-    Page<Feed> findAllByFilters(GradeCategory grade, SubjectCategory subject, TagCategory tag, Pageable pageable);
-
+    Page<Feed> findAllByFiltersOrderByTime(GradeCategory grade, SubjectCategory subject, TagCategory tag, Pageable pageable);
+    Page<Feed> findAllByFiltersOrderByLikes(GradeCategory grade, SubjectCategory subject, TagCategory tag, Pageable pageable);
 }

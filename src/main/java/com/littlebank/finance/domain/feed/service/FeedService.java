@@ -135,11 +135,11 @@ public class FeedService {
         feedRepository.delete(feed);
     }
 
-    public Page<FeedResponseDto> getFeeds(Long userId, GradeCategory gradeCategory, SubjectCategory subjectCategory, TagCategory tagCategory, Pageable pageable) {
+    public Page<FeedResponseDto> getFeedsOrderByTime(Long userId, GradeCategory gradeCategory, SubjectCategory subjectCategory, TagCategory tagCategory, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        return feedRepositoryCustom.findAllByFilters(gradeCategory, subjectCategory, tagCategory, pageable)
+        return feedRepositoryCustom.findAllByFiltersOrderByTime(gradeCategory, subjectCategory, tagCategory, pageable)
                 .map(feed -> {
                     List<FeedImage> images = feedImageRepository.findByFeed(feed);
                     boolean liked = feedLikeRepository.findByFeedAndUser(feed, user).isPresent();
@@ -147,6 +147,17 @@ public class FeedService {
                 });
     }
 
+    public Page<FeedResponseDto> getFeedsOrderByLikes(Long userId, GradeCategory gradeCategory, SubjectCategory subjectCategory, TagCategory tagCategory, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        return feedRepositoryCustom.findAllByFiltersOrderByLikes(gradeCategory, subjectCategory, tagCategory, pageable)
+                .map(feed -> {
+                    List<FeedImage> images = feedImageRepository.findByFeed(feed);
+                    boolean liked = feedLikeRepository.findByFeedAndUser(feed, user).isPresent();
+                    return FeedResponseDto.of(feed, images, liked);
+                });
+    }
 
     public Page<FeedResponseDto> getFeedsByUser(Long userId, Pageable pageable) {
         User user = userRepository.findById(userId)

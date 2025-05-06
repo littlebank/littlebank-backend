@@ -64,9 +64,23 @@ public class FeedController {
             @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC)Pageable pageable,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
             ) {
-        Page<FeedResponseDto> response = feedService.getFeeds(customUserDetails.getId() ,gradeCategory, subjectCategory, tagCategory, pageable);
+        Page<FeedResponseDto> response = feedService.getFeedsOrderByTime(customUserDetails.getId() ,gradeCategory, subjectCategory, tagCategory, pageable);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "피드 좋아요 순 전체 목록 조회")
+    @GetMapping("/likes")
+    public ResponseEntity<Page<FeedResponseDto>> getFeedsOrderByLikes (
+            @RequestParam(required = false) GradeCategory gradeCategory,
+            @RequestParam(required = false) SubjectCategory subjectCategory,
+            @RequestParam(required = false) TagCategory tagCategory,
+            @PageableDefault(size = 10, sort = "createdDate", direction = Sort.Direction.DESC)Pageable pageable,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        Page<FeedResponseDto> feeds = feedService.getFeedsOrderByLikes(customUserDetails.getId(), gradeCategory, subjectCategory, tagCategory, pageable);
+        return ResponseEntity.ok(feeds);
+    }
+
 
     @Operation(summary = "내가 쓴 피드 조회")
     @GetMapping("/my")
