@@ -32,10 +32,10 @@ public class FeedController {
 
     @Operation(summary = "피드 생성")
     @PostMapping("/create")
-    public ResponseEntity<String> createFeed(@RequestBody FeedRequestDto request,
+    public ResponseEntity<FeedResponseDto> createFeed(@RequestBody FeedRequestDto request,
                                            @AuthenticationPrincipal CustomUserDetails currentUser){
-        feedService.createFeed(currentUser.getId(), request);
-        return ResponseEntity.ok("업로드 완료");
+        FeedResponseDto response = feedService.createFeed(currentUser.getId(), request);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "피드 수정")

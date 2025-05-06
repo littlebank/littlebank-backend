@@ -10,4 +10,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FeedCommentRepository extends JpaRepository<FeedComment, Long> {
     Page<FeedComment> findByFeedAndIsDeletedFalse(Feed feed, Pageable pageable);
 
+    void deleteAllByFeed(Feed feed);
 }

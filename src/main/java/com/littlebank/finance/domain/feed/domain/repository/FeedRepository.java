@@ -13,7 +13,7 @@ import java.util.List;
 public interface FeedRepository extends JpaRepository<Feed, Long> {
     List<Feed> findAllByOrderByCreatedDateDesc();
 
-    List<Feed> user(User user);
+    List<Feed> findAllByUser(User user);
 
     Page<Feed> findByUserId(Long userId, Pageable pageable);
 }

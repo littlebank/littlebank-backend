@@ -125,7 +125,8 @@ public class FeedService {
         if (!feed.getUser().getId().equals(userId)) {
             throw new FeedException(ErrorCode.USER_NOT_EQUAL);
         }
-        feedRepository.delete(feed);
+        feedCommentRepository.deleteAllByFeed(feed);
+        feedRepository.deleteById(feed.getId());
     }
 
     public Page<FeedResponseDto> getFeeds(Long userId, GradeCategory gradeCategory, SubjectCategory subjectCategory, TagCategory tagCategory, Pageable pageable) {
@@ -212,7 +213,7 @@ public class FeedService {
                 .content(request.getContent())
                 .build();
         feedCommentRepository.save(comment);
-
+        feed.increaseCommentCount();
         return FeedCommentResponseDto.of(
                 comment.getId(),
                 feedId,
@@ -262,6 +263,7 @@ public class FeedService {
         if (!comment.getUser().getId().equals(userId)) {
             throw new FeedException(ErrorCode.USER_NOT_EQUAL);
         }
-        feedCommentRepository.delete(comment);
+        comment.getFeed().decreaseCommentCount();
+        feedCommentRepository.deleteById(comment.getId());
     }
 }

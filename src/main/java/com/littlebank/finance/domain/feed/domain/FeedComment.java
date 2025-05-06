@@ -9,9 +9,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name="feed_comment")
+@SQLDelete(sql = "UPDATE feed_comment SET is_deleted = true WHERE user_id = ?")
+@Where(clause = "is_deleted = false")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FeedComment extends BaseEntity {
@@ -28,6 +32,9 @@ public class FeedComment extends BaseEntity {
 
     @Column(length = 1000, nullable = false)
     private String content;
+
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     @Builder
     public FeedComment(Feed feed, User user, String content) {
