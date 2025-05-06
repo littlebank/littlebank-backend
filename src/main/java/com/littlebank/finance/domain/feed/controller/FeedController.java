@@ -5,10 +5,12 @@ import com.littlebank.finance.domain.feed.domain.SubjectCategory;
 import com.littlebank.finance.domain.feed.domain.TagCategory;
 import com.littlebank.finance.domain.feed.dto.request.FeedCommentRequestDto;
 import com.littlebank.finance.domain.feed.dto.request.FeedRequestDto;
+import com.littlebank.finance.domain.feed.dto.response.FeedCommentLikeResponseDto;
 import com.littlebank.finance.domain.feed.dto.response.FeedCommentResponseDto;
 import com.littlebank.finance.domain.feed.dto.response.FeedResponseDto;
 import com.littlebank.finance.domain.feed.service.FeedService;
 import com.littlebank.finance.global.security.CustomUserDetails;
+import com.littlebank.finance.global.security.CustomUserDetailsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ import java.util.List;
 @Tag(name = "Feed")
 public class FeedController {
     private final FeedService feedService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Operation(summary = "피드 생성")
     @PostMapping("/create")
@@ -125,6 +128,14 @@ public class FeedController {
         return ResponseEntity.ok(feedService.createComment(customUserDetails.getId(), feedId, request));
     }
 
+    @Operation(summary = "댓글 좋아요")
+    @PostMapping("/comment/{commentId}/like")
+    public ResponseEntity<FeedCommentLikeResponseDto> likeComment (@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                                   @PathVariable Long commentId) {
+        FeedCommentLikeResponseDto response = feedService.likeComment(customUserDetails.getId(), commentId);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "댓글 수정")
     @PutMapping("/comment/{commentId}")
     public ResponseEntity<FeedCommentResponseDto> updateComment (
@@ -149,8 +160,9 @@ public class FeedController {
     public ResponseEntity<Page<FeedCommentResponseDto>> getComments (
             @PathVariable Long feedId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        return ResponseEntity.ok(feedService.getComments(feedId, page, size));
+        return ResponseEntity.ok(feedService.getComments(feedId, page, size, customUserDetails.getId()));
     }
 }

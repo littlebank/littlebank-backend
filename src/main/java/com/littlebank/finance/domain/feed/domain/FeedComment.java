@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name="feed_comment")
 @SQLDelete(sql = "UPDATE feed_comment SET is_deleted = true WHERE id = ?")
@@ -23,10 +26,10 @@ public class FeedComment extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feed_id", nullable = true)
+    @JoinColumn(name = "feed_id")
     private Feed feed;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -36,11 +39,25 @@ public class FeedComment extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private FeedComment parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeedComment> replies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "feedComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FeedCommentLike> likes = new ArrayList<>();
+
+    @Column(name = "like_count", nullable = false)
+    private int likeCount = 0;
+
     @Builder
-    public FeedComment(Feed feed, User user, String content) {
+    public FeedComment(Feed feed, User user, String content, FeedComment parent) {
         this.feed = feed;
         this.user = user;
         this.content = content;
+        this.parent = parent;
     }
 
     public void update(@NotBlank @Size(max = 500) String content) {
@@ -54,4 +71,10 @@ public class FeedComment extends BaseEntity {
     public void setFeed(Feed feed) {
         this.feed = feed;
     }
+
+    public List<FeedCommentLike> getLikes() {
+        return likes;
+    }
+
+
 }

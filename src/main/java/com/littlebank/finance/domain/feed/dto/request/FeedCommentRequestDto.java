@@ -9,4 +9,5 @@ public class FeedCommentRequestDto {
     @NotBlank
     @Size(max = 500)
     private String content;
+    private Long parentId;
 }

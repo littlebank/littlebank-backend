@@ -10,16 +10,30 @@ import lombok.Getter;
 public class FeedCommentResponseDto {
     private Long commentId;
     private Long feedId;
+    private Long parentId;
     private String writerName;
     private String writerProfileUrl;
     private String content;
-    public static FeedCommentResponseDto of(Long commentId, Long feedId, String writerName, String writerProfileUrl, String content) {
+    private int likeCount;
+    private boolean isliked;
+
+    public static FeedCommentResponseDto of(Long commentId,
+                                            Long feedId,
+                                            Long parentId,
+                                            String writerName,
+                                            String writerProfileUrl,
+                                            String content,
+                                            int likeCount,
+                                            boolean isLiked) {
         return FeedCommentResponseDto.builder()
                 .commentId(commentId)
                 .feedId(feedId)
+                .parentId(parentId)
                 .writerName(writerName)
                 .writerProfileUrl(writerProfileUrl)
                 .content(content)
+                .likeCount(likeCount)
+                .isliked(isLiked)
                 .build();
     }
 }
