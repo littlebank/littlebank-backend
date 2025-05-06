@@ -120,13 +120,19 @@ public class FeedService {
     }
 
     public void deleteFeed(Long userId, Long feedId) {
-        Feed feed = feedRepository.findById(feedId)
+        Feed feed = feedRepository.findWithCommentsById(feedId)
                 .orElseThrow(() -> new FeedException(ErrorCode.FEED_NOT_FOUND));
         if (!feed.getUser().getId().equals(userId)) {
             throw new FeedException(ErrorCode.USER_NOT_EQUAL);
         }
-        feedCommentRepository.deleteAllByFeed(feed);
-        feedRepository.deleteById(feed.getId());
+        for (FeedComment comment : feed.getComments()) {
+            comment.setFeed(null);
+            comment.setIsDeleted(true); // 소프트 삭제
+        }
+
+        feed.getComments().clear();
+        //feedCommentRepository.deleteAllByFeedId(feedId);
+        feedRepository.delete(feed);
     }
 
     public Page<FeedResponseDto> getFeeds(Long userId, GradeCategory gradeCategory, SubjectCategory subjectCategory, TagCategory tagCategory, Pageable pageable) {
@@ -264,6 +270,7 @@ public class FeedService {
             throw new FeedException(ErrorCode.USER_NOT_EQUAL);
         }
         comment.getFeed().decreaseCommentCount();
-        feedCommentRepository.deleteById(comment.getId());
+        //feedCommentRepository.deleteById(comment.getId());
+        comment.setIsDeleted(true);
     }
 }

@@ -47,6 +47,10 @@ public class Feed extends BaseEntity {
     @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FeedImage> images = new ArrayList<>();
 
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL) //, orphanRemoval = true)
+    private List<FeedComment> comments = new ArrayList<>();
+
+
     @Builder
     public Feed(User user, String title, GradeCategory gradeCategory, SubjectCategory subjectCategory, TagCategory tagCategory, String content,
                 int viewCount, int likeCount, int commentCount) {

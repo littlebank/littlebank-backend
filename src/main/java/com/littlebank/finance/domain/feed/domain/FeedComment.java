@@ -14,16 +14,16 @@ import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name="feed_comment")
-@SQLDelete(sql = "UPDATE feed_comment SET is_deleted = true WHERE user_id = ?")
-@Where(clause = "is_deleted = false")
+@SQLDelete(sql = "UPDATE feed_comment SET is_deleted = true WHERE id = ?")
+//@Where(clause = "is_deleted = false")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FeedComment extends BaseEntity {
     @Id @GeneratedValue
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "feed_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "feed_id", nullable = true)
     private Feed feed;
 
     @ManyToOne
@@ -45,5 +45,13 @@ public class FeedComment extends BaseEntity {
 
     public void update(@NotBlank @Size(max = 500) String content) {
         this.content = content;
+    }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public void setFeed(Feed feed) {
+        this.feed = feed;
     }
 }
