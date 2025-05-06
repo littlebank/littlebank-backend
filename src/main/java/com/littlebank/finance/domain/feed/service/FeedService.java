@@ -334,4 +334,17 @@ public class FeedService {
         int likeCount = feedCommentLikeRepository.countByFeedComment(feedComment);
         return FeedCommentLikeResponseDto.of(commentId, likeCount, true);
     }
+
+    public FeedCommentLikeResponseDto unlikeComment(Long userId, Long commentId) {
+        FeedComment feedComment = feedCommentRepository.findById(commentId)
+                .orElseThrow(() -> new FeedException(ErrorCode.COMMENT_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        FeedCommentLike like = feedCommentLikeRepository.findByFeedCommentAndUser(feedComment, user)
+                .orElseThrow(() -> new FeedException(ErrorCode.LIKE_NOT_FOUND));
+
+        feedCommentLikeRepository.delete(like);
+        int likeCount = feedCommentLikeRepository.countByFeedComment(feedComment);
+        return FeedCommentLikeResponseDto.of(commentId, likeCount, false);
+    }
 }

@@ -128,11 +128,19 @@ public class FeedController {
         return ResponseEntity.ok(feedService.createComment(customUserDetails.getId(), feedId, request));
     }
 
-    @Operation(summary = "댓글 좋아요")
+    @Operation(summary = "댓글 좋아요 증가")
     @PostMapping("/comment/{commentId}/like")
     public ResponseEntity<FeedCommentLikeResponseDto> likeComment (@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                                    @PathVariable Long commentId) {
         FeedCommentLikeResponseDto response = feedService.likeComment(customUserDetails.getId(), commentId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "댓글 좋아요 취소")
+    @DeleteMapping("/comment/{commentId}/like")
+    public ResponseEntity<FeedCommentLikeResponseDto> unlikeComment (@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                                     @PathVariable Long commentId) {
+        FeedCommentLikeResponseDto response = feedService.unlikeComment(customUserDetails.getId(), commentId);
         return ResponseEntity.ok(response);
     }
 
