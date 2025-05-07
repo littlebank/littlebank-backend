@@ -7,6 +7,7 @@ import com.littlebank.finance.domain.feed.dto.request.FeedCommentRequestDto;
 import com.littlebank.finance.domain.feed.dto.request.FeedRequestDto;
 import com.littlebank.finance.domain.feed.dto.response.FeedCommentLikeResponseDto;
 import com.littlebank.finance.domain.feed.dto.response.FeedCommentResponseDto;
+import com.littlebank.finance.domain.feed.dto.response.FeedLikeResponseDto;
 import com.littlebank.finance.domain.feed.dto.response.FeedResponseDto;
 import com.littlebank.finance.domain.feed.service.FeedService;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -102,10 +103,10 @@ public class FeedController {
 
     @Operation(summary = "좋아요 증가")
     @PostMapping("/{feedId}/like")
-    public ResponseEntity<Void> likeFeed(@PathVariable Long feedId,
-                                         @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        feedService.likeFeed(customUserDetails.getId(), feedId);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<FeedLikeResponseDto> likeFeed(@PathVariable Long feedId,
+                                                        @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        FeedLikeResponseDto response = feedService.likeFeed(customUserDetails.getId(), feedId);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "좋아요 취소")
