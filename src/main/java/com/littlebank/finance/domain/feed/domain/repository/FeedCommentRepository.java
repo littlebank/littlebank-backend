@@ -14,5 +14,5 @@ import java.util.List;
 
 
 public interface FeedCommentRepository extends JpaRepository<FeedComment, Long> {
-    Page<FeedComment> findByFeedAndIsDeletedFalse(Feed feed, Pageable pageable);
-}
+    Page<FeedComment> findByFeedAndParentIsNullAndIsDeletedFalse(Feed feed, Pageable pageable);
+    Page<FeedComment> findByParentAndIsDeletedFalse(FeedComment parent, Pageable pageable);}

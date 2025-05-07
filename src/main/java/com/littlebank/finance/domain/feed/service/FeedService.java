@@ -253,6 +253,45 @@ public class FeedService {
         );
     }
 
+    public FeedCommentResponseDto createReply(Long userId, Long feedId, FeedCommentRequestDto request) {
+        Feed feed = feedRepository.findById(feedId)
+                .orElseThrow(() -> new FeedException(ErrorCode.FEED_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        if (request.getParentId() == null) {
+            throw new FeedException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+
+        FeedComment parent = feedCommentRepository.findById(request.getParentId())
+                .orElseThrow(() -> new FeedException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!parent.getFeed().getId().equals(feedId)) {
+            throw new FeedException(ErrorCode.INVALID_PARENT_COMMENT);
+        }
+
+        FeedComment reply = FeedComment.builder()
+                .feed(feed)
+                .user(user)
+                .content(request.getContent())
+                .parent(parent)
+                .build();
+
+        feedCommentRepository.save(reply);
+        feed.increaseCommentCount();
+
+        return FeedCommentResponseDto.of(
+                reply.getId(),
+                feedId,
+                parent.getId(),
+                user.getName(),
+                user.getProfileImagePath(),
+                reply.getContent(),
+                0,
+                false
+        );
+    }
+
     public FeedCommentResponseDto updateComment(Long userId, Long commentId, FeedCommentRequestDto request) {
         FeedComment comment = feedCommentRepository.findById(commentId)
                 .orElseThrow(() -> new FeedException(ErrorCode.COMMENT_NOT_FOUND));
@@ -275,30 +314,6 @@ public class FeedService {
                 likeCount,
                 isLiked
         );
-    }
-
-    public Page<FeedCommentResponseDto> getComments(Long feedId, int page, int size, Long userId) {
-        Feed feed = feedRepository.findById(feedId)
-                .orElseThrow(() -> new FeedException(ErrorCode.FEED_NOT_FOUND));
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdDate"));
-        Page<FeedComment> commentPage = feedCommentRepository.findByFeedAndIsDeletedFalse(feed, pageable);
-
-        return commentPage.map(comment -> {
-            int likeCount = comment.getLikes().size();
-            boolean isLiked = comment.getLikes().stream()
-                    .anyMatch(like -> like.getUser().getId().equals(userId));
-
-            return FeedCommentResponseDto.of(
-                    comment.getId(),
-                    feed.getId(),
-                    comment.getParent() != null ? comment.getParent().getId() : null,
-                    comment.getUser().getName(),
-                    comment.getUser().getProfileImagePath(),
-                    comment.getContent(),
-                    likeCount,
-                    isLiked
-            );
-        });
     }
 
     @Transactional
@@ -344,5 +359,56 @@ public class FeedService {
         feedCommentLikeRepository.delete(like);
         int likeCount = feedCommentLikeRepository.countByFeedComment(feedComment);
         return FeedCommentLikeResponseDto.of(commentId, likeCount, false);
+    }
+
+    public Page<FeedCommentResponseDto> getTopLevelComments(Long feedId, int page, int size, Long userId) {
+        Feed feed = feedRepository.findById(feedId)
+                .orElseThrow(() -> new FeedException(ErrorCode.FEED_NOT_FOUND));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdDate"));
+        Page<FeedComment> commentPage = feedCommentRepository.findByFeedAndParentIsNullAndIsDeletedFalse(feed, pageable);
+
+        return commentPage.map(comment -> {
+            int likeCount = comment.getLikes().size();
+            boolean isLiked = comment.getLikes().stream()
+                    .anyMatch(like -> like.getUser().getId().equals(userId));
+
+            return FeedCommentResponseDto.of(
+                    comment.getId(),
+                    feed.getId(),
+                    null,
+                    comment.getUser().getName(),
+                    comment.getUser().getProfileImagePath(),
+                    comment.getContent(),
+                    likeCount,
+                    isLiked
+            );
+        });
+    }
+
+    public Page<FeedCommentResponseDto> getReplies(Long parentId, int page, int size, Long userId) {
+        FeedComment parent = feedCommentRepository.findById(parentId)
+                .orElseThrow(() -> new FeedException(ErrorCode.COMMENT_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").ascending());
+        Page<FeedComment> replies = feedCommentRepository.findByParentAndIsDeletedFalse(parent, pageable);
+
+        return replies.map(reply -> {
+            int likeCount = reply.getLikes().size();
+            boolean isLiked = reply.getLikes().stream()
+                    .anyMatch(like -> like.getUser().getId().equals(userId));
+
+            return FeedCommentResponseDto.of(
+                    reply.getId(),
+                    reply.getFeed().getId(),
+                    parentId,
+                    reply.getUser().getName(),
+                    reply.getUser().getProfileImagePath(),
+                    reply.getContent(),
+                    likeCount,
+                    isLiked
+            );
+        });
     }
 }
