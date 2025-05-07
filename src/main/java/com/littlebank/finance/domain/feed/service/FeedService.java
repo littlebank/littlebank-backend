@@ -253,7 +253,8 @@ public class FeedService {
                 user.getProfileImagePath(),
                 feedComment.getContent(),
                 likeCount,
-                isLiked
+                isLiked,
+                0
         );
     }
 
@@ -292,7 +293,8 @@ public class FeedService {
                 user.getProfileImagePath(),
                 reply.getContent(),
                 0,
-                false
+                false,
+                0
         );
     }
 
@@ -307,6 +309,9 @@ public class FeedService {
         int likeCount = feedComment.getLikeCount();
         boolean isLiked = feedComment.getLikes().stream()
                 .anyMatch(like -> like.getUser().getId().equals(userId));
+        int replyCount = (int) feedComment.getReplies().stream()
+                .filter(reply -> !reply.getIsDeleted())
+                .count();
 
         return FeedCommentResponseDto.of(
                 feedComment,
@@ -316,7 +321,8 @@ public class FeedService {
                 feedComment.getUser().getProfileImagePath(),
                 feedComment.getContent(),
                 likeCount,
-                isLiked
+                isLiked,
+                replyCount
         );
     }
 
@@ -380,6 +386,9 @@ public class FeedService {
             int likeCount = comment.getLikes().size();
             boolean isLiked = comment.getLikes().stream()
                     .anyMatch(like -> like.getUser().getId().equals(userId));
+            int replyCount = (int) comment.getReplies().stream()
+                    .filter(reply -> !reply.getIsDeleted())
+                    .count();
 
             return FeedCommentResponseDto.of(
                     comment,
@@ -389,7 +398,8 @@ public class FeedService {
                     comment.getUser().getProfileImagePath(),
                     comment.getContent(),
                     likeCount,
-                    isLiked
+                    isLiked,
+                    replyCount
             );
         });
     }
@@ -417,7 +427,8 @@ public class FeedService {
                     reply.getUser().getProfileImagePath(),
                     reply.getContent(),
                     likeCount,
-                    isLiked
+                    isLiked,
+                    0
             );
         });
     }

@@ -20,6 +20,7 @@ public class FeedCommentResponseDto {
     private String content;
     private int likeCount;
     private boolean isliked;
+    private int replyCount;
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
 
@@ -30,7 +31,8 @@ public class FeedCommentResponseDto {
                                             String writerProfileUrl,
                                             String content,
                                             int likeCount,
-                                            boolean isLiked) {
+                                            boolean isLiked,
+                                            int replyCount) {
         return FeedCommentResponseDto.builder()
                 .commentId(feedComment.getId())
                 .feedId(feedId)
@@ -40,6 +42,7 @@ public class FeedCommentResponseDto {
                 .content(content)
                 .likeCount(likeCount)
                 .isliked(isLiked)
+                .replyCount(replyCount)
                 .createdDate(feedComment.getCreatedDate())
                 .lastModifiedDate(feedComment.getLastModifiedDate())
                 .build();
