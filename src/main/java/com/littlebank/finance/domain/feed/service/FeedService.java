@@ -329,6 +329,11 @@ public class FeedService {
         }
         comment.getFeed().decreaseCommentCount();
         comment.setIsDeleted(true);
+        if (comment.getReplies() != null) {
+            for (FeedComment reply : comment.getReplies()) {
+                reply.setIsDeleted(true);
+            }
+        }
     }
 
     public FeedCommentLikeResponseDto likeComment(Long userId, Long commentId) {
