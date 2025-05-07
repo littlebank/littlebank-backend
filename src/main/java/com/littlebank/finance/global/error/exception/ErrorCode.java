@@ -20,10 +20,6 @@ public enum ErrorCode {
     ALREADY_FRIEND_EXISTS(409, "F002", "이미 친구 추가 되어있습니다"),
     NO_PERMISSION_TO_MODIFY(403, "F003", "수정 권한이 없습니다"),
 
-    // Relationship
-    RELATIONSHIP_NOT_FOUND(404, "R001", "관계가 존재하지 않습니다"),
-    ALREADY_RELATIONSHIP_EXISTS(409, "R002", "이미 관계를 맺은 상태이거나 요청한 상태입니다"),
-
     // Auth
     PASSWORD_NOT_MATCHED(401, "A001", "비밀번호가 일치하지 않습니다"),
     INVALID_REFRESH_TOKEN(401, "A002", "리프레쉬 토큰이 유효하지 않습니다"),

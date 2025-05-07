@@ -1,6 +1,5 @@
 package com.littlebank.finance.domain.user.service;
 
-import com.littlebank.finance.domain.relationship.domain.repository.RelationshipRepository;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginAdditionalInfoRequest;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final RelationshipRepository relationshipRepository;
     private final PasswordEncoder passwordEncoder;
 
     public SignupResponse saveUser(User user) {
