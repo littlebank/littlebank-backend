@@ -1,5 +1,7 @@
 package com.littlebank.finance.domain.feed.dto.response;
 
+import com.littlebank.finance.domain.feed.domain.FeedComment;
+import com.littlebank.finance.domain.feed.domain.QFeedComment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,17 +20,21 @@ public class FeedCommentResponseDto {
     private String content;
     private int likeCount;
     private boolean isliked;
+    private int replyCount;
     private LocalDateTime createdDate;
-    public static FeedCommentResponseDto of(Long commentId,
+    private LocalDateTime lastModifiedDate;
+
+    public static FeedCommentResponseDto of(FeedComment feedComment,
                                             Long feedId,
                                             Long parentId,
                                             String writerName,
                                             String writerProfileUrl,
                                             String content,
                                             int likeCount,
-                                            boolean isLiked) {
+                                            boolean isLiked,
+                                            int replyCount) {
         return FeedCommentResponseDto.builder()
-                .commentId(commentId)
+                .commentId(feedComment.getId())
                 .feedId(feedId)
                 .parentId(parentId)
                 .writerName(writerName)
@@ -36,7 +42,9 @@ public class FeedCommentResponseDto {
                 .content(content)
                 .likeCount(likeCount)
                 .isliked(isLiked)
-                .createdDate(LocalDateTime.now())
+                .replyCount(replyCount)
+                .createdDate(feedComment.getCreatedDate())
+                .lastModifiedDate(feedComment.getLastModifiedDate())
                 .build();
     }
 }

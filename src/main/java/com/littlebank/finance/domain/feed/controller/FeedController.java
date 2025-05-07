@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 
 @RestController
@@ -126,6 +127,17 @@ public class FeedController {
         return ResponseEntity.ok(feedService.createComment(customUserDetails.getId(), feedId, request));
     }
 
+    @Operation(summary = "대댓글 등록")
+    @PostMapping("/{feedId}/comment/reply")
+    public ResponseEntity<FeedCommentResponseDto> createReply (
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long feedId,
+            @RequestBody FeedCommentRequestDto request
+    ) {
+        FeedCommentResponseDto response = feedService.createReply(customUserDetails.getId(), feedId, request);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "댓글 좋아요 증가")
     @PostMapping("/comment/{commentId}/like")
     public ResponseEntity<FeedCommentLikeResponseDto> likeComment (@AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -161,14 +173,25 @@ public class FeedController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "댓글 목록 조회")
-    @GetMapping("/{feedId}/comment")
-    public ResponseEntity<Page<FeedCommentResponseDto>> getComments (
+    @Operation(summary = "피드의 최상위 댓글 목록 조회")
+    @GetMapping("/{feedId}/comments")
+    public ResponseEntity<Page<FeedCommentResponseDto>> getTopLevelComments(
             @PathVariable Long feedId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        return ResponseEntity.ok(feedService.getComments(feedId, page, size, customUserDetails.getId()));
+        return ResponseEntity.ok(feedService.getTopLevelComments(feedId, page, size, customUserDetails.getId()));
+    }
+
+    @Operation(summary = "특정 댓글의 대댓글 목록 조회")
+    @GetMapping("/comment/{parentId}/replies")
+    public ResponseEntity<Page<FeedCommentResponseDto>> getRepliesByParent(
+            @PathVariable Long parentId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return ResponseEntity.ok(feedService.getReplies(parentId, page, size, customUserDetails.getId()));
     }
 }
