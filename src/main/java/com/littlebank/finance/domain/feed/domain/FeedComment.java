@@ -18,7 +18,6 @@ import java.util.List;
 @Entity
 @Table(name="feed_comment")
 @SQLDelete(sql = "UPDATE feed_comment SET is_deleted = true WHERE id = ?")
-//@Where(clause = "is_deleted = false")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FeedComment extends BaseEntity {

@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,4 +92,5 @@ public class Feed extends BaseEntity {
     public void decreaseCommentCount() {
         this.commentCount = Math.max(0, this.commentCount - 1);
     }
+
 }
