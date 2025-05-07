@@ -9,9 +9,5 @@ import java.util.List;
 
 @Repository
 public interface FeedImageRepository extends JpaRepository<FeedImage, Long> {
-    List<FeedImage> findByFeedId(Long feedId);
-
-    void deleteByFeed(Feed feed);
-
     List<FeedImage> findByFeed(Feed feed);
 }

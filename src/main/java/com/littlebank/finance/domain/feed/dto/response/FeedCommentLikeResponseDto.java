@@ -9,16 +9,16 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor
-public class FeedLikeResponseDto {
-    private Long feedId;
+public class FeedCommentLikeResponseDto {
+    private Long commentId;
     private int likeCount;
-    private boolean liked;
+    private boolean isLiked;
     private LocalDateTime createdDate;
-    public static FeedLikeResponseDto of(Long feedId, int likeCount, boolean liked) {
-        return FeedLikeResponseDto.builder()
-                .feedId(feedId)
+    public static FeedCommentLikeResponseDto of(Long commentId, int likeCount, boolean isLiked) {
+        return FeedCommentLikeResponseDto.builder()
+                .commentId(commentId)
                 .likeCount(likeCount)
-                .liked(liked)
+                .isLiked(isLiked)
                 .createdDate(LocalDateTime.now())
                 .build();
     }

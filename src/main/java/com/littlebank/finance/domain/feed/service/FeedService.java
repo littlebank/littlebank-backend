@@ -5,8 +5,8 @@ import com.littlebank.finance.domain.feed.domain.repository.*;
 import com.littlebank.finance.domain.feed.dto.request.FeedCommentRequestDto;
 import com.littlebank.finance.domain.feed.dto.request.FeedRequestDto;
 import com.littlebank.finance.domain.feed.dto.request.FeedImageRequestDto;
+import com.littlebank.finance.domain.feed.dto.response.FeedCommentLikeResponseDto;
 import com.littlebank.finance.domain.feed.dto.response.FeedCommentResponseDto;
-import com.littlebank.finance.domain.feed.dto.response.FeedImageResponseDto;
 import com.littlebank.finance.domain.feed.dto.response.FeedResponseDto;
 import com.littlebank.finance.domain.feed.dto.response.FeedLikeResponseDto;
 import com.littlebank.finance.domain.feed.exception.FeedException;
@@ -22,7 +22,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +37,7 @@ public class FeedService {
     private final FeedRepositoryCustom feedRepositoryCustom;
     private final FeedLikeRepository feedLikeRepository;
     private final FeedCommentRepository feedCommentRepository;
-
+    private final FeedCommentLikeRepository feedCommentLikeRepository;
     public FeedResponseDto createFeed(Long userId, FeedRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -120,20 +119,26 @@ public class FeedService {
     }
 
     public void deleteFeed(Long userId, Long feedId) {
-        Feed feed = feedRepository.findById(feedId)
+        Feed feed = feedRepository.findWithCommentsById(feedId)
                 .orElseThrow(() -> new FeedException(ErrorCode.FEED_NOT_FOUND));
         if (!feed.getUser().getId().equals(userId)) {
             throw new FeedException(ErrorCode.USER_NOT_EQUAL);
         }
-        feedCommentRepository.deleteAllByFeed(feed);
-        feedRepository.deleteById(feed.getId());
+        for (FeedComment comment : feed.getComments()) {
+            comment.setFeed(null);
+            comment.setIsDeleted(true); // 소프트 삭제
+        }
+
+        feed.getComments().clear();
+        //feedCommentRepository.deleteAllByFeedId(feedId);
+        feedRepository.delete(feed);
     }
 
-    public Page<FeedResponseDto> getFeeds(Long userId, GradeCategory gradeCategory, SubjectCategory subjectCategory, TagCategory tagCategory, Pageable pageable) {
+    public Page<FeedResponseDto> getFeedsOrderByTime(Long userId, GradeCategory gradeCategory, SubjectCategory subjectCategory, TagCategory tagCategory, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        return feedRepositoryCustom.findAllByFilters(gradeCategory, subjectCategory, tagCategory, pageable)
+        return feedRepositoryCustom.findAllByFiltersOrderByTime(gradeCategory, subjectCategory, tagCategory, pageable)
                 .map(feed -> {
                     List<FeedImage> images = feedImageRepository.findByFeed(feed);
                     boolean liked = feedLikeRepository.findByFeedAndUser(feed, user).isPresent();
@@ -141,6 +146,17 @@ public class FeedService {
                 });
     }
 
+    public Page<FeedResponseDto> getFeedsOrderByLikes(Long userId, GradeCategory gradeCategory, SubjectCategory subjectCategory, TagCategory tagCategory, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        return feedRepositoryCustom.findAllByFiltersOrderByLikes(gradeCategory, subjectCategory, tagCategory, pageable)
+                .map(feed -> {
+                    List<FeedImage> images = feedImageRepository.findByFeed(feed);
+                    boolean liked = feedLikeRepository.findByFeedAndUser(feed, user).isPresent();
+                    return FeedResponseDto.of(feed, images, liked);
+                });
+    }
 
     public Page<FeedResponseDto> getFeedsByUser(Long userId, Pageable pageable) {
         User user = userRepository.findById(userId)
@@ -207,19 +223,33 @@ public class FeedService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
+        FeedComment parent = null;
+        if (request.getParentId() != null) {
+            parent = feedCommentRepository.findById(request.getParentId())
+                    .orElseThrow(() -> new FeedException(ErrorCode.COMMENT_NOT_FOUND));
+        }
         FeedComment comment = FeedComment.builder()
                 .feed(feed)
                 .user(user)
                 .content(request.getContent())
+                .parent(parent)
                 .build();
+
         feedCommentRepository.save(comment);
         feed.increaseCommentCount();
+
+        int likeCount = 0;
+        boolean isLiked = false;
+
         return FeedCommentResponseDto.of(
                 comment.getId(),
-                feedId,
+                feed.getId(),
+                parent != null? parent.getId() : null,
                 user.getName(),
                 user.getProfileImagePath(),
-                comment.getContent()
+                comment.getContent(),
+                likeCount,
+                isLiked
         );
     }
 
@@ -231,28 +261,44 @@ public class FeedService {
         }
         comment.update(request.getContent());
 
+        int likeCount = comment.getLikeCount();
+        boolean isLiked = comment.getLikes().stream()
+                .anyMatch(like -> like.getUser().getId().equals(userId));
+
         return FeedCommentResponseDto.of(
                 comment.getId(),
                 comment.getFeed().getId(),
+                comment.getParent()!=null? comment.getParent().getId() : null,
                 comment.getUser().getName(),
                 comment.getUser().getProfileImagePath(),
-                comment.getContent()
+                comment.getContent(),
+                likeCount,
+                isLiked
         );
     }
 
-    public Page<FeedCommentResponseDto> getComments(Long feedId, int page, int size) {
+    public Page<FeedCommentResponseDto> getComments(Long feedId, int page, int size, Long userId) {
         Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(() -> new FeedException(ErrorCode.FEED_NOT_FOUND));
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "createdDate"));
         Page<FeedComment> commentPage = feedCommentRepository.findByFeedAndIsDeletedFalse(feed, pageable);
 
-        return commentPage.map(comment -> FeedCommentResponseDto.of(
-                comment.getId(),
-                comment.getFeed().getId(),
-                comment.getUser().getName(),
-                comment.getUser().getProfileImagePath(),
-                comment.getContent()
-        ));
+        return commentPage.map(comment -> {
+            int likeCount = comment.getLikes().size();
+            boolean isLiked = comment.getLikes().stream()
+                    .anyMatch(like -> like.getUser().getId().equals(userId));
+
+            return FeedCommentResponseDto.of(
+                    comment.getId(),
+                    feed.getId(),
+                    comment.getParent() != null ? comment.getParent().getId() : null,
+                    comment.getUser().getName(),
+                    comment.getUser().getProfileImagePath(),
+                    comment.getContent(),
+                    likeCount,
+                    isLiked
+            );
+        });
     }
 
     @Transactional
@@ -264,6 +310,39 @@ public class FeedService {
             throw new FeedException(ErrorCode.USER_NOT_EQUAL);
         }
         comment.getFeed().decreaseCommentCount();
-        feedCommentRepository.deleteById(comment.getId());
+        comment.setIsDeleted(true);
+    }
+
+    public FeedCommentLikeResponseDto likeComment(Long userId, Long commentId) {
+        FeedComment feedComment = feedCommentRepository.findById(commentId)
+                .orElseThrow(() -> new FeedException(ErrorCode.COMMENT_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        if (feedCommentLikeRepository.findByFeedCommentAndUser(feedComment, user).isPresent()) {
+            throw new FeedException(ErrorCode.ALREADY_LIKED);
+        }
+
+        FeedCommentLike like = FeedCommentLike.builder()
+                .feedComment(feedComment)
+                .user(user)
+                .build();
+        feedCommentLikeRepository.save(like);
+
+        int likeCount = feedCommentLikeRepository.countByFeedComment(feedComment);
+        return FeedCommentLikeResponseDto.of(commentId, likeCount, true);
+    }
+
+    public FeedCommentLikeResponseDto unlikeComment(Long userId, Long commentId) {
+        FeedComment feedComment = feedCommentRepository.findById(commentId)
+                .orElseThrow(() -> new FeedException(ErrorCode.COMMENT_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        FeedCommentLike like = feedCommentLikeRepository.findByFeedCommentAndUser(feedComment, user)
+                .orElseThrow(() -> new FeedException(ErrorCode.LIKE_NOT_FOUND));
+
+        feedCommentLikeRepository.delete(like);
+        int likeCount = feedCommentLikeRepository.countByFeedComment(feedComment);
+        return FeedCommentLikeResponseDto.of(commentId, likeCount, false);
     }
 }
