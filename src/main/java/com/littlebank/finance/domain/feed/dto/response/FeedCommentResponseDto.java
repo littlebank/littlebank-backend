@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @AllArgsConstructor
@@ -16,7 +18,7 @@ public class FeedCommentResponseDto {
     private String content;
     private int likeCount;
     private boolean isliked;
-
+    private LocalDateTime createdDate;
     public static FeedCommentResponseDto of(Long commentId,
                                             Long feedId,
                                             Long parentId,
@@ -34,6 +36,7 @@ public class FeedCommentResponseDto {
                 .content(content)
                 .likeCount(likeCount)
                 .isliked(isLiked)
+                .createdDate(LocalDateTime.now())
                 .build();
     }
 }

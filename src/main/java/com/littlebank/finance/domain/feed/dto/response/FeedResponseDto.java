@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -24,7 +25,7 @@ public class FeedResponseDto {
     private int likeCount;
     private int commentCount;
     private boolean liked;
-
+    private LocalDateTime createdDate;
     public static FeedResponseDto of (Feed feed, List<FeedImage> images, boolean liked) {
         List<String> imageUrls = images.stream()
                 .map(FeedImage::getUrl)
@@ -43,6 +44,7 @@ public class FeedResponseDto {
                 .likeCount(feed.getLikeCount())
                 .commentCount(feed.getCommentCount())
                 .liked(liked)
+                .createdDate(LocalDateTime.now())
                 .build();
     }
 }

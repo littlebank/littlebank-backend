@@ -24,7 +24,7 @@ public class FeedRepositoryImpl implements FeedRepositoryCustom {
     }
 
     @Override
-    public Page<Feed> findAllByFiltersOrderByTime(GradeCategory grade, SubjectCategory subject, TagCategory tag, Pageable pageable) {
+    public Page<Feed> findAllByFiltersOrderByTime (GradeCategory grade, SubjectCategory subject, TagCategory tag, Pageable pageable) {
         QFeed feed = QFeed.feed;
 
         BooleanBuilder builder = new BooleanBuilder();

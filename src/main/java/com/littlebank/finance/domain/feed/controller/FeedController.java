@@ -10,11 +10,9 @@ import com.littlebank.finance.domain.feed.dto.response.FeedCommentResponseDto;
 import com.littlebank.finance.domain.feed.dto.response.FeedResponseDto;
 import com.littlebank.finance.domain.feed.service.FeedService;
 import com.littlebank.finance.global.security.CustomUserDetails;
-import com.littlebank.finance.global.security.CustomUserDetailsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
 
 @RestController
 @RequestMapping("api-user/feed")
@@ -31,7 +29,6 @@ import java.util.List;
 @Tag(name = "Feed")
 public class FeedController {
     private final FeedService feedService;
-    private final CustomUserDetailsService customUserDetailsService;
 
     @Operation(summary = "피드 생성")
     @PostMapping("/create")

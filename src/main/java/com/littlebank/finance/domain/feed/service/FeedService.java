@@ -22,7 +22,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -311,7 +310,6 @@ public class FeedService {
             throw new FeedException(ErrorCode.USER_NOT_EQUAL);
         }
         comment.getFeed().decreaseCommentCount();
-        //feedCommentRepository.deleteById(comment.getId());
         comment.setIsDeleted(true);
     }
 
