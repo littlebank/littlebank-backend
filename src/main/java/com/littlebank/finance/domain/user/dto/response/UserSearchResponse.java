@@ -11,6 +11,7 @@ public class UserSearchResponse {
     private Long searchUserId;
     private String email;
     private String name;
+    private String rrn;
     private String statusMessage;
     private String profileImagePath;
     private UserRole role;

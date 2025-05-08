@@ -66,6 +66,7 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
                                 u.id.as("searchUserId"),
                                 u.email,
                                 u.name,
+                                u.rrn,
                                 u.statusMessage,
                                 u.profileImagePath,
                                 u.role,
