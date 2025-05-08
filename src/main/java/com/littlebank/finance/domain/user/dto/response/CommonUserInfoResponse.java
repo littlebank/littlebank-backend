@@ -11,6 +11,7 @@ import lombok.Getter;
 public class CommonUserInfoResponse {
     private Long userId;
     private String realName;
+    private String rrn;
     private String statusMessage;
     private String profileImagePath;
     private UserRole role;
