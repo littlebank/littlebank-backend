@@ -35,6 +35,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                         CommonUserInfoResponse.class,
                                         u.id,
                                         u.name,
+                                        u.rrn,
                                         u.statusMessage,
                                         u.profileImagePath,
                                         u.role
@@ -76,6 +77,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                         CommonUserInfoResponse.class,
                                         u.id,
                                         u.name,
+                                        u.rrn,
                                         u.statusMessage,
                                         u.profileImagePath,
                                         u.role
