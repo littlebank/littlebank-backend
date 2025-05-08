@@ -3,11 +3,18 @@ package com.littlebank.finance.domain.family.domain.repository.impl;
 import com.littlebank.finance.domain.family.domain.FamilyMember;
 import com.littlebank.finance.domain.family.domain.QFamily;
 import com.littlebank.finance.domain.family.domain.QFamilyMember;
+import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.family.domain.repository.CustomFamilyMemberRepository;
+import com.littlebank.finance.domain.family.dto.response.FamilyInfoResponse;
+import com.littlebank.finance.domain.family.dto.response.FamilyMemberInfoResponse;
+import com.littlebank.finance.domain.family.exception.FamilyMemberException;
 import com.littlebank.finance.domain.user.domain.QUser;
+import com.littlebank.finance.global.error.exception.ErrorCode;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.littlebank.finance.domain.family.domain.QFamily.family;
@@ -28,5 +35,41 @@ public class CustomFamilyMemberRepositoryImpl implements CustomFamilyMemberRepos
                 .join(m.family, f).fetchJoin()
                 .where(m.user.id.eq(userId))
                 .fetchOne());
+    }
+
+    @Override
+    public FamilyInfoResponse getFamilyInfoByUserId(Long userId) {
+        Long familyId = queryFactory
+                .select(m.family.id)
+                .from(m)
+                .where(m.user.id.eq(userId))
+                .fetchOne();
+
+        if (familyId == null) {
+            throw new FamilyMemberException(ErrorCode.FAMILY_NOT_FOUND);
+        }
+
+        List<FamilyMemberInfoResponse> members = queryFactory
+                .select(Projections.constructor(
+                        FamilyMemberInfoResponse.class,
+                        m.id,
+                        m.nickname,
+                        m.user.id,
+                        m.user.email,
+                        m.user.name,
+                        m.user.phone,
+                        m.user.rrn,
+                        m.user.bankName,
+                        m.user.bankAccount,
+                        m.user.profileImagePath,
+                        m.user.role
+                ))
+                .from(m)
+                .join(m.user, u)
+                .where(m.family.id.eq(familyId)
+                        .and(m.status.eq(Status.JOINED)))
+                .fetch();
+
+        return new FamilyInfoResponse(familyId, members);
     }
 }

@@ -18,6 +18,7 @@ public class MyInfoResponse {
     private String name;
     private String statusMessage;
     private String phone;
+    private String rrn;
     private String bankName;
     private String bankCode;
     private String bankAccount;
@@ -34,6 +35,7 @@ public class MyInfoResponse {
                 .name(user.getName())
                 .statusMessage(user.getStatusMessage())
                 .phone(user.getPhone())
+                .rrn(user.getRrn())
                 .bankName(user.getBankName())
                 .bankCode(user.getBankCode())
                 .bankAccount(user.getBankAccount())
