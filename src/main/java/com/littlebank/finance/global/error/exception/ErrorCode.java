@@ -20,6 +20,10 @@ public enum ErrorCode {
     ALREADY_FRIEND_EXISTS(409, "F002", "이미 친구 추가 되어있습니다"),
     NO_PERMISSION_TO_MODIFY(403, "F003", "수정 권한이 없습니다"),
 
+    // FamilyMember
+    FAMILY_INVITE_ALREADY_SENT(409, "FM001", "가족 맴버로 초대를 보낸 상태입니다"),
+    FAMILY_MEMBER_ALREADY_EXISTS(409, "FM002", "가족 맴버로 소속되어 있습니다"),
+
     // Auth
     PASSWORD_NOT_MATCHED(401, "A001", "비밀번호가 일치하지 않습니다"),
     INVALID_REFRESH_TOKEN(401, "A002", "리프레쉬 토큰이 유효하지 않습니다"),
