@@ -4,15 +4,14 @@ import com.littlebank.finance.domain.feed.domain.GradeCategory;
 import com.littlebank.finance.domain.feed.domain.SubjectCategory;
 import com.littlebank.finance.domain.feed.domain.TagCategory;
 import com.littlebank.finance.domain.feed.dto.request.FeedCommentRequestDto;
+import com.littlebank.finance.domain.feed.dto.request.FeedReportRequestDto;
 import com.littlebank.finance.domain.feed.dto.request.FeedRequestDto;
-import com.littlebank.finance.domain.feed.dto.response.FeedCommentLikeResponseDto;
-import com.littlebank.finance.domain.feed.dto.response.FeedCommentResponseDto;
-import com.littlebank.finance.domain.feed.dto.response.FeedLikeResponseDto;
-import com.littlebank.finance.domain.feed.dto.response.FeedResponseDto;
+import com.littlebank.finance.domain.feed.dto.response.*;
 import com.littlebank.finance.domain.feed.service.FeedService;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -193,5 +192,16 @@ public class FeedController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         return ResponseEntity.ok(feedService.getReplies(parentId, page, size, customUserDetails.getId()));
+    }
+
+    @Operation(summary = "피드 신고")
+    @PostMapping("/{feedId}/report")
+    public ResponseEntity<FeedReportResponseDto> reportFeed(
+            @PathVariable Long feedId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody @Valid FeedReportRequestDto request
+    ) {
+        FeedReportResponseDto response = feedService.reportFeed(customUserDetails.getId(), feedId, request);
+        return ResponseEntity.ok(response);
     }
 }

@@ -3,12 +3,10 @@ package com.littlebank.finance.domain.feed.service;
 import com.littlebank.finance.domain.feed.domain.*;
 import com.littlebank.finance.domain.feed.domain.repository.*;
 import com.littlebank.finance.domain.feed.dto.request.FeedCommentRequestDto;
+import com.littlebank.finance.domain.feed.dto.request.FeedReportRequestDto;
 import com.littlebank.finance.domain.feed.dto.request.FeedRequestDto;
 import com.littlebank.finance.domain.feed.dto.request.FeedImageRequestDto;
-import com.littlebank.finance.domain.feed.dto.response.FeedCommentLikeResponseDto;
-import com.littlebank.finance.domain.feed.dto.response.FeedCommentResponseDto;
-import com.littlebank.finance.domain.feed.dto.response.FeedResponseDto;
-import com.littlebank.finance.domain.feed.dto.response.FeedLikeResponseDto;
+import com.littlebank.finance.domain.feed.dto.response.*;
 import com.littlebank.finance.domain.feed.exception.FeedException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
@@ -39,6 +37,8 @@ public class FeedService {
     private final FeedLikeRepository feedLikeRepository;
     private final FeedCommentRepository feedCommentRepository;
     private final FeedCommentLikeRepository feedCommentLikeRepository;
+    private final FeedReportRepository feedReportRepository;
+
     public FeedResponseDto createFeed(Long userId, FeedRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -431,5 +431,31 @@ public class FeedService {
                     0
             );
         });
+    }
+
+    public FeedReportResponseDto reportFeed(Long userId, Long feedId, FeedReportRequestDto request) {
+        Feed feed = feedRepository.findById(feedId)
+                .orElseThrow(() -> new FeedException(ErrorCode.FEED_NOT_FOUND));
+        User reporter = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        if (feedReportRepository.existsByFeedAndReporter(feed, reporter)) {
+            throw new FeedException(ErrorCode.ALREADY_REPORTED);
+        }
+
+        FeedReport feedReport = FeedReport.builder()
+                .feed(feed)
+                .reporter(reporter)
+                .reason(request.getReason())
+                .build();
+
+        feedReportRepository.save(feedReport);
+
+        return FeedReportResponseDto.of(
+                feedReport.getId(),
+                feed.getId(),
+                reporter.getId(),
+                feedReport.getReason()
+        );
     }
 }
