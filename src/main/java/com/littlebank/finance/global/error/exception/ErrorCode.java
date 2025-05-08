@@ -44,7 +44,8 @@ public enum ErrorCode {
     ALREADY_LIKED(400, "F003", "이미 좋아요 눌렀습니다"),
     LIKE_NOT_FOUND(404, "F004", "좋아요 정보가 존재하지 않습니다"),
     COMMENT_NOT_FOUND(404, "F005", "댓글을 찾을 수 없습니다"),
-    INVALID_PARENT_COMMENT(404, "F006", "부모 아이디를 찾을 수 없습니다");
+    INVALID_PARENT_COMMENT(404, "F006", "댓글 아이디를 찾을 수 없습니다"),
+    ALREADY_REPORTED(409, "F007", "이미 신고한 피드입니다");
 
     private final String code;
     private final String message;
