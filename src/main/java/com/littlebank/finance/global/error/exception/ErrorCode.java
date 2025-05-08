@@ -20,6 +20,9 @@ public enum ErrorCode {
     ALREADY_FRIEND_EXISTS(409, "F002", "이미 친구 추가 되어있습니다"),
     NO_PERMISSION_TO_MODIFY(403, "F003", "수정 권한이 없습니다"),
 
+    // Family
+    FAMILY_NOT_FOUND(404, "FA001", "가족이 존재하지 않습니다"),
+
     // FamilyMember
     FAMILY_MEMBER_NOT_FOUND(404, "FM001", "가족 맴버가 존재하지 않습니다"),
     FAMILY_INVITE_ALREADY_SENT(409, "FM002", "가족 맴버로 초대를 보낸 상태입니다"),

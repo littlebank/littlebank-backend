@@ -7,6 +7,7 @@ import com.littlebank.finance.domain.family.domain.repository.FamilyMemberReposi
 import com.littlebank.finance.domain.family.domain.repository.FamilyRepository;
 import com.littlebank.finance.domain.family.dto.request.FamilyMemberAddRequest;
 import com.littlebank.finance.domain.family.dto.request.MyFamilyNicknameUpdateRequest;
+import com.littlebank.finance.domain.family.dto.response.FamilyInfoResponse;
 import com.littlebank.finance.domain.family.dto.response.FamilyMemberAddResponse;
 import com.littlebank.finance.domain.family.dto.response.MyFamilyNicknameUpdateResponse;
 import com.littlebank.finance.domain.family.exception.FamilyMemberException;
@@ -68,6 +69,11 @@ public class FamilyService {
                 .build());
 
         return FamilyMemberAddResponse.of(newMember);
+    }
+
+    @Transactional(readOnly = true)
+    public FamilyInfoResponse getFamilyInfo(Long userId) {
+        return familyMemberRepository.getFamilyInfoByUserId(userId);
     }
 
     public MyFamilyNicknameUpdateResponse updateMyFamilyNickname(MyFamilyNicknameUpdateRequest request) {
