@@ -50,4 +50,8 @@ public class FamilyMember extends BaseEntity {
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
+
+    public void accept() {
+        this.status = Status.JOINED;
+    }
 }

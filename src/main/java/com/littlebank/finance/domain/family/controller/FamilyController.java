@@ -4,8 +4,10 @@ import com.littlebank.finance.domain.family.dto.request.FamilyMemberAddRequest;
 import com.littlebank.finance.domain.family.dto.request.MyFamilyNicknameUpdateRequest;
 import com.littlebank.finance.domain.family.dto.response.*;
 import com.littlebank.finance.domain.family.service.FamilyService;
+import com.littlebank.finance.domain.friend.dto.response.FamilyInvitationAcceptResponse;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -60,12 +62,23 @@ public class FamilyController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "맴버 가입 여부 확인 API")
+    @Operation(summary = "가족 그룹 소속 여부 확인 API")
     @GetMapping("/check-joined")
     public ResponseEntity<FamilyEnterCheckResponse> checkFamilyMembership(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         FamilyEnterCheckResponse response = familyService.checkFamilyMembership(customUserDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "맴버 초대 수락 API")
+    @PatchMapping("/invite/accept/{familyMemberId}")
+    public ResponseEntity<FamilyInvitationAcceptResponse> acceptFamilyInvitation(
+            @Parameter(description = "가족 구성원 id")
+            @PathVariable("familyMemberId") Long familyMemberId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        FamilyInvitationAcceptResponse response = familyService.acceptFamilyInvitation(customUserDetails.getId(), familyMemberId);
         return ResponseEntity.ok(response);
     }
 }

@@ -9,7 +9,9 @@ import com.littlebank.finance.domain.family.dto.request.FamilyMemberAddRequest;
 import com.littlebank.finance.domain.family.dto.request.MyFamilyNicknameUpdateRequest;
 import com.littlebank.finance.domain.family.dto.response.*;
 import com.littlebank.finance.domain.family.exception.FamilyMemberException;
+import com.littlebank.finance.domain.friend.dto.response.FamilyInvitationAcceptResponse;
 import com.littlebank.finance.domain.user.domain.User;
+import com.littlebank.finance.domain.user.domain.UserRole;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
@@ -101,5 +103,24 @@ public class FamilyService {
             return FamilyEnterCheckResponse.of(Boolean.TRUE);
         }
         return FamilyEnterCheckResponse.of(Boolean.FALSE);
+    }
+
+    public FamilyInvitationAcceptResponse acceptFamilyInvitation(Long userId, Long familyMemberId) {
+        familyMemberRepository.deleteIfExistsByUserIdAndStatus(userId, Status.JOINED.name());
+
+        FamilyMember member = familyMemberRepository.findById(familyMemberId)
+                .orElseThrow(() -> new FamilyMemberException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+
+        // 부모 2명 검증
+        if (member.getUser().getRole() == UserRole.PARENT &&
+                familyMemberRepository.findByMemberIdWithFamilyAndUser(familyMemberId).stream()
+                        .filter(m -> m.getUser().getRole() == UserRole.PARENT).count() >= 2
+        ) {
+            throw new FamilyMemberException(ErrorCode.MULTIPLE_PARENTS_NOT_ALLOWED);
+        }
+
+        member.accept();
+
+        return FamilyInvitationAcceptResponse.of(member);
     }
 }
