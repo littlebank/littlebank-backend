@@ -38,6 +38,23 @@ public class CustomFamilyMemberRepositoryImpl implements CustomFamilyMemberRepos
     }
 
     @Override
+    public List<FamilyMember> findByMemberIdWithFamilyAndUser(Long memberId) {
+        return queryFactory
+                .selectFrom(m)
+                .join(m.user, u).fetchJoin()
+                .where(m.family.id.eq(
+                        queryFactory
+                                .select(m.family.id)
+                                .from(m)
+                                .where(m.id.eq(memberId))
+                                .fetchOne()
+                        )
+                        .and(m.status.eq(Status.JOINED))
+                )
+                .fetch();
+    }
+
+    @Override
     public FamilyInfoResponse getFamilyInfoByUserId(Long userId) {
         Long familyId = queryFactory
                 .select(m.family.id)
