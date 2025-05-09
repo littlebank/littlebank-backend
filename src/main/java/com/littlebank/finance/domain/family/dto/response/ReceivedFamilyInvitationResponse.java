@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor
-public class FamilyInvitationResponse {
+public class ReceivedFamilyInvitationResponse {
     private Long familyMemberId;
     private Long familyId;
     private Long inviterId;
     private String inviterName;
     private LocalDateTime invitedDate;
 
-    public static FamilyInvitationResponse of(FamilyMember member) {
-        return FamilyInvitationResponse.builder()
+    public static ReceivedFamilyInvitationResponse of(FamilyMember member) {
+        return ReceivedFamilyInvitationResponse.builder()
                 .familyMemberId(member.getId())
                 .familyId(member.getFamily().getId())
                 .inviterId(member.getInvitedBy().getId())

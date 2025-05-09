@@ -91,13 +91,14 @@ public class FamilyService {
     }
 
     @Transactional(readOnly = true)
-    public List<FamilyInvitationResponse> getReceivedFamilyInvitations(Long userId) {
+    public List<ReceivedFamilyInvitationResponse> getReceivedFamilyInvitations(Long userId) {
         List<FamilyMember> members = familyMemberRepository.findAllByUserIdAndStatus(userId, Status.REQUESTED);
         return members.stream()
-                .map(member -> FamilyInvitationResponse.of(member))
+                .map(member -> ReceivedFamilyInvitationResponse.of(member))
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public FamilyEnterCheckResponse checkFamilyMembership(Long userId) {
         if (familyMemberRepository.existsByUserIdAndStatus(userId, Status.JOINED)) {
             return FamilyEnterCheckResponse.of(Boolean.TRUE);
@@ -122,5 +123,13 @@ public class FamilyService {
         member.accept();
 
         return FamilyInvitationAcceptResponse.of(member);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SentFamilyInvitationResponse> getSentFamilyInvitations(Long familyId) {
+        List<FamilyMember> members = familyMemberRepository.findAllByFamilyIdAndStatusWithUser(familyId, Status.REQUESTED);
+        return members.stream()
+                .map(m -> SentFamilyInvitationResponse.of(m))
+                .collect(Collectors.toList());
     }
 }
