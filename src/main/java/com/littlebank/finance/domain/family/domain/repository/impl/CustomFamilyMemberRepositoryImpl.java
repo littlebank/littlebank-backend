@@ -42,7 +42,8 @@ public class CustomFamilyMemberRepositoryImpl implements CustomFamilyMemberRepos
         Long familyId = queryFactory
                 .select(m.family.id)
                 .from(m)
-                .where(m.user.id.eq(userId))
+                .where(m.user.id.eq(userId)
+                        .and(m.status.eq(Status.JOINED)))
                 .fetchOne();
 
         if (familyId == null) {
