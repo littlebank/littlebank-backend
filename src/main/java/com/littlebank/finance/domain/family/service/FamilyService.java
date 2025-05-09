@@ -8,6 +8,7 @@ import com.littlebank.finance.domain.family.domain.repository.FamilyRepository;
 import com.littlebank.finance.domain.family.dto.request.FamilyMemberAddRequest;
 import com.littlebank.finance.domain.family.dto.request.MyFamilyNicknameUpdateRequest;
 import com.littlebank.finance.domain.family.dto.response.FamilyInfoResponse;
+import com.littlebank.finance.domain.family.dto.response.FamilyInvitationResponse;
 import com.littlebank.finance.domain.family.dto.response.FamilyMemberAddResponse;
 import com.littlebank.finance.domain.family.dto.response.MyFamilyNicknameUpdateResponse;
 import com.littlebank.finance.domain.family.exception.FamilyMemberException;
@@ -18,6 +19,9 @@ import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -66,6 +70,7 @@ public class FamilyService {
                 .nickname(targetUser.getName())
                 .family(member.getFamily())
                 .user(targetUser)
+                .invitedBy(user)
                 .status(Status.REQUESTED)
                 .build());
 
@@ -84,5 +89,13 @@ public class FamilyService {
         familyMember.updateNickname(request.getNickname());
 
         return MyFamilyNicknameUpdateResponse.of(familyMember);
+    }
+
+    @Transactional(readOnly = true)
+    public List<FamilyInvitationResponse> getReceivedFamilyInvitations(Long userId) {
+        List<FamilyMember> members = familyMemberRepository.findByUserIdAndStatus(userId, Status.REQUESTED);
+        return members.stream()
+                .map(member -> FamilyInvitationResponse.of(member))
+                .collect(Collectors.toList());
     }
 }

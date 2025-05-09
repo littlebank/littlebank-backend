@@ -3,6 +3,7 @@ package com.littlebank.finance.domain.family.controller;
 import com.littlebank.finance.domain.family.dto.request.FamilyMemberAddRequest;
 import com.littlebank.finance.domain.family.dto.request.MyFamilyNicknameUpdateRequest;
 import com.littlebank.finance.domain.family.dto.response.FamilyInfoResponse;
+import com.littlebank.finance.domain.family.dto.response.FamilyInvitationResponse;
 import com.littlebank.finance.domain.family.dto.response.FamilyMemberAddResponse;
 import com.littlebank.finance.domain.family.dto.response.MyFamilyNicknameUpdateResponse;
 import com.littlebank.finance.domain.family.service.FamilyService;
@@ -15,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api-user/family")
@@ -48,6 +51,15 @@ public class FamilyController {
             @RequestBody @Valid MyFamilyNicknameUpdateRequest request
     ) {
         MyFamilyNicknameUpdateResponse response = familyService.updateMyFamilyNickname(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "초대 받은 목록 조회 API")
+    @GetMapping("/invite/received")
+    public ResponseEntity<List<FamilyInvitationResponse>> getReceivedFamilyInvitations(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        List<FamilyInvitationResponse> response = familyService.getReceivedFamilyInvitations(customUserDetails.getId());
         return ResponseEntity.ok(response);
     }
 }
