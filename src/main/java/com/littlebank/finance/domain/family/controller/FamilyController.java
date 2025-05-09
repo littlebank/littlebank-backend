@@ -55,10 +55,10 @@ public class FamilyController {
 
     @Operation(summary = "초대 받은 목록 조회 API")
     @GetMapping("/invite/received")
-    public ResponseEntity<List<FamilyInvitationResponse>> getReceivedFamilyInvitations(
+    public ResponseEntity<List<ReceivedFamilyInvitationResponse>> getReceivedFamilyInvitations(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        List<FamilyInvitationResponse> response = familyService.getReceivedFamilyInvitations(customUserDetails.getId());
+        List<ReceivedFamilyInvitationResponse> response = familyService.getReceivedFamilyInvitations(customUserDetails.getId());
         return ResponseEntity.ok(response);
     }
 
@@ -79,6 +79,17 @@ public class FamilyController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         FamilyInvitationAcceptResponse response = familyService.acceptFamilyInvitation(customUserDetails.getId(), familyMemberId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "초대 요청 중인 맴버 목록 조회 API")
+    @GetMapping("/invite/sent/{familyId}")
+    public ResponseEntity<List<SentFamilyInvitationResponse>> getSentFamilyInvitations(
+            @Parameter(description = "가족 id")
+            @PathVariable("familyId") Long familyId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        List<SentFamilyInvitationResponse> response = familyService.getSentFamilyInvitations(familyId);
         return ResponseEntity.ok(response);
     }
 }

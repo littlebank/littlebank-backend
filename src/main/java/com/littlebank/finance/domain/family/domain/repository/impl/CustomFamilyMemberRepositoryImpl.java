@@ -43,13 +43,26 @@ public class CustomFamilyMemberRepositoryImpl implements CustomFamilyMemberRepos
                 .selectFrom(m)
                 .join(m.user, u).fetchJoin()
                 .where(m.family.id.eq(
-                        queryFactory
-                                .select(m.family.id)
-                                .from(m)
-                                .where(m.id.eq(memberId))
-                                .fetchOne()
-                        )
-                        .and(m.status.eq(Status.JOINED))
+                                        queryFactory
+                                                .select(m.family.id)
+                                                .from(m)
+                                                .where(m.id.eq(memberId))
+                                                .fetchOne()
+                                )
+                                .and(m.status.eq(Status.JOINED))
+                )
+                .fetch();
+    }
+
+    @Override
+    public List<FamilyMember> findAllByFamilyIdAndStatusWithUser(Long familyId, Status status) {
+        QUser u1 = new QUser("u1");
+        return queryFactory
+                .selectFrom(m)
+                .join(m.user, u).fetchJoin()
+                .join(m.invitedBy, u1).fetchJoin()
+                .where(m.family.id.eq(familyId)
+                        .and(m.status.eq(status))
                 )
                 .fetch();
     }
