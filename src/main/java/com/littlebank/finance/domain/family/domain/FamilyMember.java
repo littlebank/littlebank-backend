@@ -28,6 +28,9 @@ public class FamilyMember extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user", nullable = false)
     private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "invited_by", nullable = false)
+    private User invitedBy;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
@@ -35,10 +38,11 @@ public class FamilyMember extends BaseEntity {
     private Boolean isDeleted;
 
     @Builder
-    public FamilyMember(String nickname, Family family, User user, Status status, Boolean isDeleted) {
+    public FamilyMember(String nickname, Family family, User user, User invitedBy, Status status, Boolean isDeleted) {
         this.nickname = nickname;
         this.family = family;
         this.user = user;
+        this.invitedBy = invitedBy;
         this.status = status;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
