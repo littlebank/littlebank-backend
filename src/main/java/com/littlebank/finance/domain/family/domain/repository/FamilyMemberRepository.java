@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long>, CustomFamilyMemberRepository {
     Optional<FamilyMember> findByFamilyIdAndUserId(Long familyId, Long userId);
-    List<FamilyMember> findByUserIdAndStatus(Long userId, Status requested);
+    List<FamilyMember> findAllByUserIdAndStatus(Long userId, Status status);
 }

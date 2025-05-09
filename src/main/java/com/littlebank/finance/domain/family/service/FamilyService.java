@@ -93,7 +93,7 @@ public class FamilyService {
 
     @Transactional(readOnly = true)
     public List<FamilyInvitationResponse> getReceivedFamilyInvitations(Long userId) {
-        List<FamilyMember> members = familyMemberRepository.findByUserIdAndStatus(userId, Status.REQUESTED);
+        List<FamilyMember> members = familyMemberRepository.findAllByUserIdAndStatus(userId, Status.REQUESTED);
         return members.stream()
                 .map(member -> FamilyInvitationResponse.of(member))
                 .collect(Collectors.toList());
