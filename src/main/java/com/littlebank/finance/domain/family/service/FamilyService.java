@@ -7,10 +7,7 @@ import com.littlebank.finance.domain.family.domain.repository.FamilyMemberReposi
 import com.littlebank.finance.domain.family.domain.repository.FamilyRepository;
 import com.littlebank.finance.domain.family.dto.request.FamilyMemberAddRequest;
 import com.littlebank.finance.domain.family.dto.request.MyFamilyNicknameUpdateRequest;
-import com.littlebank.finance.domain.family.dto.response.FamilyInfoResponse;
-import com.littlebank.finance.domain.family.dto.response.FamilyInvitationResponse;
-import com.littlebank.finance.domain.family.dto.response.FamilyMemberAddResponse;
-import com.littlebank.finance.domain.family.dto.response.MyFamilyNicknameUpdateResponse;
+import com.littlebank.finance.domain.family.dto.response.*;
 import com.littlebank.finance.domain.family.exception.FamilyMemberException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
@@ -93,9 +90,16 @@ public class FamilyService {
 
     @Transactional(readOnly = true)
     public List<FamilyInvitationResponse> getReceivedFamilyInvitations(Long userId) {
-        List<FamilyMember> members = familyMemberRepository.findByUserIdAndStatus(userId, Status.REQUESTED);
+        List<FamilyMember> members = familyMemberRepository.findAllByUserIdAndStatus(userId, Status.REQUESTED);
         return members.stream()
                 .map(member -> FamilyInvitationResponse.of(member))
                 .collect(Collectors.toList());
+    }
+
+    public FamilyEnterCheckResponse checkFamilyMembership(Long userId) {
+        if (familyMemberRepository.existsByUserIdAndStatus(userId, Status.JOINED)) {
+            return FamilyEnterCheckResponse.of(Boolean.TRUE);
+        }
+        return FamilyEnterCheckResponse.of(Boolean.FALSE);
     }
 }

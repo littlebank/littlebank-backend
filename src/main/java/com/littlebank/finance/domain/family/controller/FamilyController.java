@@ -2,10 +2,7 @@ package com.littlebank.finance.domain.family.controller;
 
 import com.littlebank.finance.domain.family.dto.request.FamilyMemberAddRequest;
 import com.littlebank.finance.domain.family.dto.request.MyFamilyNicknameUpdateRequest;
-import com.littlebank.finance.domain.family.dto.response.FamilyInfoResponse;
-import com.littlebank.finance.domain.family.dto.response.FamilyInvitationResponse;
-import com.littlebank.finance.domain.family.dto.response.FamilyMemberAddResponse;
-import com.littlebank.finance.domain.family.dto.response.MyFamilyNicknameUpdateResponse;
+import com.littlebank.finance.domain.family.dto.response.*;
 import com.littlebank.finance.domain.family.service.FamilyService;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,6 +57,15 @@ public class FamilyController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         List<FamilyInvitationResponse> response = familyService.getReceivedFamilyInvitations(customUserDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "맴버 가입 여부 확인 API")
+    @GetMapping("/check-joined")
+    public ResponseEntity<FamilyEnterCheckResponse> checkFamilyMembership(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        FamilyEnterCheckResponse response = familyService.checkFamilyMembership(customUserDetails.getId());
         return ResponseEntity.ok(response);
     }
 }
