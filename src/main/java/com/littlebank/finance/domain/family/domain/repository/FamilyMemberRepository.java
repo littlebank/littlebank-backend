@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long>, CustomFamilyMemberRepository {
+    boolean existsByUserIdAndStatus(Long userId, Status status);
     Optional<FamilyMember> findByFamilyIdAndUserId(Long familyId, Long userId);
     List<FamilyMember> findAllByUserIdAndStatus(Long userId, Status status);
 }
