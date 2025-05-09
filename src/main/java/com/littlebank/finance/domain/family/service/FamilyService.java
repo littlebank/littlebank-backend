@@ -45,6 +45,7 @@ public class FamilyService {
                             .nickname(user.getName())
                             .family(newFamily)
                             .user(user)
+                            .invitedBy(user)
                             .status(Status.JOINED)
                             .build());
                 });

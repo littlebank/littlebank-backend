@@ -12,12 +12,14 @@ import lombok.Getter;
 public class FamilyMemberAddResponse {
     private Long familyMemberId;
     private Long familyId;
+    private Long inviterId;
     private Status status;
 
     public static FamilyMemberAddResponse of(FamilyMember member) {
         return FamilyMemberAddResponse.builder()
                 .familyMemberId(member.getId())
                 .familyId(member.getFamily().getId())
+                .inviterId(member.getInvitedBy().getId())
                 .status(member.getStatus())
                 .build();
     }
