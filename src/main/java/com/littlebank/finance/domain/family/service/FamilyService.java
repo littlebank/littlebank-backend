@@ -146,4 +146,10 @@ public class FamilyService {
                         .orElseThrow(() -> new FamilyMemberException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
         familyMemberRepository.deleteById(familyMember.getId());
     }
+
+    public void cancelFamilyInvitation(Long familyMemberId) {
+        FamilyMember familyMember = familyMemberRepository.findById(familyMemberId)
+                .orElseThrow(() -> new FamilyMemberException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+        familyMemberRepository.deleteById(familyMember.getId());
+    }
 }

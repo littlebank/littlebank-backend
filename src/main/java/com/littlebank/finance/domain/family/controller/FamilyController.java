@@ -101,4 +101,14 @@ public class FamilyController {
         familyService.refuseFamilyInvitation(familyMemberId);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "초대 중인 유저 초대 취소 API")
+    @DeleteMapping("/invite/cancel/{familyMemberId}")
+    public ResponseEntity<Void> cancelFamilyInvitation(
+            @Parameter(description = "삭제할 가족 구성원 id")
+            @PathVariable("familyMemberId") Long familyMemberId
+    ) {
+        familyService.cancelFamilyInvitation(familyMemberId);
+        return ResponseEntity.noContent().build();
+    }
 }
