@@ -7,7 +7,7 @@ import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.family.domain.repository.CustomFamilyMemberRepository;
 import com.littlebank.finance.domain.family.dto.response.FamilyInfoResponse;
 import com.littlebank.finance.domain.family.dto.response.FamilyMemberInfoResponse;
-import com.littlebank.finance.domain.family.exception.FamilyMemberException;
+import com.littlebank.finance.domain.family.exception.FamilyException;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.querydsl.core.types.Projections;
@@ -34,6 +34,17 @@ public class CustomFamilyMemberRepositoryImpl implements CustomFamilyMemberRepos
                 queryFactory
                         .selectFrom(m)
                         .join(m.family, f).fetchJoin()
+                        .where(m.user.id.eq(userId)
+                                .and(m.status.eq(status)))
+                        .fetchOne());
+    }
+
+    @Override
+    public Optional<FamilyMember> findByUserIdAndStatusWithUser(Long userId, Status status) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(m)
+                        .join(m.user, u).fetchJoin()
                         .where(m.user.id.eq(userId)
                                 .and(m.status.eq(status)))
                         .fetchOne());
@@ -79,7 +90,7 @@ public class CustomFamilyMemberRepositoryImpl implements CustomFamilyMemberRepos
                 .fetchOne();
 
         if (familyId == null) {
-            throw new FamilyMemberException(ErrorCode.FAMILY_NOT_FOUND);
+            throw new FamilyException(ErrorCode.FAMILY_NOT_FOUND);
         }
 
         List<FamilyMemberInfoResponse> members = queryFactory
