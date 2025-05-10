@@ -86,10 +86,19 @@ public class FamilyController {
     @GetMapping("/invite/sent/{familyId}")
     public ResponseEntity<List<SentFamilyInvitationResponse>> getSentFamilyInvitations(
             @Parameter(description = "가족 id")
-            @PathVariable("familyId") Long familyId,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @PathVariable("familyId") Long familyId
     ) {
         List<SentFamilyInvitationResponse> response = familyService.getSentFamilyInvitations(familyId);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "맴버 초대 거절 API")
+    @DeleteMapping("/invite/refuse/{familyMemberId}")
+    public ResponseEntity<Void> refuseFamilyInvitation(
+            @Parameter(description = "삭제할 가족 구성원 id")
+            @PathVariable("familyMemberId") Long familyMemberId
+    ) {
+        familyService.refuseFamilyInvitation(familyMemberId);
+        return ResponseEntity.noContent().build();
     }
 }

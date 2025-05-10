@@ -107,7 +107,7 @@ public class FamilyService {
     }
 
     public FamilyInvitationAcceptResponse acceptFamilyInvitation(Long userId, Long familyMemberId) {
-        familyMemberRepository.deleteIfExistsByUserIdAndStatus(userId, Status.JOINED.name());
+        familyMemberRepository.deleteByUserIdAndStatus(userId, Status.JOINED.name());
 
         FamilyMember member = familyMemberRepository.findById(familyMemberId)
                 .orElseThrow(() -> new FamilyMemberException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
@@ -131,5 +131,11 @@ public class FamilyService {
         return members.stream()
                 .map(m -> SentFamilyInvitationResponse.of(m))
                 .collect(Collectors.toList());
+    }
+
+    public void refuseFamilyInvitation(Long familyMemberId) {
+        FamilyMember familyMember = familyMemberRepository.findById(familyMemberId)
+                        .orElseThrow(() -> new FamilyMemberException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+        familyMemberRepository.deleteById(familyMember.getId());
     }
 }
