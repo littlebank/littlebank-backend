@@ -132,4 +132,10 @@ public class FamilyService {
                 .map(m -> SentFamilyInvitationResponse.of(m))
                 .collect(Collectors.toList());
     }
+
+    public void refuseFamilyInvitation(Long familyMemberId) {
+        FamilyMember familyMember = familyMemberRepository.findById(familyMemberId)
+                        .orElseThrow(() -> new FamilyMemberException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+        familyMemberRepository.deleteById(familyMember.getId());
+    }
 }
