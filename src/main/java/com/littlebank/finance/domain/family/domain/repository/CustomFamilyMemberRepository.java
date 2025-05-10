@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface CustomFamilyMemberRepository {
     Optional<FamilyMember> findByUserIdAndStatusWithFamily(Long userId, Status status);
+    Optional<FamilyMember> findByUserIdAndStatusWithUser(Long userId, Status status);
     List<FamilyMember> findByMemberIdWithFamilyAndUser(Long memberId);
     List<FamilyMember> findAllByFamilyIdAndStatusWithUser(Long familyId, Status status);
 

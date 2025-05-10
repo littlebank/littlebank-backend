@@ -95,7 +95,7 @@ public class FamilyController {
     @Operation(summary = "맴버 초대 거절 API")
     @DeleteMapping("/invite/refuse/{familyMemberId}")
     public ResponseEntity<Void> refuseFamilyInvitation(
-            @Parameter(description = "삭제할 가족 구성원 id")
+            @Parameter(description = "초대 거절할 가족 구성원 id")
             @PathVariable("familyMemberId") Long familyMemberId
     ) {
         familyService.refuseFamilyInvitation(familyMemberId);
@@ -105,10 +105,21 @@ public class FamilyController {
     @Operation(summary = "초대 중인 유저 초대 취소 API")
     @DeleteMapping("/invite/cancel/{familyMemberId}")
     public ResponseEntity<Void> cancelFamilyInvitation(
-            @Parameter(description = "삭제할 가족 구성원 id")
+            @Parameter(description = "초대 취소할 가족 구성원 id")
             @PathVariable("familyMemberId") Long familyMemberId
     ) {
         familyService.cancelFamilyInvitation(familyMemberId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "맴버 추방 API")
+    @DeleteMapping("/force-out/{familyMemberId}")
+    public ResponseEntity<Void> forceOutMember(
+            @Parameter(description = "추방할 가족 구성원 id")
+            @PathVariable("familyMemberId") Long familyMemberId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        familyService.forceOutMember(customUserDetails.getId(), familyMemberId);
         return ResponseEntity.noContent().build();
     }
 }

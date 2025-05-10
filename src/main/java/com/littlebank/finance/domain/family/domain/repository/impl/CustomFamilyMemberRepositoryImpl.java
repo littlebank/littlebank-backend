@@ -40,6 +40,17 @@ public class CustomFamilyMemberRepositoryImpl implements CustomFamilyMemberRepos
     }
 
     @Override
+    public Optional<FamilyMember> findByUserIdAndStatusWithUser(Long userId, Status status) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(m)
+                        .join(m.user, u).fetchJoin()
+                        .where(m.user.id.eq(userId)
+                                .and(m.status.eq(status)))
+                        .fetchOne());
+    }
+
+    @Override
     public List<FamilyMember> findByMemberIdWithFamilyAndUser(Long memberId) {
         return queryFactory
                 .selectFrom(m)

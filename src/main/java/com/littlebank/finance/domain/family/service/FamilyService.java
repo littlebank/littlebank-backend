@@ -152,4 +152,18 @@ public class FamilyService {
                 .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
         familyMemberRepository.deleteById(familyMember.getId());
     }
+
+    public void forceOutMember(Long userId, Long familyMemberId) {
+        FamilyMember member = familyMemberRepository.findByUserIdAndStatusWithUser(userId, Status.JOINED)
+                .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+
+        // 부모 역할 권한 예외처리
+        if (member.getUser().getRole() != UserRole.PARENT) {
+            throw new FamilyException(ErrorCode.FORBIDDEN_PARENT_ONLY);
+        }
+
+        FamilyMember familyMember = familyMemberRepository.findById(familyMemberId)
+                .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+        familyMemberRepository.deleteById(familyMember.getId());
+    }
 }
