@@ -7,10 +7,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 
 @Entity
 @Table(name="feed_like")
 @Getter
+@SQLDelete(sql = "UPDATE feed_like SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 이게 맞나
 public class FeedLike extends BaseEntity {
     @Id @GeneratedValue

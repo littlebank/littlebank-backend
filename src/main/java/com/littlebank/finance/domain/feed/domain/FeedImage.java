@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.feed.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
 
 import java.security.cert.CertPathBuilder;
 
@@ -10,6 +11,7 @@ import java.security.cert.CertPathBuilder;
 @Getter
 @Builder
 @AllArgsConstructor
+@SQLDelete(sql = "UPDATE feed_image SET is_deleted = true WHERE id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FeedImage {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
