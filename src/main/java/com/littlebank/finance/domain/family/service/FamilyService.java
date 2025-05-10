@@ -8,7 +8,7 @@ import com.littlebank.finance.domain.family.domain.repository.FamilyRepository;
 import com.littlebank.finance.domain.family.dto.request.FamilyMemberAddRequest;
 import com.littlebank.finance.domain.family.dto.request.MyFamilyNicknameUpdateRequest;
 import com.littlebank.finance.domain.family.dto.response.*;
-import com.littlebank.finance.domain.family.exception.FamilyMemberException;
+import com.littlebank.finance.domain.family.exception.FamilyException;
 import com.littlebank.finance.domain.friend.dto.response.FamilyInvitationAcceptResponse;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.UserRole;
@@ -57,11 +57,11 @@ public class FamilyService {
         if (targetMember != null) {
             // 초대 요청 상태
             if (!targetMember.getIsDeleted() && targetMember.getStatus() == Status.REQUESTED) {
-                throw new FamilyMemberException(ErrorCode.FAMILY_INVITE_ALREADY_SENT);
+                throw new FamilyException(ErrorCode.FAMILY_INVITE_ALREADY_SENT);
             }
             // 이미 가입 된 상태
             if (!targetMember.getIsDeleted() && targetMember.getStatus() == Status.JOINED) {
-                throw new FamilyMemberException(ErrorCode.FAMILY_MEMBER_ALREADY_EXISTS);
+                throw new FamilyException(ErrorCode.FAMILY_MEMBER_ALREADY_EXISTS);
             }
             // 초대 거절, 초대 취소 상태
             if (targetMember.getIsDeleted() && targetMember.getStatus() == Status.REQUESTED) {
@@ -91,7 +91,7 @@ public class FamilyService {
 
     public MyFamilyNicknameUpdateResponse updateMyFamilyNickname(MyFamilyNicknameUpdateRequest request) {
         FamilyMember familyMember = familyMemberRepository.findById(request.getFamilyMemberId())
-                .orElseThrow(() -> new FamilyMemberException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
 
         familyMember.updateNickname(request.getNickname());
 
@@ -118,14 +118,14 @@ public class FamilyService {
         familyMemberRepository.deleteByUserIdAndStatus(userId, Status.JOINED.name());
 
         FamilyMember member = familyMemberRepository.findById(familyMemberId)
-                .orElseThrow(() -> new FamilyMemberException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
 
         // 부모 2명 검증
         if (member.getUser().getRole() == UserRole.PARENT &&
                 familyMemberRepository.findByMemberIdWithFamilyAndUser(familyMemberId).stream()
                         .filter(m -> m.getUser().getRole() == UserRole.PARENT).count() >= 2
         ) {
-            throw new FamilyMemberException(ErrorCode.MULTIPLE_PARENTS_NOT_ALLOWED);
+            throw new FamilyException(ErrorCode.MULTIPLE_PARENTS_NOT_ALLOWED);
         }
 
         member.accept();
@@ -143,13 +143,13 @@ public class FamilyService {
 
     public void refuseFamilyInvitation(Long familyMemberId) {
         FamilyMember familyMember = familyMemberRepository.findById(familyMemberId)
-                        .orElseThrow(() -> new FamilyMemberException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+                        .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
         familyMemberRepository.deleteById(familyMember.getId());
     }
 
     public void cancelFamilyInvitation(Long familyMemberId) {
         FamilyMember familyMember = familyMemberRepository.findById(familyMemberId)
-                .orElseThrow(() -> new FamilyMemberException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
         familyMemberRepository.deleteById(familyMember.getId());
     }
 }
