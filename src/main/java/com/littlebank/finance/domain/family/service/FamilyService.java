@@ -65,11 +65,11 @@ public class FamilyService {
             }
             // 초대 거절, 초대 취소 상태
             if (targetMember.getIsDeleted() && targetMember.getStatus() == Status.REQUESTED) {
-                targetMember.reInvitation();
+                targetMember.reInvitation(user);
             }
             // 맴버 추방, 맴버 나가기 상태
             if (targetMember.getIsDeleted() && targetMember.getStatus() == Status.JOINED) {
-                targetMember.reInvitation();
+                targetMember.reInvitation(user);
             }
         } else {
             targetMember = familyMemberRepository.save(FamilyMember.builder()
