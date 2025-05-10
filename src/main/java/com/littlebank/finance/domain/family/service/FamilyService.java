@@ -107,7 +107,7 @@ public class FamilyService {
     }
 
     public FamilyInvitationAcceptResponse acceptFamilyInvitation(Long userId, Long familyMemberId) {
-        familyMemberRepository.deleteIfExistsByUserIdAndStatus(userId, Status.JOINED.name());
+        familyMemberRepository.deleteByUserIdAndStatus(userId, Status.JOINED.name());
 
         FamilyMember member = familyMemberRepository.findById(familyMemberId)
                 .orElseThrow(() -> new FamilyMemberException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
