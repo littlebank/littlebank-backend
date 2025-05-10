@@ -29,12 +29,14 @@ public class CustomFamilyMemberRepositoryImpl implements CustomFamilyMemberRepos
     private QFamily f = family;
 
     @Override
-    public Optional<FamilyMember> findByUserIdWithFamily(Long userId) {
-        return Optional.ofNullable(queryFactory
-                .selectFrom(m)
-                .join(m.family, f).fetchJoin()
-                .where(m.user.id.eq(userId))
-                .fetchOne());
+    public Optional<FamilyMember> findByUserIdAndStatusWithFamily(Long userId, Status status) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(m)
+                        .join(m.family, f).fetchJoin()
+                        .where(m.user.id.eq(userId)
+                                .and(m.status.eq(status)))
+                        .fetchOne());
     }
 
     @Override

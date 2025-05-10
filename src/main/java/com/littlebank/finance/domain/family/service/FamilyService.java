@@ -36,8 +36,8 @@ public class FamilyService {
         User targetUser = userRepository.findById(request.getTargetUserId())
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        // 요청자의 familyMember 데이터 조회
-        FamilyMember member = familyMemberRepository.findByUserIdWithFamily(userId)
+        // 요청자가 들어가있는 가족의 familyMember 데이터 조회
+        FamilyMember member = familyMemberRepository.findByUserIdAndStatusWithFamily(user.getId(), Status.JOINED)
                 .orElseGet(() -> {
                     // 없을 경우 가족 생성하고, 맴버 생성
                     Family newFamily = familyRepository.save(Family.builder()
@@ -53,27 +53,35 @@ public class FamilyService {
                             .build());
                 });
 
-        // 가족에 이미 소속되어 있는 맴버인지 검증
-        familyMemberRepository.findByFamilyIdAndUserId(member.getFamily().getId(), request.getTargetUserId())
-                .ifPresent(targetMember -> {
-                    if (targetMember.getStatus() == Status.REQUESTED) {
-                        throw new FamilyMemberException(ErrorCode.FAMILY_INVITE_ALREADY_SENT);
-                    }
-                    if (targetMember.getStatus() == Status.JOINED) {
-                        throw new FamilyMemberException(ErrorCode.FAMILY_MEMBER_ALREADY_EXISTS);
-                    }
-                });
+        FamilyMember targetMember = familyMemberRepository.findByFamilyIdAndUserIdIncludingDeleted(member.getFamily().getId(), request.getTargetUserId()).get();
+        if (targetMember != null) {
+            // 초대 요청 상태
+            if (!targetMember.getIsDeleted() && targetMember.getStatus() == Status.REQUESTED) {
+                throw new FamilyMemberException(ErrorCode.FAMILY_INVITE_ALREADY_SENT);
+            }
+            // 이미 가입 된 상태
+            if (!targetMember.getIsDeleted() && targetMember.getStatus() == Status.JOINED) {
+                throw new FamilyMemberException(ErrorCode.FAMILY_MEMBER_ALREADY_EXISTS);
+            }
+            // 초대 거절, 초대 취소 상태
+            if (targetMember.getIsDeleted() && targetMember.getStatus() == Status.REQUESTED) {
+                targetMember.reInvitation();
+            }
+            // 맴버 추방, 맴버 나가기 상태
+            if (targetMember.getIsDeleted() && targetMember.getStatus() == Status.JOINED) {
+                targetMember.reInvitation();
+            }
+        } else {
+            targetMember = familyMemberRepository.save(FamilyMember.builder()
+                    .nickname(targetUser.getName())
+                    .family(member.getFamily())
+                    .user(targetUser)
+                    .invitedBy(user)
+                    .status(Status.REQUESTED)
+                    .build());
+        }
 
-        // 맴버 요청 상태로 저장
-        FamilyMember newMember = familyMemberRepository.save(FamilyMember.builder()
-                .nickname(targetUser.getName())
-                .family(member.getFamily())
-                .user(targetUser)
-                .invitedBy(user)
-                .status(Status.REQUESTED)
-                .build());
-
-        return FamilyMemberAddResponse.of(newMember);
+        return FamilyMemberAddResponse.of(targetMember);
     }
 
     @Transactional(readOnly = true)

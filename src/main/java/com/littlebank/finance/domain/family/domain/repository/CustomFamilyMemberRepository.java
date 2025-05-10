@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomFamilyMemberRepository {
-    Optional<FamilyMember> findByUserIdWithFamily(Long userId);
+    Optional<FamilyMember> findByUserIdAndStatusWithFamily(Long userId, Status status);
     List<FamilyMember> findByMemberIdWithFamilyAndUser(Long memberId);
     List<FamilyMember> findAllByFamilyIdAndStatusWithUser(Long familyId, Status status);
+
     FamilyInfoResponse getFamilyInfoByUserId(Long userId);
 }

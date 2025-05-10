@@ -13,7 +13,8 @@ import java.util.Optional;
 public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long>, CustomFamilyMemberRepository {
     boolean existsByUserIdAndStatus(Long userId, Status status);
 
-    Optional<FamilyMember> findByFamilyIdAndUserId(Long familyId, Long userId);
+    @Query(value = "SELECT * FROM family_member WHERE family = :familyId AND user = :userId", nativeQuery = true)
+    Optional<FamilyMember> findByFamilyIdAndUserIdIncludingDeleted(@Param("familyId") Long familyId, @Param("userId") Long userId);
     List<FamilyMember> findAllByUserIdAndStatus(Long userId, Status status);
 
     @Modifying(clearAutomatically = true)
