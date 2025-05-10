@@ -54,4 +54,9 @@ public class FamilyMember extends BaseEntity {
     public void accept() {
         this.status = Status.JOINED;
     }
+
+    public void reInvitation(){
+        this.status = Status.REQUESTED;
+        this.isDeleted = false;
+    }
 }
