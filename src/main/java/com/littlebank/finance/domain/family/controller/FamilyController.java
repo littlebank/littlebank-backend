@@ -122,4 +122,14 @@ public class FamilyController {
         familyService.forceOutMember(customUserDetails.getId(), familyMemberId);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "그룹 나가기 API")
+    @DeleteMapping("/leave/{familyMemberId}")
+    public ResponseEntity<Void> leaveFamily(
+            @Parameter(description = "나갈 가족 그룹의 가족 구성원 id")
+            @PathVariable("familyMemberId") Long familyMemberId
+    ) {
+        familyService.leaveFamily(familyMemberId);
+        return ResponseEntity.noContent().build();
+    }
 }
