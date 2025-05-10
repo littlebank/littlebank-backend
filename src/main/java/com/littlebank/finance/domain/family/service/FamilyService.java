@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,8 +54,15 @@ public class FamilyService {
                             .build());
                 });
 
-        FamilyMember targetMember = familyMemberRepository.findByFamilyIdAndUserIdIncludingDeleted(member.getFamily().getId(), request.getTargetUserId()).get();
-        if (targetMember != null) {
+        Optional<FamilyMember> optionalTargetMember =
+                familyMemberRepository.findByFamilyIdAndUserIdIncludingDeleted(
+                        member.getFamily().getId(),
+                        request.getTargetUserId()
+                );
+
+        FamilyMember targetMember;
+        if (optionalTargetMember.isPresent()) {
+            targetMember = optionalTargetMember.get();
             // 초대 요청 상태
             if (!targetMember.getIsDeleted() && targetMember.getStatus() == Status.REQUESTED) {
                 throw new FamilyException(ErrorCode.FAMILY_INVITE_ALREADY_SENT);
