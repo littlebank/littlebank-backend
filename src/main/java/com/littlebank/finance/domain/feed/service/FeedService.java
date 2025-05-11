@@ -126,8 +126,6 @@ public class FeedService {
             comment.setIsDeleted(true); // 소프트 삭제
         }
 
-        feed.getComments().clear();
-        //feedCommentRepository.deleteAllByFeedId(feedId);
         feedRepository.delete(feed);
     }
 
@@ -366,7 +364,9 @@ public class FeedService {
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         FeedCommentLike like = feedCommentLikeRepository.findByFeedCommentAndUser(feedComment, user)
                 .orElseThrow(() -> new FeedException(ErrorCode.LIKE_NOT_FOUND));
-
+        if (like.isDeleted()) {
+            throw new FeedException(ErrorCode.LIKE_ALREADY_DELETED);
+        }
         feedCommentLikeRepository.delete(like);
         int likeCount = feedCommentLikeRepository.countByFeedComment(feedComment);
         return FeedCommentLikeResponseDto.of(commentId, likeCount, false);
