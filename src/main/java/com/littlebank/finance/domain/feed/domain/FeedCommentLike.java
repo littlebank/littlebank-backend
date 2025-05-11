@@ -7,10 +7,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name="feed_comment_like")
 @Getter
+@SQLDelete(sql = "UPDATE feed_comment_like SET is_deleted = true WHERE id = ?")
+@Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FeedCommentLike extends BaseEntity {
     @Id
@@ -24,6 +28,9 @@ public class FeedCommentLike extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
 
     @Builder
     public FeedCommentLike(FeedComment feedComment, User user) {

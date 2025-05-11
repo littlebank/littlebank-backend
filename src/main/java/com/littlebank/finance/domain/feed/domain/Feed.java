@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +18,8 @@ import java.util.List;
 @Entity
 @Table(name = "feed")
 @Getter
+@SQLDelete(sql = "UPDATE feed SET is_deleted = true WHERE feed_id = ?")
+@Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Feed extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +45,9 @@ public class Feed extends BaseEntity {
     @Column(length = 2000)
     private String content;
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
+
     private int viewCount = 0;
     private int likeCount = 0;
     private int commentCount = 0;
@@ -50,6 +57,7 @@ public class Feed extends BaseEntity {
 
     @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL) //, orphanRemoval = true)
     private List<FeedComment> comments = new ArrayList<>();
+
 
 
     @Builder

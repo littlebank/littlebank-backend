@@ -18,6 +18,7 @@ import java.util.List;
 @Entity
 @Table(name="feed_comment")
 @SQLDelete(sql = "UPDATE feed_comment SET is_deleted = true WHERE id = ?")
+@Where(clause = "is_deleted = false")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FeedComment extends BaseEntity {
@@ -50,6 +51,7 @@ public class FeedComment extends BaseEntity {
 
     @Column(name = "like_count", nullable = false)
     private int likeCount = 0;
+
 
     @Builder
     public FeedComment(Feed feed, User user, String content, FeedComment parent) {
