@@ -25,7 +25,7 @@ public class ReportMailService {
                     .replace("${targetId}", String.valueOf(targetId))
                     .replace("${reporterId}", String.valueOf(reporterId))
                     .replace("${targetUserId}", String.valueOf(targetUserId))
-                    .replace("${targetUserNAme}", String.valueOf(targetUserName))
+                    .replace("${targetUserName}", String.valueOf(targetUserName))
                     .replace("${targetContent}", String.valueOf(targetContent))
                     .replace("${reporterName}", reporterName);
 

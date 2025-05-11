@@ -1,7 +1,6 @@
 package com.littlebank.finance.domain.feed.dto.response;
 
 import com.littlebank.finance.domain.feed.domain.FeedComment;
-import com.littlebank.finance.domain.feed.domain.QFeedComment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +14,7 @@ public class FeedCommentResponseDto {
     private Long commentId;
     private Long feedId;
     private Long parentId;
+    private Long writerId;
     private String writerName;
     private String writerProfileUrl;
     private String content;
@@ -27,6 +27,7 @@ public class FeedCommentResponseDto {
     public static FeedCommentResponseDto of(FeedComment feedComment,
                                             Long feedId,
                                             Long parentId,
+                                            Long writerId,
                                             String writerName,
                                             String writerProfileUrl,
                                             String content,
@@ -37,6 +38,7 @@ public class FeedCommentResponseDto {
                 .commentId(feedComment.getId())
                 .feedId(feedId)
                 .parentId(parentId)
+                .writerId(writerId)
                 .writerName(writerName)
                 .writerProfileUrl(writerProfileUrl)
                 .content(content)

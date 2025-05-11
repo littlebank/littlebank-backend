@@ -7,6 +7,9 @@ import com.littlebank.finance.domain.feed.dto.request.FeedRequestDto;
 import com.littlebank.finance.domain.feed.dto.request.FeedImageRequestDto;
 import com.littlebank.finance.domain.feed.dto.response.*;
 import com.littlebank.finance.domain.feed.exception.FeedException;
+import com.littlebank.finance.domain.notification.domain.Notification;
+import com.littlebank.finance.domain.notification.domain.NotificationType;
+import com.littlebank.finance.domain.notification.domain.repository.NotificationRepository;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
@@ -35,7 +38,7 @@ public class FeedService {
     private final FeedLikeRepository feedLikeRepository;
     private final FeedCommentRepository feedCommentRepository;
     private final FeedCommentLikeRepository feedCommentLikeRepository;
-
+    private final NotificationRepository notificationRepository;
     public FeedResponseDto createFeed(Long userId, FeedRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -200,6 +203,19 @@ public class FeedService {
 
         feedLikeRepository.save(feedLike);
         feed.increaseLikeCount();
+
+        // 알림 생성
+        if (!user.getId().equals(feed.getUser().getId())) {
+            Notification notification = Notification.builder()
+                    .receiver(feed.getUser())
+                    .message(user.getName() + "님이 회원님의 피드를 좋아합니다.")
+                    .type(NotificationType.FEED_LIKE)
+                    .targetId(feed.getId())
+                    .isRead(false)
+                    .build();
+            notificationRepository.save(notification);
+        }
+
         return FeedLikeResponseDto.of(feedId, feed.getLikeCount(), true);
     }
 
@@ -240,10 +256,23 @@ public class FeedService {
         int likeCount = 0;
         boolean isLiked = false;
 
+        // 알림
+        if (!user.getId().equals(feed.getUser().getId())) {
+            Notification notification = Notification.builder()
+                    .receiver(feed.getUser())
+                    .message(user.getName() + "님이 회원님의 피드에 댓글을 달았습니다.")
+                    .type(NotificationType.FEED_COMMENT)
+                    .targetId(feed.getId())
+                    .isRead(false)
+                    .build();
+            notificationRepository.save(notification);
+        }
+
         return FeedCommentResponseDto.of(
                 feedComment,
                 feed.getId(),
                 parent != null? parent.getId() : null,
+                feedComment.getUser().getId(),
                 user.getName(),
                 user.getProfileImagePath(),
                 feedComment.getContent(),
@@ -280,10 +309,23 @@ public class FeedService {
         feedCommentRepository.save(reply);
         feed.increaseCommentCount();
 
+        //알림
+        if (!user.getId().equals(parent.getUser().getId())) {
+            Notification notification = Notification.builder()
+                    .receiver(parent.getUser())
+                    .message(user.getName() + "님이 회원님의 댓글에 답글을 남겼습니다.")
+                    .type(NotificationType.COMMENT_REPLY)
+                    .targetId(parent.getId())
+                    .isRead(false)
+                    .build();
+            notificationRepository.save(notification);
+        }
+
         return FeedCommentResponseDto.of(
                 reply,
                 feedId,
                 parent.getId(),
+                parent.getUser().getId(),
                 user.getName(),
                 user.getProfileImagePath(),
                 reply.getContent(),
@@ -312,6 +354,7 @@ public class FeedService {
                 feedComment,
                 feedComment.getFeed().getId(),
                 feedComment.getParent()!=null? feedComment.getParent().getId() : null,
+                feedComment.getUser().getId(),
                 feedComment.getUser().getName(),
                 feedComment.getUser().getProfileImagePath(),
                 feedComment.getContent(),
@@ -354,6 +397,19 @@ public class FeedService {
         feedCommentLikeRepository.save(like);
 
         int likeCount = feedCommentLikeRepository.countByFeedComment(feedComment);
+
+        // 알림
+        if (!user.getId().equals(feedComment.getUser().getId())) {
+            Notification notification = Notification.builder()
+                    .receiver(feedComment.getUser())
+                    .message(user.getName() + "님이 회원님의 댓글을 좋아합니다.")
+                    .type(NotificationType.COMMENT_LIKE)
+                    .targetId(feedComment.getId())
+                    .isRead(false)
+                    .build();
+            notificationRepository.save(notification);
+        }
+
         return FeedCommentLikeResponseDto.of(commentId, likeCount, true);
     }
 
@@ -391,6 +447,7 @@ public class FeedService {
                     comment,
                     feed.getId(),
                     null,
+                    comment.getUser().getId(),
                     comment.getUser().getName(),
                     comment.getUser().getProfileImagePath(),
                     comment.getContent(),
@@ -420,6 +477,7 @@ public class FeedService {
                     reply,
                     reply.getFeed().getId(),
                     parentId,
+                    parent.getUser().getId(),
                     reply.getUser().getName(),
                     reply.getUser().getProfileImagePath(),
                     reply.getContent(),
