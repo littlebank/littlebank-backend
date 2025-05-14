@@ -10,11 +10,13 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(name="feed_like")
+@Table(name="feed_like",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"feed_id", "user_id"})
+)
 @Getter
-@SQLDelete(sql = "UPDATE feed_like SET is_deleted = true WHERE id = ?")
-@Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 이게 맞나
 public class FeedLike extends BaseEntity {
     @Id @GeneratedValue
@@ -36,4 +38,5 @@ public class FeedLike extends BaseEntity {
         this.feed = feed;
         this.user = user;
     }
+
 }

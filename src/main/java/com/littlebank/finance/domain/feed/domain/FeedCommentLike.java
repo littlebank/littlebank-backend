@@ -11,10 +11,11 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Entity
-@Table(name="feed_comment_like")
-@Getter
-@SQLDelete(sql = "UPDATE feed_comment_like SET is_deleted = true WHERE id = ?")
-@Where(clause = "is_deleted = false")
+@Table(
+        name="feed_comment_like",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"comment_id", "user_id"})
+)@Getter
+
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FeedCommentLike extends BaseEntity {
     @Id

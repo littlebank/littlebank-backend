@@ -15,6 +15,8 @@ import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,9 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -206,14 +210,18 @@ public class FeedService {
 
         // 알림 생성
         if (!user.getId().equals(feed.getUser().getId())) {
-            Notification notification = Notification.builder()
-                    .receiver(feed.getUser())
-                    .message(user.getName() + "님이 회원님의 피드를 좋아합니다.")
-                    .type(NotificationType.FEED_LIKE)
-                    .targetId(feed.getId())
-                    .isRead(false)
-                    .build();
-            notificationRepository.save(notification);
+            try {
+                Notification notification = Notification.builder()
+                        .receiver(feed.getUser())
+                        .message(user.getName() + "님이 회원님의 피드를 좋아합니다.")
+                        .type(NotificationType.FEED_LIKE)
+                        .targetId(feed.getId())
+                        .isRead(false)
+                        .build();
+                notificationRepository.save(notification);
+            } catch (DataIntegrityViolationException e) {
+                log.warn("이미 동일한 알림이 존재합니다.");
+            }
         }
 
         return FeedLikeResponseDto.of(feedId, feed.getLikeCount(), true);
@@ -258,14 +266,18 @@ public class FeedService {
 
         // 알림
         if (!user.getId().equals(feed.getUser().getId())) {
-            Notification notification = Notification.builder()
-                    .receiver(feed.getUser())
-                    .message(user.getName() + "님이 회원님의 피드에 댓글을 달았습니다.")
-                    .type(NotificationType.FEED_COMMENT)
-                    .targetId(feed.getId())
-                    .isRead(false)
-                    .build();
-            notificationRepository.save(notification);
+            try {
+                Notification notification = Notification.builder()
+                        .receiver(feed.getUser())
+                        .message(user.getName() + "님이 회원님의 피드에 댓글을 달았습니다.")
+                        .type(NotificationType.FEED_COMMENT)
+                        .targetId(feed.getId())
+                        .isRead(false)
+                        .build();
+                notificationRepository.save(notification);
+            } catch (DataIntegrityViolationException e) {
+                log.warn("이미 동일한 알림이 존재합니다.");
+            }
         }
 
         return FeedCommentResponseDto.of(
@@ -311,14 +323,18 @@ public class FeedService {
 
         //알림
         if (!user.getId().equals(parent.getUser().getId())) {
-            Notification notification = Notification.builder()
-                    .receiver(parent.getUser())
-                    .message(user.getName() + "님이 회원님의 댓글에 답글을 남겼습니다.")
-                    .type(NotificationType.COMMENT_REPLY)
-                    .targetId(parent.getId())
-                    .isRead(false)
-                    .build();
-            notificationRepository.save(notification);
+            try {
+                Notification notification = Notification.builder()
+                        .receiver(parent.getUser())
+                        .message(user.getName() + "님이 회원님의 댓글에 답글을 남겼습니다.")
+                        .type(NotificationType.COMMENT_REPLY)
+                        .targetId(parent.getId())
+                        .isRead(false)
+                        .build();
+                notificationRepository.save(notification);
+            } catch (DataIntegrityViolationException e) {
+                log.warn("이미 동일한 알림이 존재합니다.");
+            }
         }
 
         return FeedCommentResponseDto.of(
@@ -386,28 +402,31 @@ public class FeedService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        if (feedCommentLikeRepository.findByFeedCommentAndUser(feedComment, user).isPresent()) {
+        try {
+            FeedCommentLike like = FeedCommentLike.builder()
+                    .feedComment(feedComment)
+                    .user(user)
+                    .build();
+            feedCommentLikeRepository.save(like);
+        } catch (DataIntegrityViolationException e) {
             throw new FeedException(ErrorCode.ALREADY_LIKED);
         }
-
-        FeedCommentLike like = FeedCommentLike.builder()
-                .feedComment(feedComment)
-                .user(user)
-                .build();
-        feedCommentLikeRepository.save(like);
-
         int likeCount = feedCommentLikeRepository.countByFeedComment(feedComment);
 
         // 알림
         if (!user.getId().equals(feedComment.getUser().getId())) {
-            Notification notification = Notification.builder()
-                    .receiver(feedComment.getUser())
-                    .message(user.getName() + "님이 회원님의 댓글을 좋아합니다.")
-                    .type(NotificationType.COMMENT_LIKE)
-                    .targetId(feedComment.getId())
-                    .isRead(false)
-                    .build();
-            notificationRepository.save(notification);
+            try {
+                Notification notification = Notification.builder()
+                        .receiver(feedComment.getUser())
+                        .message(user.getName() + "님이 회원님의 댓글을 좋아합니다.")
+                        .type(NotificationType.COMMENT_LIKE)
+                        .targetId(feedComment.getId())
+                        .isRead(false)
+                        .build();
+                notificationRepository.save(notification);
+            } catch (DataIntegrityViolationException e) {
+                log.warn("이미 동일한 알림이 존재합니다.");
+            }
         }
 
         return FeedCommentLikeResponseDto.of(commentId, likeCount, true);
