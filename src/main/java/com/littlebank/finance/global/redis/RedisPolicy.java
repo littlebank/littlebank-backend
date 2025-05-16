@@ -7,4 +7,8 @@ import lombok.NoArgsConstructor;
 public class RedisPolicy {
 
     public static final String LOGIN_USER_KEY_PREFIX = "LOGIN:";
+    public static final String FEED_LIKE_SET_KEY_PREFIX = "FEED:LIKE:";
+    public static final String FEED_COMMENT_LIKE_SET_KEY_PREFIX = "COMMENT:LIKE:";
+    public static final String FEED_LIKE_LOCK_KEY_PREFIX = "FEED:LIKE:LOCK:";
+    public static final String FEED_COMMENT_LIKE_LOCK_KEY_PREFIX = "COMMENT:LIKE:LOCK:";
 }

@@ -78,4 +78,7 @@ public class FeedComment extends BaseEntity {
     }
 
 
+    public void setLikeCount(int redisLikecount) {
+        this.likeCount = redisLikecount;
+    }
 }
