@@ -86,13 +86,6 @@ public class Feed extends BaseEntity {
         this.viewCount++;
     }
 
-    public void increaseLikeCount() {
-        this.likeCount++;
-    }
-    public void decreaseLikeCount() {
-        this.likeCount = Math.max(0, this.likeCount - 1);
-    }
-
     public void increaseCommentCount() {
         this.commentCount++;
     }
@@ -101,4 +94,7 @@ public class Feed extends BaseEntity {
         this.commentCount = Math.max(0, this.commentCount - 1);
     }
 
+    public void setLikeCount(int redisLikeCount) {
+        this.likeCount = redisLikeCount;
+    }
 }

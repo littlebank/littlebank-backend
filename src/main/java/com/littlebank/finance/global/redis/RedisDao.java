@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -29,5 +30,39 @@ public class RedisDao {
 
     public void deleteValues(String key) {
         redisTemplate.delete(key);
+    }
+
+    // SADD
+    public void addToSet(String key, String data) {
+        redisTemplate.opsForSet().add(key, data);
+    }
+
+    // SMEMBERS
+    public Set<String> getSetMembers(String key) {
+        return redisTemplate.opsForSet().members(key);
+    }
+
+    // SREM
+    public void removeFromSet(String key, String data) {
+        redisTemplate.opsForSet().remove(key, data);
+    }
+
+    // DEL
+    public void deleteSet(String key) {
+        redisTemplate.delete(key);
+    }
+
+    public int getSetSize(String likeSetKey) {
+        Long size = redisTemplate.opsForSet().size(likeSetKey);
+        return size != null? size.intValue() : 0;
+    }
+
+    public boolean isMemberOfSet(String likeSetKey, String data) {
+        return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(likeSetKey, data));
+    }
+
+    public void addToSetWithTTL(String key, String data, Duration duration) {
+        redisTemplate.opsForSet().add(key, data);
+        redisTemplate.expire(key, duration);
     }
 }

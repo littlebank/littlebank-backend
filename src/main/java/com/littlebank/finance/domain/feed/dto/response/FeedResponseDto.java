@@ -28,7 +28,7 @@ public class FeedResponseDto {
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
 
-    public static FeedResponseDto of (Feed feed, List<FeedImage> images, boolean liked) {
+    public static FeedResponseDto of (Feed feed, List<FeedImage> images, int likeCount, boolean liked) {
         List<String> imageUrls = images.stream()
                 .map(FeedImage::getUrl)
                 .toList();
@@ -43,7 +43,7 @@ public class FeedResponseDto {
                 .writerName(feed.getUser().getName())
                 .writerProfileImageUrl(feed.getUser().getProfileImagePath())
                 .viewCount(feed.getViewCount())
-                .likeCount(feed.getLikeCount())
+                .likeCount(likeCount)
                 .commentCount(feed.getCommentCount())
                 .liked(liked)
                 .createdDate(feed.getCreatedDate())

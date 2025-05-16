@@ -7,14 +7,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Table(
         name="feed_comment_like",
         uniqueConstraints = @UniqueConstraint(columnNames = {"comment_id", "user_id"})
-)@Getter
+)
+@Getter
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FeedCommentLike extends BaseEntity {

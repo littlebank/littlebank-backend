@@ -15,4 +15,9 @@ import java.util.List;
 
 public interface FeedCommentRepository extends JpaRepository<FeedComment, Long> {
     Page<FeedComment> findByFeedAndParentIsNullAndIsDeletedFalse(Feed feed, Pageable pageable);
-    Page<FeedComment> findByParentAndIsDeletedFalse(FeedComment parent, Pageable pageable);}
+    Page<FeedComment> findByParentAndIsDeletedFalse(FeedComment parent, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE FeedComment fc SET fc.likeCount = :likeCount WHERE fc.id = :commentId")
+    void updateLikeCount(@Param("commentId") Long commentId, @Param("likeCount") Integer likeCount);
+}

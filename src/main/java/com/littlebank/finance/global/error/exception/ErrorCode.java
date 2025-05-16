@@ -51,8 +51,8 @@ public enum ErrorCode {
     LIKE_NOT_FOUND(404, "F004", "좋아요 정보가 존재하지 않습니다"),
     COMMENT_NOT_FOUND(404, "F005", "댓글을 찾을 수 없습니다"),
     INVALID_PARENT_COMMENT(404, "F006", "댓글 아이디를 찾을 수 없습니다"),
-    ALREADY_REPORTED(409, "F007", "이미 신고한 피드입니다"),
-    LIKE_ALREADY_DELETED(400, "F008" , "좋아요 정보가 존재하지 않습니다");
+    LIKE_ALREADY_DELETED(400, "F008" , "좋아요 정보가 존재하지 않습니다"),
+    FAIL_TO_GET_LOCK(409, "F009", "락 획득 실패했습니다");
 
     private final String code;
     private final String message;
