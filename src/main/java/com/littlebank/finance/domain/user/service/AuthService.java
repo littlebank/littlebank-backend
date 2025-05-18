@@ -7,6 +7,7 @@ import com.littlebank.finance.domain.user.dto.request.LoginRequest;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginRequest;
 import com.littlebank.finance.domain.user.dto.response.ReissueResponse;
 import com.littlebank.finance.domain.user.exception.AuthException;
+import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.jwt.TokenProvider;
 import com.littlebank.finance.global.jwt.dto.TokenDto;
@@ -40,7 +41,13 @@ public class AuthService {
     private final RedisDao redisDao;
 
     public TokenDto login(LoginRequest request) {
-        TokenDto dto = authenticateAndGenerateTokens(request.getEmail(), request.getPassword());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        user.login(request.getFcmToken());
+
+        TokenDto dto = generateTokenDto(authentication);
         registerRefreshTokenToRedis(dto.getRefreshToken());
         return dto;
     }
@@ -78,12 +85,15 @@ public class AuthService {
                         .name(nickname)
                         .profileImagePath(profileImageUrl)
                         .authority(Authority.USER)
+                        .fcmToken(request.getFcmToken())
                         .build())
                 );
 
         user.encodePassword(passwordEncoder);
 
-        TokenDto dto = authenticateAndGenerateTokens(user.getEmail(), user.getPassword());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+        TokenDto dto = generateTokenDto(authentication);
         registerRefreshTokenToRedis(dto.getRefreshToken());
         return dto;
     }
@@ -119,17 +129,25 @@ public class AuthService {
                         .name(nickname)
                         .profileImagePath(profileImageUrl)
                         .authority(Authority.USER)
+                        .fcmToken(request.getFcmToken())
                         .build())
                 );
 
         user.encodePassword(passwordEncoder);
 
-        TokenDto dto = authenticateAndGenerateTokens(user.getEmail(), user.getPassword());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+        TokenDto dto = generateTokenDto(authentication);
         registerRefreshTokenToRedis(dto.getRefreshToken());
         return dto;
     }
 
-    public void logout(String refreshToken) {
+    public void logout(Long userId, String refreshToken) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.logout();
+
         redisDao.deleteValues(
                 RedisPolicy.LOGIN_USER_KEY_PREFIX + tokenProvider.getAuthentication(refreshToken).getName()
         );
@@ -146,11 +164,7 @@ public class AuthService {
         return ReissueResponse.of(accessToken);
     }
 
-    private TokenDto authenticateAndGenerateTokens(String email, String password) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(email, password);
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
-
+    private TokenDto generateTokenDto(Authentication authentication) {
         String accessToken = tokenProvider.provideAccessToken(authentication);
         String refreshToken = tokenProvider.provideRefreshToken(authentication);
 

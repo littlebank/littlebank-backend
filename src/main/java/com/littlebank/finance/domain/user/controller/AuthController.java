@@ -7,6 +7,7 @@ import com.littlebank.finance.domain.user.dto.response.LoginResponse;
 import com.littlebank.finance.domain.user.dto.response.ReissueResponse;
 import com.littlebank.finance.domain.user.service.AuthService;
 import com.littlebank.finance.global.jwt.dto.TokenDto;
+import com.littlebank.finance.global.security.CustomUserDetails;
 import com.littlebank.finance.global.util.CookieUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
@@ -16,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,9 +46,10 @@ public class AuthController {
     @Operation(summary = "로그아웃 API")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(
-            HttpServletRequest request
-    ) {
-        authService.logout(cookieUtil.getCookieValue(request));
+            HttpServletRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            ) {
+        authService.logout(customUserDetails.getId(), cookieUtil.getCookieValue(request));
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, cookieUtil.deleteCookie().toString())
                 .build();
