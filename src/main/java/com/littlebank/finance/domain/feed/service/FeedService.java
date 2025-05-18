@@ -14,6 +14,7 @@ import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
+import com.littlebank.finance.global.firebase.FirebaseService;
 import com.littlebank.finance.global.redis.RedisDao;
 import com.littlebank.finance.global.redis.RedisPolicy;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,7 @@ public class FeedService {
     private final FeedCommentRepository feedCommentRepository;
     private final FeedCommentLikeRepository feedCommentLikeRepository;
     private final NotificationRepository notificationRepository;
+    private final FirebaseService firebaseService;
     private final RedissonClient redissonClient;
     private final RedisDao redisDao;
     public FeedResponseDto createFeed(Long userId, FeedRequestDto request) {
@@ -251,14 +253,15 @@ public class FeedService {
         if (isLiked && !user.getId().equals(feed.getUser().getId())){
             try {
                 // 알림 생성
-                Notification notification = Notification.builder()
+                Notification notification = notificationRepository.save(Notification.builder()
                         .receiver(feed.getUser())
                         .message(user.getName() + "님이 회원님의 피드를 좋아합니다.")
                         .type(NotificationType.FEED_LIKE)
                         .targetId(feed.getId())
                         .isRead(false)
-                        .build();
-                notificationRepository.save(notification);
+                        .build());
+
+                firebaseService.sendNotification(notification);
             } catch (DataIntegrityViolationException e) {
                 log.warn("이미 동일한 알림이 존재합니다.");
             }
