@@ -3,7 +3,7 @@ package com.littlebank.finance.domain.user.service;
 import com.littlebank.finance.domain.user.dto.request.EmailSendRequest;
 import com.littlebank.finance.domain.user.dto.response.EmailSendResponse;
 import com.littlebank.finance.domain.user.exception.MailException;
-import com.littlebank.finance.global.common.AsyncMailSendService;
+import com.littlebank.finance.global.mail.AsyncMailSendService;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.mail.MailPolicy;
 import com.littlebank.finance.global.util.FileUtil;

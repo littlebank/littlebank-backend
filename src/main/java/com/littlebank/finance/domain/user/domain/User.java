@@ -53,6 +53,8 @@ public class User extends BaseEntity {
     private Authority authority;
     @Column(nullable = false)
     private Boolean isSubscribe;
+    @Column(length = 200, nullable = false)
+    private String fcmToken;
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -67,8 +69,8 @@ public class User extends BaseEntity {
     @Builder
     public User(
             String email, String password, String name, String statusMessage, String phone, String rrn,
-            String bankName, String bankCode, String bankAccount, String profileImagePath, Integer balance,
-            UserRole role, Authority authority, Boolean isSubscribe, LocalDateTime lastLoginAt, Boolean isDeleted
+            String bankName, String bankCode, String bankAccount, String profileImagePath, Integer balance, UserRole role,
+            Authority authority, Boolean isSubscribe, String fcmToken, LocalDateTime lastLoginAt, Boolean isDeleted
     ) {
         this.email = email;
         this.password = password;
@@ -84,6 +86,7 @@ public class User extends BaseEntity {
         this.role = role;
         this.authority = authority;
         this.isSubscribe = isSubscribe == null ? false : isSubscribe;
+        this.fcmToken = fcmToken == null ? "" : fcmToken;
         this.lastLoginAt = lastLoginAt;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
@@ -112,5 +115,12 @@ public class User extends BaseEntity {
 
     public void updateStatusMessage(String statusMessage) {
         this.statusMessage = statusMessage;
+    }
+
+    public void login(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+    public void logout() {
+        this.fcmToken = "";
     }
 }

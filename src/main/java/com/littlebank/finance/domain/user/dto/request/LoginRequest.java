@@ -7,13 +7,14 @@ import lombok.Getter;
 
 @Getter
 public class LoginRequest {
-
     @Email
     @NotBlank
     @Schema(description = "이메일", example = "example@gmail.com")
     private String email;
-
     @NotBlank
     @Schema(description = "비밀번호", example = "password")
     private String password;
+    @NotBlank
+    @Schema(description = "FCM 토큰")
+    private String fcmToken;
 }

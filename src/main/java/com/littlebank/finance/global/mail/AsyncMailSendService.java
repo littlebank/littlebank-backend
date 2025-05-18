@@ -1,4 +1,4 @@
-package com.littlebank.finance.global.common;
+package com.littlebank.finance.global.mail;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

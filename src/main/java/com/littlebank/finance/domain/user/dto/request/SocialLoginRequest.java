@@ -6,8 +6,10 @@ import lombok.Getter;
 
 @Getter
 public class SocialLoginRequest {
-
     @NotBlank
     @Schema(description = "소셜 로그인 접근 권한 인증 토큰")
     private String accessToken;
+    @NotBlank
+    @Schema(description = "FCM 토큰")
+    private String fcmToken;
 }
