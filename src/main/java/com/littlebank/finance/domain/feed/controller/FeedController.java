@@ -99,7 +99,7 @@ public class FeedController {
 
     @Operation(summary = "좋아요 증가")
     @PostMapping("/{feedId}/like")
-    public ResponseEntity<FeedLikeResponseDto> likeFeed(@PathVariable Long feedId,
+    public ResponseEntity<FeedLikeResponseDto> likeFeed(@PathVariable("feedId") Long feedId,
                                                         @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         FeedLikeResponseDto response = feedService.likeFeed(customUserDetails.getId(), feedId);
         return ResponseEntity.ok(response);
@@ -107,7 +107,7 @@ public class FeedController {
 
     @Operation(summary = "좋아요 취소")
     @DeleteMapping("/{feedId}/like")
-    public ResponseEntity<Void> unlikeFeed(@PathVariable Long feedId,
+    public ResponseEntity<Void> unlikeFeed(@PathVariable("feedId") Long feedId,
                                            @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         feedService.unlikeFeed(customUserDetails.getId(), feedId);
         return ResponseEntity.ok().build();

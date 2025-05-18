@@ -40,5 +40,6 @@ out/
 application.yml
 application-*.yml
 
-### stomp test file ###
+### test file ###
 /src/main/resources/static
+/src/main/resources/templates/test
