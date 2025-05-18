@@ -85,7 +85,6 @@ public class AuthService {
                         .name(nickname)
                         .profileImagePath(profileImageUrl)
                         .authority(Authority.USER)
-                        .fcmToken(request.getFcmToken())
                         .build())
                 );
 
@@ -93,6 +92,8 @@ public class AuthService {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+        user.login(request.getFcmToken());
+
         TokenDto dto = generateTokenDto(authentication);
         registerRefreshTokenToRedis(dto.getRefreshToken());
         return dto;
@@ -129,7 +130,6 @@ public class AuthService {
                         .name(nickname)
                         .profileImagePath(profileImageUrl)
                         .authority(Authority.USER)
-                        .fcmToken(request.getFcmToken())
                         .build())
                 );
 
@@ -137,6 +137,8 @@ public class AuthService {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+        user.login(request.getFcmToken());
+
         TokenDto dto = generateTokenDto(authentication);
         registerRefreshTokenToRedis(dto.getRefreshToken());
         return dto;
