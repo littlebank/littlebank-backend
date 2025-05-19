@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api-user/payment")
 @RequiredArgsConstructor
-@Tag(name = "Family")
+@Tag(name = "Payment")
 public class PaymentController {
     private final PaymentService paymentService;
 
