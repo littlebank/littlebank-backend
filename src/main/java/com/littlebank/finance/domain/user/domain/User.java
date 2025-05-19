@@ -45,7 +45,7 @@ public class User extends BaseEntity {
     @Column(length = 150)
     private String profileImagePath;
     @Column(name = "balance")
-    private Integer balance;
+    private Integer point;
     @Enumerated(EnumType.STRING)
     private UserRole role;
     @Enumerated(EnumType.STRING)
@@ -69,7 +69,7 @@ public class User extends BaseEntity {
     @Builder
     public User(
             String email, String password, String name, String statusMessage, String phone, String rrn,
-            String bankName, String bankCode, String bankAccount, String profileImagePath, Integer balance, UserRole role,
+            String bankName, String bankCode, String bankAccount, String profileImagePath, Integer point, UserRole role,
             Authority authority, Boolean isSubscribe, String fcmToken, LocalDateTime lastLoginAt, Boolean isDeleted
     ) {
         this.email = email;
@@ -82,7 +82,7 @@ public class User extends BaseEntity {
         this.bankCode = bankCode;
         this.bankAccount = bankAccount;
         this.profileImagePath = profileImagePath;
-        this.balance = balance == null ? 0 : balance;
+        this.point = point == null ? 0 : point;
         this.role = role;
         this.authority = authority;
         this.isSubscribe = isSubscribe == null ? false : isSubscribe;
@@ -115,6 +115,10 @@ public class User extends BaseEntity {
 
     public void updateStatusMessage(String statusMessage) {
         this.statusMessage = statusMessage;
+    }
+
+    public void addPoint(Integer amount) {
+        this.point += amount;
     }
 
     public void login(String fcmToken) {

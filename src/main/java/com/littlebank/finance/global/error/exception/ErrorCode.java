@@ -30,6 +30,11 @@ public enum ErrorCode {
     FAMILY_MEMBER_ALREADY_EXISTS(409, "FM003", "가족 맴버로 소속되어 있습니다"),
     MULTIPLE_PARENTS_NOT_ALLOWED(422, "FM004", "부모 역할이 2개 이상 존재할 수 없습니다"),
 
+    // Payment
+    PAYMENT_INVALID_STATUS(400, "P001", "결제 정보 저장 중 오류가 발생했습니다(지원하지 않는 결제 상태)"),
+    PAYMENT_STATUS_NOT_PAID(400, "P002", "결제 된 상태가 아닙니다"),
+    PAYMENT_ALREADY_EXISTS(409, "A003", "결제 정보가 이미 존재합니다"),
+
     // Auth
     PASSWORD_NOT_MATCHED(401, "A001", "비밀번호가 일치하지 않습니다"),
     INVALID_REFRESH_TOKEN(401, "A002", "리프레쉬 토큰이 유효하지 않습니다"),
