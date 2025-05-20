@@ -60,6 +60,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH_WHITELIST).permitAll()
+                        // Admin만 접근 가능
+                        .requestMatchers("/api-admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api-user/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
 

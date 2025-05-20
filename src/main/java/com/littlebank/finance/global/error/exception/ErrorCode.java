@@ -52,7 +52,13 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(404, "F005", "댓글을 찾을 수 없습니다"),
     INVALID_PARENT_COMMENT(404, "F006", "댓글 아이디를 찾을 수 없습니다"),
     LIKE_ALREADY_DELETED(400, "F008" , "좋아요 정보가 존재하지 않습니다"),
-    FAIL_TO_GET_LOCK(409, "F009", "락 획득 실패했습니다");
+    FAIL_TO_GET_LOCK(409, "F009", "락 획득 실패했습니다"),
+
+    // Challenge
+    CHALLENGE_NOT_FOUND(404, "CH001", "챌린지를 찾을 수 없습니다"),
+    ALREADY_JOINED(400, "CH002", "이미 참여 중입니다"),
+    INVALID_PARTICIPATION_PERIOD(400, "CH003", "챌린지 참여 기간 다시 입력하세요"),
+    LOCK_INTERUPPTED(500, "CH004", "챌린지 참여 처리 중 오류 발생했습니다");
 
     private final String code;
     private final String message;

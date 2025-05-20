@@ -30,33 +30,53 @@ public class Challenge extends BaseEntity {
     private String description;
     @Enumerated(EnumType.STRING)
     private ChallengeCategory category;
-    @Column(name = "start_date", nullable = false)
+    @Column(name = "start_date")
     private LocalDate startDate;
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date")
     private LocalDate endDate;
-    @Column(name = "total_study_time", nullable = false)
+    @Column(name = "subject")
+    private String subject;
+    @Column(name = "total_study_time")
     private Integer totalStudyTime;
-    @Column(name = "max_participants", nullable = false)
-    private Integer maxParticipants;
-    @Column(name = "preferred_start_time")
-    private LocalTime preferredStartTime;
-    @Column(name = "preferred_reward")
-    private Integer preferredReward;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User creator;
+    @Column(name = "total_participants")
+    private Integer totalParticipants;
+    @Column(name = "current_participants")
+    private Integer currentParticipants;
     @Column(nullable = false)
     private Boolean isDeleted = false;
 
+    private int viewCount = 0;
+
     @Builder
-    public Challenge(String title, String description, ChallengeCategory category, LocalDate startDate, LocalDate endDate, Integer totalStudyTime, Integer maxParticipants, LocalTime preferredStartTime, Integer preferredReward, Boolean isDeleted) {
+    public Challenge(String title, String description, ChallengeCategory category, LocalDate startDate, LocalDate endDate, String subject, Integer totalStudyTime, Integer totalParticipants, Integer currentParticipants,  int viewCount) {
         this.title = title;
         this.description = description;
         this.category = category;
+        this.subject = subject;
         this.startDate = startDate;
         this.endDate = endDate;
         this.totalStudyTime = totalStudyTime;
-        this.maxParticipants = maxParticipants;
-        this.preferredStartTime = preferredStartTime;
-        this.preferredReward = preferredReward;
+        this.totalParticipants = totalParticipants;
+        this.currentParticipants = currentParticipants;
+        this.viewCount = viewCount;
+    }
+
+    public void update(String title, ChallengeCategory category, String subject, String description, LocalDate startDate, LocalDate endDate, Integer totalStudyTime, Integer totalParticipants) {
+        this.title = title;
+        this.description = description;
+        this.category = category;
+        this.subject = subject;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.totalStudyTime = totalStudyTime;
+        this.totalParticipants = totalParticipants;
+    }
+
+    public void setCurrentParticipants(int i) {
+        this.currentParticipants += 1;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount += 1;
     }
 }
