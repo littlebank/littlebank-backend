@@ -17,6 +17,7 @@ import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.redis.RedisPolicy;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RAtomicLong;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
@@ -62,8 +63,10 @@ public class ChallengeService {
                 .orElseThrow(() -> new ChallengeException(ErrorCode.USER_NOT_FOUND));
 
         //redisson
-        String lockKey = RedisPolicy.CHALLENGE_JOIN_COUNT_KEY_PREFIX + challengeId;
+        String lockKey = RedisPolicy.CHALLENGE_JOIN_KEY_PREFIX + challengeId;
         RLock lock = redissonClient.getLock(lockKey);
+
+        String countKey = RedisPolicy.CHALLENGE_CURRENT_COUNT_KEY_PREFIX + challengeId;
         boolean isLocked = false;
         try {
             isLocked = lock.tryLock(5, 3, TimeUnit.SECONDS);
@@ -76,9 +79,23 @@ public class ChallengeService {
             if (participationRepository.existsByChallengeIdAndUserId(challengeId, userId)) {
                 throw new ChallengeException(ErrorCode.ALREADY_JOINED);
             }
+
             if (request.getStartDate().isBefore(challenge.getStartDate()) || request.getEndDate().isAfter(challenge.getEndDate())) {
                 throw new ChallengeException(ErrorCode.INVALID_PARTICIPATION_PERIOD);
             }
+
+            RAtomicLong counter = redissonClient.getAtomicLong(countKey);
+
+            if (counter.isExists() == false) {
+                counter.set(challenge.getCurrentParticipants());
+            }
+            long current = counter.incrementAndGet();
+            if (current > challenge.getTotalParticipants()) {
+                counter.decrementAndGet();
+                throw new ChallengeException(ErrorCode.CHALLENGE_FULL);
+            }
+
+
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime userStartDateTime = LocalDateTime.of(request.getStartDate(), request.getStartTime());
 
