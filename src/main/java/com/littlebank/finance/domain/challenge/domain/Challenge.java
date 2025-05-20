@@ -24,9 +24,9 @@ public class Challenge extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "challenge_id")
     private Long id;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String title;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String description;
     @Enumerated(EnumType.STRING)
     private ChallengeCategory category;
@@ -34,7 +34,7 @@ public class Challenge extends BaseEntity {
     private LocalDate startDate;
     @Column(name = "end_date")
     private LocalDate endDate;
-    @Column(name = "subject")
+    @Column(name = "subject", length = 20)
     private String subject;
     @Column(name = "total_study_time")
     private Integer totalStudyTime;

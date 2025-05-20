@@ -8,7 +8,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -28,12 +27,12 @@ public class ChallengeParticipation extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private ChallengeStatus challengeStatus;
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private String subject;
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
@@ -45,10 +44,10 @@ public class ChallengeParticipation extends BaseEntity {
     private Boolean isDeleted = false;
 
     @Builder
-    public ChallengeParticipation(Challenge challenge, User user, Status status, LocalDate startDate, LocalDate endDate, String subject, LocalTime startTime, Integer totalStudyTime, Integer reward) {
+    public ChallengeParticipation(Challenge challenge, User user, ChallengeStatus challengeStatus, LocalDate startDate, LocalDate endDate, String subject, LocalTime startTime, Integer totalStudyTime, Integer reward) {
         this.challenge = challenge;
         this.user = user;
-        this.status = status;
+        this.challengeStatus = challengeStatus;
         this.startDate = startDate;
         this.endDate = endDate;
         this.subject = subject;

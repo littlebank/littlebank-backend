@@ -5,6 +5,7 @@ import com.littlebank.finance.domain.challenge.dto.request.ChallengeUserRequestD
 import com.littlebank.finance.domain.challenge.dto.response.ChallengeAdminResponseDto;
 import com.littlebank.finance.domain.challenge.dto.response.ChallengeUserResponseDto;
 import com.littlebank.finance.domain.challenge.service.ChallengeService;
+import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -36,12 +37,12 @@ public class ChallengeUserController {
 
     @Operation(summary = "챌린지 전체 조회")
     @GetMapping
-    public ResponseEntity<Page<ChallengeAdminResponseDto>> getAllChallenges(
+    public ResponseEntity<CustomPageResponse<ChallengeAdminResponseDto>> getAllChallenges(
             @RequestParam(required = false) ChallengeCategory challengeCategory,
-            @PageableDefault(size = 10, sort = "createdDate", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(defaultValue = "0") int page,
             @AuthenticationPrincipal CustomUserDetails user
             ) {
-        Page<ChallengeAdminResponseDto> response = challengeService.getChallenges(user.getId(), challengeCategory, pageable);
+        CustomPageResponse<ChallengeAdminResponseDto> response = challengeService.getChallenges(user.getId(), challengeCategory, page);
         return ResponseEntity.ok(response);
     }
 

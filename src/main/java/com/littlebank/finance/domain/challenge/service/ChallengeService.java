@@ -3,7 +3,7 @@ package com.littlebank.finance.domain.challenge.service;
 import com.littlebank.finance.domain.challenge.domain.Challenge;
 import com.littlebank.finance.domain.challenge.domain.ChallengeCategory;
 import com.littlebank.finance.domain.challenge.domain.ChallengeParticipation;
-import com.littlebank.finance.domain.challenge.domain.Status;
+import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeParticipationRepository;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeRepository;
 import com.littlebank.finance.domain.challenge.dto.request.ChallengeAdminRequestDto;
@@ -14,6 +14,8 @@ import com.littlebank.finance.domain.challenge.exception.ChallengeException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.common.CustomPageResponse;
+import com.littlebank.finance.global.common.PaginationPolicy;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.redis.RedisPolicy;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,9 @@ import org.redisson.api.RAtomicLong;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,19 +103,19 @@ public class ChallengeService {
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime userStartDateTime = LocalDateTime.of(request.getStartDate(), request.getStartTime());
 
-            Status status;
+            ChallengeStatus challengeStatus;
             if (now.isBefore(userStartDateTime)) {
-                status = Status.BEFORE;
+                challengeStatus = ChallengeStatus.BEFORE;
             } else if (now.isAfter(request.getEndDate().atTime(23, 59, 59))) {
-                status = Status.FINISHED;
+                challengeStatus = ChallengeStatus.FINISHED;
             } else {
-                status = Status.IN_PROGRESS;
+                challengeStatus = ChallengeStatus.IN_PROGRESS;
             }
 
             ChallengeParticipation participation = ChallengeParticipation.builder()
                     .challenge(challenge)
                     .user(user)
-                    .status(status)
+                    .challengeStatus(challengeStatus)
                     .startDate(request.getStartDate())
                     .endDate(request.getEndDate())
                     .subject(request.getSubject())
@@ -135,22 +139,30 @@ public class ChallengeService {
         }
     }
     @Transactional(readOnly = true)
-    public Page<ChallengeAdminResponseDto> getChallenges(Long userId, ChallengeCategory challengeCategory, Pageable pageable) {
+    public CustomPageResponse<ChallengeAdminResponseDto> getChallenges(Long userId, ChallengeCategory challengeCategory, int page) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
+        Pageable pageable = PageRequest.of(page,
+                PaginationPolicy.CHALLENGE_LIST_PAGE_SIZE,
+                Sort.by(Sort.Direction.DESC, "createdDate")
+        );
         Page<Challenge> challenges;
         if (challengeCategory != null) {
             challenges = challengeRepository.findByCategoryAndIsDeletedFalse(challengeCategory, pageable);
         } else {
             challenges = challengeRepository.findByIsDeletedFalse(pageable);
         }
-        return challenges.map(challenge -> {
-            int currentActiveParticipants = participationRepository.countByChallengeIdAndStatuses(
-                    challenge.getId(), List.of(Status.BEFORE, Status.IN_PROGRESS)
-            );
-            return ChallengeAdminResponseDto.of(challenge, currentActiveParticipants);
-        });
+
+        List<ChallengeAdminResponseDto> responseList = challenges.stream()
+                .map(challenge ->{
+                    int currentActiveParticipants = participationRepository.countByChallengeIdAndStatuses(
+                            challenge.getId(), List.of(ChallengeStatus.BEFORE, ChallengeStatus.IN_PROGRESS)
+                    );
+                    return ChallengeAdminResponseDto.of(challenge, currentActiveParticipants);
+                })
+                .toList();
+        return CustomPageResponse.of(challenges, responseList);
 
     }
 
@@ -162,7 +174,7 @@ public class ChallengeService {
 
         challenge.increaseViewCount();
         int currentActiveParticipants = participationRepository.countByChallengeIdAndStatuses(
-                challengeId, List.of(Status.BEFORE, Status.IN_PROGRESS)
+                challengeId, List.of(ChallengeStatus.BEFORE, ChallengeStatus.IN_PROGRESS)
         );
         return ChallengeAdminResponseDto.of(challenge, currentActiveParticipants);
     }
