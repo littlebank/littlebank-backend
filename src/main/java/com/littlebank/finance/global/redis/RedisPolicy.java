@@ -11,4 +11,6 @@ public class RedisPolicy {
     public static final String FEED_COMMENT_LIKE_SET_KEY_PREFIX = "COMMENT:LIKE:";
     public static final String FEED_LIKE_LOCK_KEY_PREFIX = "FEED:LIKE:LOCK:";
     public static final String FEED_COMMENT_LIKE_LOCK_KEY_PREFIX = "COMMENT:LIKE:LOCK:";
+    public static final String CHALLENGE_JOIN_KEY_PREFIX = "CHALLENGE:JOIN:";
+    public static final String CHALLENGE_CURRENT_COUNT_KEY_PREFIX = "CHALLENGE:CURRENT_COUNT:";
 }
