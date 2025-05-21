@@ -22,10 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.redisson.api.RAtomicLong;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -147,6 +144,7 @@ public class ChallengeService {
                 PaginationPolicy.CHALLENGE_LIST_PAGE_SIZE,
                 Sort.by(Sort.Direction.DESC, "createdDate")
         );
+
         Page<Challenge> challenges;
         if (challengeCategory != null) {
             challenges = challengeRepository.findByCategoryAndIsDeletedFalse(challengeCategory, pageable);
@@ -162,7 +160,8 @@ public class ChallengeService {
                     return ChallengeAdminResponseDto.of(challenge, currentActiveParticipants);
                 })
                 .toList();
-        return CustomPageResponse.of(challenges, responseList);
+        Page<ChallengeAdminResponseDto> responsePage = new PageImpl<>(responseList, pageable, challenges.getTotalElements());
+        return CustomPageResponse.of(responsePage);
 
     }
 
