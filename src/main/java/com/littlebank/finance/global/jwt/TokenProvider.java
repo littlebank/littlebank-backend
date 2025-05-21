@@ -27,6 +27,7 @@ public class TokenProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "authority";
     private final String secret;
     private final long accessTokenValidityInSeconds;
+    private final long accessTokenForAdminValidityInSeconds;
     private final long refreshTokenValidityInSeconds;
     private final CustomUserDetailsService customUserDetailsService;
     private Key key;
@@ -34,11 +35,13 @@ public class TokenProvider implements InitializingBean {
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.accessToken-validity-in-seconds}") long accessTokenValidityInSeconds,
+            @Value("${jwt.accessToken-for-admin-validity-in-seconds}") long accessTokenForAdminValidityInSeconds,
             @Value("${jwt.refreshToken-validity-in-seconds}") long refreshTokenValidityInSeconds,
             CustomUserDetailsService customUserDetailsService
     ) {
         this.secret = secret;
         this.accessTokenValidityInSeconds = accessTokenValidityInSeconds * 1000;
+        this.accessTokenForAdminValidityInSeconds = accessTokenForAdminValidityInSeconds * 1000;
         this.refreshTokenValidityInSeconds = refreshTokenValidityInSeconds * 1000;
         this.customUserDetailsService = customUserDetailsService;
     }
@@ -51,6 +54,10 @@ public class TokenProvider implements InitializingBean {
 
     public String provideAccessToken(Authentication authentication) {
         return createToken(authentication, this.accessTokenValidityInSeconds);
+    }
+
+    public String provideAccessTokenForAdmin(Authentication authentication) {
+        return createToken(authentication, this.accessTokenForAdminValidityInSeconds);
     }
 
     public String provideRefreshToken(Authentication authentication) {
