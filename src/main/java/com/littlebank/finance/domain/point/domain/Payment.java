@@ -32,12 +32,13 @@ public class Payment extends BaseEntity {
     @Column(nullable = false)
     private Integer amount;  // 결제 금액
     @Column(length = 50)
-    private String payMethod;  // 카드, kakaopay 등
+    private String payMethod;  // 결제 방법(카드, 포인트 등)
     @Column(length = 50)
-    private String pgProvider;  // tosspay, kakaopay 등
+    private String pgProvider;  // 이용한 결제대행사(kakaopay, tosspay 등)
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private PaymentStatus status;
+    private Integer remainingPoint;  // 결제 시점 남은 포인트
     private LocalDateTime paidAt;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -46,15 +47,21 @@ public class Payment extends BaseEntity {
     private Boolean isDeleted;
 
     @Builder
-    public Payment(String impUid, String merchantUid, Integer amount, String payMethod, String pgProvider, PaymentStatus status, LocalDateTime paidAt, User user, Boolean isDeleted) {
+    public Payment(String impUid, String merchantUid, Integer amount, String payMethod, String pgProvider,
+                   PaymentStatus status, Integer remainingPoint, LocalDateTime paidAt, User user, Boolean isDeleted) {
         this.impUid = impUid;
         this.merchantUid = merchantUid;
         this.amount = amount;
         this.payMethod = payMethod;
         this.pgProvider = pgProvider;
         this.status = status;
+        this.remainingPoint = remainingPoint;
         this.paidAt = paidAt;
         this.user = user;
         this.isDeleted = isDeleted;
+    }
+
+    public void recordRemainingPoint(User user) {
+        this.remainingPoint = user.getPoint();
     }
 }

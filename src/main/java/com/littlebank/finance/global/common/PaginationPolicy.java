@@ -8,5 +8,6 @@ public class PaginationPolicy {
     public final static int FRIEND_LIST_PAGE_SIZE = 20;
     public final static int ADDED_ME_FRIEND_LIST_PAGE_SIZE = 20;
     public static final int CHALLENGE_LIST_PAGE_SIZE = 10;
+    public final static int PAYMENT_HISTORY_PAGE_SIZE = 20;
 
 }

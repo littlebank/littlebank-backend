@@ -7,18 +7,22 @@ import com.littlebank.finance.domain.point.domain.repository.PaymentRepository;
 import com.littlebank.finance.domain.point.dto.PortonePaymentDto;
 import com.littlebank.finance.domain.point.dto.PortoneTokenDto;
 import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
+import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.PaymentInfoSaveResponse;
 import com.littlebank.finance.domain.point.exception.PointException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -64,9 +68,16 @@ public class PointService {
                 .isDeleted(Boolean.FALSE)
                 .build());
 
-        user.addPoint(paymentDto.getAmount());
+        user.addPoint(payment.getAmount());
+
+        payment.recordRemainingPoint(user);
 
         return PaymentInfoSaveResponse.of(payment);
+    }
+
+    @Transactional(readOnly = true)
+    public CustomPageResponse<PaymentHistoryResponse> getPaymentHistory(Long userId, Pageable pageable) {
+        return CustomPageResponse.of(paymentRepository.findHistoryByUserId(userId, pageable));
     }
 
     private String getAccessToken() {
