@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.payment.dto;
+package com.littlebank.finance.domain.point.dto;
 
 import lombok.Getter;
 

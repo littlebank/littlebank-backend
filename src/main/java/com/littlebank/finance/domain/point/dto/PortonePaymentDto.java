@@ -1,6 +1,6 @@
-package com.littlebank.finance.domain.payment.dto;
+package com.littlebank.finance.domain.point.dto;
 
-import com.littlebank.finance.domain.payment.domain.PaymentStatus;
+import com.littlebank.finance.domain.point.domain.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

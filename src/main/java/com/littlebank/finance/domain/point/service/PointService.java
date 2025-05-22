@@ -1,24 +1,28 @@
-package com.littlebank.finance.domain.payment.service;
+package com.littlebank.finance.domain.point.service;
 
 import com.google.gson.JsonObject;
-import com.littlebank.finance.domain.payment.domain.Payment;
-import com.littlebank.finance.domain.payment.domain.PaymentStatus;
-import com.littlebank.finance.domain.payment.domain.repository.PaymentRepository;
-import com.littlebank.finance.domain.payment.dto.PortonePaymentDto;
-import com.littlebank.finance.domain.payment.dto.PortoneTokenDto;
-import com.littlebank.finance.domain.payment.dto.request.PaymentInfoSaveRequest;
-import com.littlebank.finance.domain.payment.dto.response.PaymentInfoSaveResponse;
-import com.littlebank.finance.domain.payment.exception.PaymentException;
+import com.littlebank.finance.domain.point.domain.Payment;
+import com.littlebank.finance.domain.point.domain.PaymentStatus;
+import com.littlebank.finance.domain.point.domain.repository.PaymentRepository;
+import com.littlebank.finance.domain.point.dto.PortonePaymentDto;
+import com.littlebank.finance.domain.point.dto.PortoneTokenDto;
+import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
+import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
+import com.littlebank.finance.domain.point.dto.response.PaymentInfoSaveResponse;
+import com.littlebank.finance.domain.point.exception.PointException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -26,7 +30,7 @@ import java.util.Map;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class PaymentService {
+public class PointService {
     private static final String TOKEN_URL = "https://api.iamport.kr/users/getToken";
     private static final String PAYMENT_INFO_URL = "https://api.iamport.kr/payments/";
     private final PaymentRepository paymentRepository;
@@ -42,11 +46,11 @@ public class PaymentService {
         PortonePaymentDto paymentDto = getPaymentInfo(request.getImpUid(), token);
 
         if (paymentDto.getStatus() != PaymentStatus.PAID) {
-            throw new PaymentException(ErrorCode.PAYMENT_STATUS_NOT_PAID);
+            throw new PointException(ErrorCode.PAYMENT_STATUS_NOT_PAID);
         }
 
         if (paymentRepository.existsByImpUid(request.getImpUid())) {
-            throw new PaymentException(ErrorCode.PAYMENT_ALREADY_EXISTS); // 중복 방지
+            throw new PointException(ErrorCode.PAYMENT_ALREADY_EXISTS); // 중복 방지
         }
 
         User user = userRepository.findById(userId)
@@ -64,9 +68,16 @@ public class PaymentService {
                 .isDeleted(Boolean.FALSE)
                 .build());
 
-        user.addPoint(paymentDto.getAmount());
+        user.addPoint(payment.getAmount());
+
+        payment.recordRemainingPoint(user);
 
         return PaymentInfoSaveResponse.of(payment);
+    }
+
+    @Transactional(readOnly = true)
+    public CustomPageResponse<PaymentHistoryResponse> getPaymentHistory(Long userId, Pageable pageable) {
+        return CustomPageResponse.of(paymentRepository.findHistoryByUserId(userId, pageable));
     }
 
     private String getAccessToken() {
