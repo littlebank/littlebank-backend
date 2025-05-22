@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.payment.domain;
+package com.littlebank.finance.domain.point.domain;
 
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.common.BaseEntity;

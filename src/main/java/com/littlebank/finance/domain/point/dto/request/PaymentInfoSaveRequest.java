@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.payment.dto.request;
+package com.littlebank.finance.domain.point.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

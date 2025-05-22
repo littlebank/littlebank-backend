@@ -1,6 +1,6 @@
-package com.littlebank.finance.domain.payment.domain;
+package com.littlebank.finance.domain.point.domain;
 
-import com.littlebank.finance.domain.payment.exception.PaymentException;
+import com.littlebank.finance.domain.point.exception.PointException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 
 public enum PaymentStatus {
@@ -15,7 +15,7 @@ public enum PaymentStatus {
             case "paid"      -> PAID;
             case "cancelled" -> CANCELLED;
             case "failed"    -> FAILED;
-            default -> throw new PaymentException(ErrorCode.PAYMENT_INVALID_STATUS);
+            default -> throw new PointException(ErrorCode.PAYMENT_INVALID_STATUS);
         };
     }
 }
