@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PaymentHistoryResponse {
     private Long paymentId;
-    private Integer chargePont;
+    private Integer chargePoint;
     private Integer remainingPoint;
     private String pgProvider;
     private String payMethod;
