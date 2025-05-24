@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Service
 @RequiredArgsConstructor
-public class ChallengeAdminService {
+public class AdminChallengeService {
     private final UserRepository userRepository;
     private final ChallengeRepository challengeRepository;
     // ADMIN
