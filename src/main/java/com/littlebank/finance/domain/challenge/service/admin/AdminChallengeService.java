@@ -21,20 +21,41 @@ public class AdminChallengeService {
     private final UserRepository userRepository;
     private final ChallengeRepository challengeRepository;
     // ADMIN
-    public ChallengeAdminResponseDto createChallenge(Long userId, ChallengeAdminRequestDto dto) {
-        User user = userRepository.findById(userId)
+    public ChallengeAdminResponseDto createChallenge(Long adminId, ChallengeAdminRequestDto request) {
+        User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new ChallengeException(ErrorCode.USER_NOT_FOUND));
         Challenge challenge = Challenge.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .category(ChallengeCategory.valueOf(dto.getCategory()))
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .totalStudyTime(dto.getTotalStudyTime())
-                .totalParticipants(dto.getTotalParticipants())
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .category(ChallengeCategory.valueOf(request.getCategory()))
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .totalStudyTime(request.getTotalStudyTime())
+                .totalParticipants(request.getTotalParticipants())
                 .currentParticipants(0)
                 .build();
         Challenge savedChallenge = challengeRepository.save(challenge);
         return ChallengeAdminResponseDto.of(savedChallenge, 0);
+    }
+
+    public ChallengeAdminResponseDto updateChallenge(Long adminId, Long challengeId, ChallengeAdminRequestDto request) {
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new ChallengeException(ErrorCode.USER_NOT_FOUND));
+
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new ChallengeException(ErrorCode.CHALLENGE_NOT_FOUND));
+
+        challenge.update(
+                request.getTitle(),
+                ChallengeCategory.valueOf(request.getCategory()),
+                request.getSubject(),
+                request.getDescription(),
+                request.getStartDate(),
+                request.getEndDate(),
+                request.getTotalStudyTime(),
+                request.getTotalParticipants()
+        );
+
+        return ChallengeAdminResponseDto.of(challenge, challenge.getCurrentParticipants());
     }
 }

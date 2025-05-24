@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api-user/challenge")
 @RequiredArgsConstructor
-public class ChallengeUserController {
+public class ChallengeController {
 
     private final ChallengeService challengeService;
 

@@ -23,10 +23,20 @@ public class AdminChallengeController {
     @PostMapping("/create")
     public ResponseEntity<ChallengeAdminResponseDto> createChallenge(
             @RequestBody ChallengeAdminRequestDto dto,
-            @AuthenticationPrincipal CustomUserDetails user
+            @AuthenticationPrincipal CustomUserDetails admin
             ) {
-        ChallengeAdminResponseDto response = adminChallengeService.createChallenge(user.getId(), dto);
+        ChallengeAdminResponseDto response = adminChallengeService.createChallenge(admin.getId(), dto);
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "챌린지 수정")
+    @PutMapping("/update/{challengeId}")
+    public ResponseEntity<ChallengeAdminResponseDto> updateChallenge (
+            @PathVariable Long challengeId,
+            @RequestBody ChallengeAdminRequestDto request,
+            @AuthenticationPrincipal CustomUserDetails admin
+    ) {
+        ChallengeAdminResponseDto response = adminChallengeService.updateChallenge(admin.getId(), challengeId, request);
+        return ResponseEntity.ok(response);
+    }
 }
