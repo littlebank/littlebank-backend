@@ -8,6 +8,7 @@ import com.littlebank.finance.domain.challenge.dto.response.admin.ChallengeAdmin
 import com.littlebank.finance.domain.challenge.exception.ChallengeException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
+import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -57,5 +58,13 @@ public class AdminChallengeService {
         );
 
         return ChallengeAdminResponseDto.of(challenge, challenge.getCurrentParticipants());
+    }
+
+    public void deleteChallenge(Long adminId, Long challengeId) {
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new ChallengeException(ErrorCode.CHALLENGE_NOT_FOUND));
+        challenge.delete();
     }
 }

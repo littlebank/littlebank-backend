@@ -20,5 +20,13 @@ public interface ChallengeParticipationRepository extends JpaRepository<Challeng
     int countByChallengeIdAndStatuses(@Param("challengeId") Long challengeId,
                                       @Param("statuses") List<ChallengeStatus> challengeStatuses);
 
-    Page<ChallengeParticipation> findByUserIdAndChallengeStatusIn(Long userId, List<ChallengeStatus> filterStatuses, Pageable pageable);
-}
+    @Query("SELECT cp FROM ChallengeParticipation cp " +
+            "JOIN FETCH cp.challenge c " +
+            "WHERE cp.user.id = :userId " +
+            "AND cp.challengeStatus IN :statuses " +
+            "AND cp.isDeleted = false " +
+            "AND c.isDeleted = false")
+    Page<ChallengeParticipation> findMyValidParticipations(
+            @Param("userId") Long userId,
+            @Param("statuses") List<ChallengeStatus> statuses,
+            Pageable pageable);}

@@ -22,10 +22,10 @@ public class AdminChallengeController {
     @Operation(summary = "챌린지 생성")
     @PostMapping("/create")
     public ResponseEntity<ChallengeAdminResponseDto> createChallenge(
-            @RequestBody ChallengeAdminRequestDto dto,
+            @RequestBody ChallengeAdminRequestDto request,
             @AuthenticationPrincipal CustomUserDetails admin
             ) {
-        ChallengeAdminResponseDto response = adminChallengeService.createChallenge(admin.getId(), dto);
+        ChallengeAdminResponseDto response = adminChallengeService.createChallenge(admin.getId(), request);
         return ResponseEntity.ok(response);
     }
 
@@ -38,5 +38,15 @@ public class AdminChallengeController {
     ) {
         ChallengeAdminResponseDto response = adminChallengeService.updateChallenge(admin.getId(), challengeId, request);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "챌린지 삭제")
+    @DeleteMapping("/delete/{challengeId}")
+    public ResponseEntity<Void> deleteChallenge (
+            @PathVariable Long challengeId,
+            @AuthenticationPrincipal CustomUserDetails admin
+    ) {
+        adminChallengeService.deleteChallenge(admin.getId(), challengeId);
+        return ResponseEntity.ok().build();
     }
 }

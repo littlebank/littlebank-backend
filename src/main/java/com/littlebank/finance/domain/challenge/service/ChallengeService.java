@@ -177,7 +177,7 @@ public class ChallengeService {
         }
 
         Page<ChallengeParticipation> participations = participationRepository
-                .findByUserIdAndChallengeStatusIn(user.getId(), filterStatuses, pageable);
+                .findMyValidParticipations(user.getId(), filterStatuses, pageable);
 
         List<ChallengeAdminResponseDto> challengeList = participations.stream()
                 .map(participation -> {
