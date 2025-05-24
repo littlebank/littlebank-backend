@@ -64,7 +64,8 @@ public enum ErrorCode {
     ALREADY_JOINED(400, "CH002", "이미 참여 중입니다"),
     INVALID_PARTICIPATION_PERIOD(400, "CH003", "챌린지 참여 기간 다시 입력하세요"),
     LOCK_INTERUPPTED(500, "CH004", "챌린지 참여 처리 중 오류 발생했습니다"),
-    CHALLENGE_FULL(400, "CH005", "챌린지 참여 인원을 초과했습니다");
+    CHALLENGE_FULL(400, "CH005", "챌린지 참여 인원을 초과했습니다"),
+    INVALID_CHALLENGE_CATEGORY(400, "CH006", "카테고리가 타당하지 않습니다");
 
     private final String code;
     private final String message;
