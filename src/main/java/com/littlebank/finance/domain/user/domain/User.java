@@ -44,7 +44,6 @@ public class User extends BaseEntity {
     private String bankAccount;
     @Column(length = 150)
     private String profileImagePath;
-    @Column(name = "balance")
     private Integer point;
     @Enumerated(EnumType.STRING)
     private UserRole role;
