@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api-admin/challenge")
 @RequiredArgsConstructor
-@Tag(name = "challenge_admin")
+@Tag(name = "challenge")
 public class AdminChallengeController {
 
     private final AdminChallengeService adminChallengeService;
