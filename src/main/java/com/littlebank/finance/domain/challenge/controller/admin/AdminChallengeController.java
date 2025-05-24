@@ -10,11 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@PreAuthorize( "hasRole('ADMIN')")
 @RequestMapping("/api-admin/challenge")
 @RequiredArgsConstructor
+@Tag(name = "challenge_admin")
 public class AdminChallengeController {
 
     private final AdminChallengeService adminChallengeService;
