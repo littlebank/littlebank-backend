@@ -6,9 +6,9 @@ import com.littlebank.finance.domain.challenge.domain.ChallengeParticipation;
 import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeParticipationRepository;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeRepository;
-import com.littlebank.finance.domain.challenge.dto.request.ChallengeAdminRequestDto;
+import com.littlebank.finance.domain.challenge.dto.request.admin.ChallengeAdminRequestDto;
 import com.littlebank.finance.domain.challenge.dto.request.ChallengeUserRequestDto;
-import com.littlebank.finance.domain.challenge.dto.response.ChallengeAdminResponseDto;
+import com.littlebank.finance.domain.challenge.dto.response.admin.ChallengeAdminResponseDto;
 import com.littlebank.finance.domain.challenge.dto.response.ChallengeUserResponseDto;
 import com.littlebank.finance.domain.challenge.exception.ChallengeException;
 import com.littlebank.finance.domain.user.domain.User;
@@ -38,26 +38,6 @@ public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final ChallengeParticipationRepository participationRepository;
     private final RedissonClient redissonClient;
-
-    // ADMIN
-    public ChallengeAdminResponseDto createChallenge(Long userId, ChallengeAdminRequestDto dto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ChallengeException(ErrorCode.USER_NOT_FOUND));
-        Challenge challenge = Challenge.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .category(ChallengeCategory.valueOf(dto.getCategory()))
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .totalStudyTime(dto.getTotalStudyTime())
-                .totalParticipants(dto.getTotalParticipants())
-                .currentParticipants(0)
-                .build();
-        Challenge savedChallenge = challengeRepository.save(challenge);
-        return ChallengeAdminResponseDto.of(savedChallenge, 0);
-    }
-
-
     // USER
     public ChallengeUserResponseDto joinChallenge(Long userId, Long challengeId, ChallengeUserRequestDto request) {
         User user = userRepository.findById(userId)
@@ -176,5 +156,42 @@ public class ChallengeService {
                 challengeId, List.of(ChallengeStatus.BEFORE, ChallengeStatus.IN_PROGRESS)
         );
         return ChallengeAdminResponseDto.of(challenge, currentActiveParticipants);
+    }
+
+    public CustomPageResponse<ChallengeAdminResponseDto> getMyChallenges(Long userId, ChallengeStatus challengeStatus, int page) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        Pageable pageable = PageRequest.of(page,
+                PaginationPolicy.CHALLENGE_LIST_PAGE_SIZE,
+                Sort.by(Sort.Direction.DESC, "createdDate")
+        );
+
+        List<ChallengeStatus> filterStatuses;
+        if (challengeStatus == ChallengeStatus.BEFORE || challengeStatus == ChallengeStatus.IN_PROGRESS) {
+            filterStatuses = List.of(ChallengeStatus.BEFORE, ChallengeStatus.IN_PROGRESS);
+        } else if (challengeStatus == ChallengeStatus.FINISHED) {
+            filterStatuses = List.of(ChallengeStatus.FINISHED);
+        } else {
+            throw new ChallengeException(ErrorCode.INVALID_CHALLENGE_CATEGORY);
+        }
+
+        Page<ChallengeParticipation> participations = participationRepository
+                .findMyValidParticipations(user.getId(), filterStatuses, pageable);
+
+        List<ChallengeAdminResponseDto> challengeList = participations.stream()
+                .map(participation -> {
+                    Challenge challenge = participation.getChallenge();
+                    int current = participationRepository.countByChallengeIdAndStatuses(
+                            challenge.getId(),
+                            List.of(ChallengeStatus.BEFORE, ChallengeStatus.IN_PROGRESS)
+                    );
+                    return ChallengeAdminResponseDto.of(challenge, current);
+                })
+                .toList();
+
+        Page<ChallengeAdminResponseDto> responsePage = new PageImpl<>(challengeList, pageable, participations.getTotalElements());
+        return CustomPageResponse.of(responsePage);
+
     }
 }

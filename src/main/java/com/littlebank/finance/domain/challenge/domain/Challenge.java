@@ -79,4 +79,8 @@ public class Challenge extends BaseEntity {
     public void increaseViewCount() {
         this.viewCount += 1;
     }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
 }
