@@ -4,9 +4,11 @@ import com.littlebank.finance.domain.family.domain.Family;
 import com.littlebank.finance.domain.family.domain.repository.FamilyRepository;
 import com.littlebank.finance.domain.family.exception.FamilyException;
 import com.littlebank.finance.domain.goal.domain.Goal;
+import com.littlebank.finance.domain.goal.domain.GoalCategory;
 import com.littlebank.finance.domain.goal.domain.repository.GoalRepository;
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
 import com.littlebank.finance.domain.goal.dto.response.GoalApplyResponse;
+import com.littlebank.finance.domain.goal.exception.GoalException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
@@ -26,11 +28,19 @@ public class GoalService {
     public GoalApplyResponse applyGoal(Long userId, GoalApplyRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        verifyDuplicateGoalCategory(user, request.getCategory());
+
         Family family = familyRepository.findById(userId)
                 .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_NOT_FOUND));
 
         Goal goal = goalRepository.save(request.toEntity(user, family));
 
         return GoalApplyResponse.of(goal);
+    }
+
+    private void verifyDuplicateGoalCategory(User user, GoalCategory category) {
+        if (goalRepository.existsCategoryAndWeekly(user.getId(), category)) {
+            throw new GoalException(ErrorCode.GOAL_WEEKLY_DUPLICATE);
+        }
     }
 }
