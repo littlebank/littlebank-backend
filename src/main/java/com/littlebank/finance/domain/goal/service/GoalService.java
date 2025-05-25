@@ -51,6 +51,15 @@ public class GoalService {
                 .collect(Collectors.toList());
     }
 
+    public P3CommonGoalResponse acceptApplyGoal(Long targetGoalId) {
+        Goal goal = goalRepository.findById(targetGoalId)
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+
+        goal.acceptProposal();
+
+        return P3CommonGoalResponse.of(goal);
+    }
+
     private void verifyDuplicateGoalCategory(User user, GoalCategory category) {
         if (goalRepository.existsCategoryAndWeekly(user.getId(), category)) {
             throw new GoalException(ErrorCode.GOAL_WEEKLY_DUPLICATE);

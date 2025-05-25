@@ -6,6 +6,7 @@ import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.service.GoalService;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,16 @@ public class GoalController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         List<WeeklyGoalResponse> response = goalService.getWeeklyGoal(customUserDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "(부모)목표 신청 수락하기 API", description = "아이가 신청한 목표를 부모가 수락")
+    @PatchMapping("/apply/accept/{goalId}")
+    public ResponseEntity<P3CommonGoalResponse> acceptApplyGoal(
+            @Parameter(description = "신청을 수락할 목표 식별 id")
+            @PathVariable("goalId") Long goalId
+    ) {
+        P3CommonGoalResponse response = goalService.acceptApplyGoal(goalId);
         return ResponseEntity.ok(response);
     }
 }

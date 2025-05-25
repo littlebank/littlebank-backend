@@ -59,4 +59,8 @@ public class Goal extends BaseEntity {
         this.family = family;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
+
+    public void acceptProposal() {
+        this.status = GoalStatus.ACCEPT;
+    }
 }
