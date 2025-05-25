@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,6 +55,10 @@ public class GoalService {
     public P3CommonGoalResponse acceptApplyGoal(Long targetGoalId) {
         Goal goal = goalRepository.findById(targetGoalId)
                 .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+
+        if (goal.getEndDate().isBefore(LocalDateTime.now())) {
+            throw new GoalException(ErrorCode.GOAL_END_DATE_EXPIRED);
+        }
 
         goal.acceptProposal();
 
