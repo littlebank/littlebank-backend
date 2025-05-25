@@ -1,21 +1,29 @@
 package com.littlebank.finance.domain.goal.domain.repository.impl;
 
+import com.littlebank.finance.domain.family.domain.QFamily;
+import com.littlebank.finance.domain.family.domain.QFamilyMember;
 import com.littlebank.finance.domain.goal.domain.Goal;
 import com.littlebank.finance.domain.goal.domain.GoalCategory;
 import com.littlebank.finance.domain.goal.domain.QGoal;
 import com.littlebank.finance.domain.goal.domain.repository.CustomGoalRepository;
+import com.littlebank.finance.domain.goal.dto.response.ChildWeeklyGoalResponse;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+import static com.littlebank.finance.domain.family.domain.QFamily.family;
+import static com.littlebank.finance.domain.family.domain.QFamilyMember.familyMember;
 import static com.littlebank.finance.domain.goal.domain.QGoal.goal;
 
 @RequiredArgsConstructor
 public class CustomGoalRepositoryImpl implements CustomGoalRepository {
     private final JPAQueryFactory queryFactory;
     private QGoal g = goal;
+    private QFamily f = family;
+    private QFamilyMember fm = familyMember;
     private final static int MONDAY = 1;
 
     public Boolean existsCategoryAndWeekly(Long userId, GoalCategory category) {
@@ -58,6 +66,34 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
                 .fetch();
 
         return results;
+    }
+
+    public List<ChildWeeklyGoalResponse> findChildWeeklyGoalResponses(Long familyId) {
+        return queryFactory
+                .select(Projections.constructor(
+                        ChildWeeklyGoalResponse.class,
+                        g.id,
+                        g.title,
+                        g.category,
+                        g.reward,
+                        g.startDate,
+                        g.endDate,
+                        g.status,
+                        fm.id,
+                        fm.nickname
+                ))
+                .from(g)
+                .join(g.family, f)
+                .join(f.members, fm)
+                .where(
+                        g.family.id.eq(familyId)
+                                .and(
+                                        Expressions.stringTemplate("YEARWEEK({0}, {1})", g.createdDate, MONDAY)
+                                                .eq(Expressions.stringTemplate("YEARWEEK(CURDATE(), {0})", MONDAY))
+                                )
+                                .and(g.createdBy.id.eq(fm.user.id))
+                )
+                .fetch();
     }
 
 }

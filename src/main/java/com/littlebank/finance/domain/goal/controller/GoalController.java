@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.goal.controller;
 
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
+import com.littlebank.finance.domain.goal.dto.response.ChildWeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.P3CommonGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.service.GoalService;
@@ -39,6 +40,16 @@ public class GoalController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         List<WeeklyGoalResponse> response = goalService.getWeeklyGoal(customUserDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "(부모)이번 주 아이들의 목표 조회 API")
+    @GetMapping("/parent/weekly/{familyId}")
+    public ResponseEntity<List<ChildWeeklyGoalResponse>> getChildWeeklyGoal(
+            @Parameter(description = "목표를 조회할 가족 식별 id")
+            @PathVariable("familyId") Long familyId
+    ) {
+        List<ChildWeeklyGoalResponse> response = goalService.getChildWeeklyGoal(familyId);
         return ResponseEntity.ok(response);
     }
 

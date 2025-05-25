@@ -7,6 +7,7 @@ import com.littlebank.finance.domain.goal.domain.Goal;
 import com.littlebank.finance.domain.goal.domain.GoalCategory;
 import com.littlebank.finance.domain.goal.domain.repository.GoalRepository;
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
+import com.littlebank.finance.domain.goal.dto.response.ChildWeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.P3CommonGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.exception.GoalException;
@@ -50,6 +51,11 @@ public class GoalService {
         return results.stream()
                 .map(g -> WeeklyGoalResponse.of(g))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChildWeeklyGoalResponse> getChildWeeklyGoal(Long familyId) {
+        return goalRepository.findChildWeeklyGoalResponses(familyId);
     }
 
     public P3CommonGoalResponse acceptApplyGoal(Long targetGoalId) {
