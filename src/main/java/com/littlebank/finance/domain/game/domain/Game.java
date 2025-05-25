@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.game.domain;
 
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,5 +43,13 @@ public class Game extends BaseEntity {
         this.vote_a = vote_a;
         this.vote_b = vote_b;
         this.isDeleted = isDeleted == null ? false : isDeleted;
+    }
+
+    public void update(String question, String option_a, String option_b, Integer vote_a, Integer vote_b) {
+        this.question = question;
+        this.option_a = option_a;
+        this.option_b = option_b;
+        this.vote_a = vote_a;
+        this.vote_b = vote_b;
     }
 }

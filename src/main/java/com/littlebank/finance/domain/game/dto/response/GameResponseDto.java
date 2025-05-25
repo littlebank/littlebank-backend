@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class GameResponseDto {
+    private Long id;
     private String question;
     private String option_a;
     private String option_b;
@@ -17,6 +18,7 @@ public class GameResponseDto {
 
     public static GameResponseDto of(Game game) {
         return GameResponseDto.builder()
+                .id(game.getId())
                 .question(game.getQuestion())
                 .option_a(game.getOption_a())
                 .option_b(game.getOption_b())

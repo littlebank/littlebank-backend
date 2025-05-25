@@ -10,10 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api-admin/game")
@@ -29,6 +26,17 @@ public class AdminGameController {
             @AuthenticationPrincipal CustomUserDetails admin
             ) {
         GameResponseDto response = adminGameService.createGame(admin.getId(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "게임 수정")
+    @PutMapping("/update/{gameId}")
+    public ResponseEntity<GameResponseDto> updateGame (
+            @RequestBody GameRequestDto request,
+            @PathVariable Long gameId,
+            @AuthenticationPrincipal CustomUserDetails admin
+    ) {
+        GameResponseDto response = adminGameService.updateGame(admin.getId(), gameId, request);
         return ResponseEntity.ok(response);
     }
 }
