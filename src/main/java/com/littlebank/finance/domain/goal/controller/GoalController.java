@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.goal.controller;
 
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
 import com.littlebank.finance.domain.goal.dto.response.GoalApplyResponse;
+import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.service.GoalService;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,10 +11,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api-user/goal")
@@ -29,6 +29,15 @@ public class GoalController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         GoalApplyResponse response = goalService.applyGoal(customUserDetails.getId(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "(아이)이번 주 목표 조회 API")
+    @GetMapping("/weekly")
+    public ResponseEntity<List<WeeklyGoalResponse>> getWeeklyGoal(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        List<WeeklyGoalResponse> response = goalService.getWeeklyGoal(customUserDetails.getId());
         return ResponseEntity.ok(response);
     }
 }
