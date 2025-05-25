@@ -1,7 +1,7 @@
 package com.littlebank.finance.domain.goal.controller;
 
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
-import com.littlebank.finance.domain.goal.dto.response.GoalApplyResponse;
+import com.littlebank.finance.domain.goal.dto.response.P3CommonGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.service.GoalService;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -24,11 +24,11 @@ public class GoalController {
 
     @Operation(summary = "(아이)목표 신청하기 API", description = "아이가 부모에게 목표 신청")
     @PostMapping("/apply")
-    public ResponseEntity<GoalApplyResponse> applyGoal(
+    public ResponseEntity<P3CommonGoalResponse> applyGoal(
             @RequestBody @Valid GoalApplyRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        GoalApplyResponse response = goalService.applyGoal(customUserDetails.getId(), request);
+        P3CommonGoalResponse response = goalService.applyGoal(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
 

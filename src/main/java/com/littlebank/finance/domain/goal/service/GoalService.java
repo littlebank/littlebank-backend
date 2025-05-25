@@ -7,7 +7,7 @@ import com.littlebank.finance.domain.goal.domain.Goal;
 import com.littlebank.finance.domain.goal.domain.GoalCategory;
 import com.littlebank.finance.domain.goal.domain.repository.GoalRepository;
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
-import com.littlebank.finance.domain.goal.dto.response.GoalApplyResponse;
+import com.littlebank.finance.domain.goal.dto.response.P3CommonGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.exception.GoalException;
 import com.littlebank.finance.domain.user.domain.User;
@@ -29,7 +29,7 @@ public class GoalService {
     private final FamilyRepository familyRepository;
     private final GoalRepository goalRepository;
 
-    public GoalApplyResponse applyGoal(Long userId, GoalApplyRequest request) {
+    public P3CommonGoalResponse applyGoal(Long userId, GoalApplyRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         verifyDuplicateGoalCategory(user, request.getCategory());
@@ -39,7 +39,7 @@ public class GoalService {
 
         Goal goal = goalRepository.save(request.toEntity(user, family));
 
-        return GoalApplyResponse.of(goal);
+        return P3CommonGoalResponse.of(goal);
     }
 
     @Transactional(readOnly = true)
