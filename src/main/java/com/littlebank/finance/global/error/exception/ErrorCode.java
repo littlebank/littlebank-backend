@@ -31,6 +31,7 @@ public enum ErrorCode {
     MULTIPLE_PARENTS_NOT_ALLOWED(422, "FM004", "부모 역할이 2개 이상 존재할 수 없습니다"),
 
     // Goal
+    GOAL_NOT_FOUND(404, "G001", "목표 데이터가 존재하지 않습니다"),
     GOAL_WEEKLY_DUPLICATE(409, "G002", "이번 주에 이미 신청한 목표 유형입니다."),
 
     // Point
