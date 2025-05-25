@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 public class WeeklyGoalResponse {
-    private Long goal_id;
+    private Long goalId;
     private String title;
     private GoalCategory category;
     private Integer reward;
@@ -23,7 +23,7 @@ public class WeeklyGoalResponse {
 
     public static WeeklyGoalResponse of(Goal goal) {
         return WeeklyGoalResponse.builder()
-                .goal_id(goal.getId())
+                .goalId(goal.getId())
                 .title(goal.getTitle())
                 .category(goal.getCategory())
                 .reward(goal.getReward())

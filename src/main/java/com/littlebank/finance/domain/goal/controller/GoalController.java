@@ -24,7 +24,7 @@ public class GoalController {
     private final GoalService goalService;
 
     @Operation(summary = "(아이)목표 신청하기 API", description = "아이가 부모에게 목표 신청")
-    @PostMapping("/apply")
+    @PostMapping("/child/apply")
     public ResponseEntity<P3CommonGoalResponse> applyGoal(
             @RequestBody @Valid GoalApplyRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
@@ -34,7 +34,7 @@ public class GoalController {
     }
 
     @Operation(summary = "(아이)이번 주 목표 조회 API")
-    @GetMapping("/weekly")
+    @GetMapping("/child/weekly")
     public ResponseEntity<List<WeeklyGoalResponse>> getWeeklyGoal(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
@@ -43,7 +43,7 @@ public class GoalController {
     }
 
     @Operation(summary = "(부모)목표 신청 수락하기 API", description = "아이가 신청한 목표를 부모가 수락")
-    @PatchMapping("/apply/accept/{goalId}")
+    @PatchMapping("/parent/apply/accept/{goalId}")
     public ResponseEntity<P3CommonGoalResponse> acceptApplyGoal(
             @Parameter(description = "신청을 수락할 목표 식별 id")
             @PathVariable("goalId") Long goalId
