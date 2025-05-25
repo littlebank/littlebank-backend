@@ -32,7 +32,8 @@ public enum ErrorCode {
 
     // Goal
     GOAL_NOT_FOUND(404, "G001", "목표 데이터가 존재하지 않습니다"),
-    GOAL_WEEKLY_DUPLICATE(409, "G002", "이번 주에 이미 신청한 목표 유형입니다."),
+    GOAL_WEEKLY_DUPLICATE(409, "G002", "이번 주에 이미 신청한 목표 유형입니다"),
+    GOAL_END_DATE_EXPIRED(410, "G003", "설정한 목표 진행 기간이 지났습니다"),
 
     // Point
     PAYMENT_INVALID_STATUS(400, "P001", "결제 정보 저장 중 오류가 발생했습니다(지원하지 않는 결제 상태)"),
