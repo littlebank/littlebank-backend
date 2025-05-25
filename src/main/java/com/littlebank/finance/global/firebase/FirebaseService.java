@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FirebaseService {
+    private final static String NOTIFICATION_IMAGE_URL = "https://avatars.githubusercontent.com/u/203592524?s=96&v=4"; // 임시
 
     @Async
     public void sendNotification(Notification notification) {
@@ -16,8 +17,9 @@ public class FirebaseService {
                 .setToken(notification.getReceiver().getFcmToken())
                 .setNotification(
                         com.google.firebase.messaging.Notification.builder()
-                        .setTitle(notification.getMessage())
-                        .build()
+                                .setTitle(notification.getMessage())
+                                .setImage(NOTIFICATION_IMAGE_URL)
+                                .build()
                 )
                 .build();
         try {
