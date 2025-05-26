@@ -11,9 +11,6 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -99,8 +96,8 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
                 .fetch();
     }
 
-    public Page<ChildGoalResponse> findAllChildGoalResponses(Long familyId, Pageable pageable) {
-        List<ChildGoalResponse> results = queryFactory
+    public List<ChildGoalResponse> findAllChildGoalResponses(Long familyId) {
+        return queryFactory
                 .select(Projections.constructor(
                         ChildGoalResponse.class,
                         g.id,
@@ -120,11 +117,7 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
                         g.family.id.eq(familyId)
                                 .and(g.createdBy.id.eq(fm.user.id))
                 )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .fetch();
-
-        return new PageImpl<>(results, pageable, results.size());
     }
 
 }

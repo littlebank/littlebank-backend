@@ -14,10 +14,8 @@ import com.littlebank.finance.domain.goal.exception.GoalException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
-import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,8 +72,8 @@ public class GoalService {
     }
 
     @Transactional(readOnly = true)
-    public CustomPageResponse<ChildGoalResponse> getChildGoals(Long familyId, Pageable pageable) {
-        return CustomPageResponse.of(goalRepository.findAllChildGoalResponses(familyId, pageable));
+    public List<ChildGoalResponse> getChildGoals(Long familyId) {
+        return goalRepository.findAllChildGoalResponses(familyId);
     }
 
     private void verifyDuplicateGoalCategory(User user, GoalCategory category) {
