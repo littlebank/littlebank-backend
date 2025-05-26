@@ -9,11 +9,14 @@ import com.littlebank.finance.domain.challenge.service.ChallengeService;
 import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api-user/challenge")
@@ -62,6 +65,16 @@ public class ChallengeController {
             @RequestParam(defaultValue = "0") int page
     ) {
         CustomPageResponse<ChallengeAdminResponseDto> response = challengeService.getMyChallenges(user.getId(), challengeStatus, page);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "(부모) 자녀가 참여 중인 챌린지 조회")
+    @GetMapping("/parent/{familyId}")
+    public ResponseEntity<List<ChallengeUserResponseDto>> getChildChallenge (
+            @Parameter(description = "챌린지를 조회할 가족 식별 id")
+            @PathVariable("familyId") Long familyId
+    ) {
+        List<ChallengeUserResponseDto> response = challengeService.getChildChallenge(familyId);
         return ResponseEntity.ok(response);
     }
 }

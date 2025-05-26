@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.challenge.domain.repository;
 
 import com.littlebank.finance.domain.challenge.domain.ChallengeParticipation;
 import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
+import com.littlebank.finance.domain.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,4 +30,19 @@ public interface ChallengeParticipationRepository extends JpaRepository<Challeng
     Page<ChallengeParticipation> findMyValidParticipations(
             @Param("userId") Long userId,
             @Param("statuses") List<ChallengeStatus> statuses,
-            Pageable pageable);}
+            Pageable pageable);
+
+    @Query("""
+    SELECT cp
+    FROM ChallengeParticipation cp
+    JOIN cp.user u
+    JOIN FamilyMember fm ON fm.user = u
+    WHERE fm.family.id = :familyId
+      AND u.role = 'CHILD'
+      AND cp.challengeStatus IN :statuses
+""")
+    List<ChallengeParticipation> findChildrenParticipationByFamilyId(
+            @Param("familyId") Long familyId,
+            @Param("statuses") List<ChallengeStatus> statuses
+    );
+}
