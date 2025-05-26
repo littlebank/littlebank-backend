@@ -13,7 +13,7 @@ import java.time.LocalTime;
 @Entity
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE challenge_participation SET is_deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE challenge_participation SET is_deleted = true WHERE participation_id = ?")
 @Where(clause = "is_deleted = false")
 @NoArgsConstructor
 @AllArgsConstructor

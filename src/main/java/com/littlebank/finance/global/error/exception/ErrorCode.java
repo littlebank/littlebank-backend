@@ -30,6 +30,11 @@ public enum ErrorCode {
     FAMILY_MEMBER_ALREADY_EXISTS(409, "FM003", "가족 맴버로 소속되어 있습니다"),
     MULTIPLE_PARENTS_NOT_ALLOWED(422, "FM004", "부모 역할이 2개 이상 존재할 수 없습니다"),
 
+    // Goal
+    GOAL_NOT_FOUND(404, "G001", "목표 데이터가 존재하지 않습니다"),
+    GOAL_WEEKLY_DUPLICATE(409, "G002", "이번 주에 이미 신청한 목표 유형입니다"),
+    GOAL_END_DATE_EXPIRED(410, "G003", "설정한 목표 진행 기간이 지났습니다"),
+
     // Point
     PAYMENT_INVALID_STATUS(400, "P001", "결제 정보 저장 중 오류가 발생했습니다(지원하지 않는 결제 상태)"),
     PAYMENT_STATUS_NOT_PAID(400, "P002", "결제 된 상태가 아닙니다"),
@@ -65,7 +70,8 @@ public enum ErrorCode {
     INVALID_PARTICIPATION_PERIOD(400, "CH003", "챌린지 참여 기간 다시 입력하세요"),
     LOCK_INTERUPPTED(500, "CH004", "챌린지 참여 처리 중 오류 발생했습니다"),
     CHALLENGE_FULL(400, "CH005", "챌린지 참여 인원을 초과했습니다"),
-
+    INVALID_CHALLENGE_CATEGORY(400, "CH006", "카테고리가 타당하지 않습니다");
+  
     // GAME
     GAME_NOT_FOUND( 404, "G001", "게임을 찾을 수 없습니다"),
     ALREADY_VOTED(400, "G002", "이미 투표했습니다");

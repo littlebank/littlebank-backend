@@ -1,13 +1,11 @@
-package com.littlebank.finance.domain.challenge.dto.request;
+package com.littlebank.finance.domain.challenge.dto.request.admin;
 
-import com.littlebank.finance.domain.challenge.domain.ChallengeCategory;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Getter
 @Setter
