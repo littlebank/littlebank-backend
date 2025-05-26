@@ -36,7 +36,7 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
                         )
                         .and(
                                 Expressions.stringTemplate(
-                                                "YEARWEEK({0}, {1})", g.createdDate, MONDAY
+                                                "YEARWEEK({0}, {1})", g.startDate, MONDAY
                                         )
                                         .eq(
                                                 Expressions.stringTemplate("YEARWEEK(CURDATE(), {0})", MONDAY)
@@ -54,7 +54,7 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
                 .where(g.createdBy.id.eq(userId)
                         .and(
                                 Expressions.stringTemplate(
-                                        "YEARWEEK({0}, {1})", g.createdDate, MONDAY
+                                        "YEARWEEK({0}, {1})", g.startDate, MONDAY
                                         )
                                         .eq(
                                                 Expressions.stringTemplate(
@@ -88,7 +88,7 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
                 .where(
                         g.family.id.eq(familyId)
                                 .and(
-                                        Expressions.stringTemplate("YEARWEEK({0}, {1})", g.createdDate, MONDAY)
+                                        Expressions.stringTemplate("YEARWEEK({0}, {1})", g.startDate, MONDAY)
                                                 .eq(Expressions.stringTemplate("YEARWEEK(CURDATE(), {0})", MONDAY))
                                 )
                                 .and(g.createdBy.id.eq(fm.user.id))
