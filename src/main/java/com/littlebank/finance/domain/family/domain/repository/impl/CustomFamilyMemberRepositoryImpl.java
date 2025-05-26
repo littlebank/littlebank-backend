@@ -9,6 +9,7 @@ import com.littlebank.finance.domain.family.dto.response.FamilyInfoResponse;
 import com.littlebank.finance.domain.family.dto.response.FamilyMemberInfoResponse;
 import com.littlebank.finance.domain.family.exception.FamilyException;
 import com.littlebank.finance.domain.user.domain.QUser;
+import com.littlebank.finance.domain.user.domain.UserRole;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -76,6 +77,19 @@ public class CustomFamilyMemberRepositoryImpl implements CustomFamilyMemberRepos
                 .join(m.invitedBy, u1).fetchJoin()
                 .where(m.family.id.eq(familyId)
                         .and(m.status.eq(status))
+                )
+                .fetch();
+    }
+
+    @Override
+    public List<FamilyMember> findParentsByFamilyId(Long familyId) {
+        return queryFactory
+                .selectFrom(m)
+                .join(u).on(u.id.eq(m.user.id)).fetchJoin()
+                .join(f).on(f.id.eq(m.family.id)).fetchJoin()
+                .where(f.id.eq(familyId)
+                        .and(m.status.eq(Status.JOINED))
+                        .and(u.role.eq(UserRole.PARENT))
                 )
                 .fetch();
     }
