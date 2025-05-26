@@ -67,7 +67,8 @@ public enum ErrorCode {
     CHALLENGE_FULL(400, "CH005", "챌린지 참여 인원을 초과했습니다"),
 
     // GAME
-    GAME_NOT_FOUND( 404, "G001", "게임을 찾을 수 없습니다");
+    GAME_NOT_FOUND( 404, "G001", "게임을 찾을 수 없습니다"),
+    ALREADY_VOTED(400, "G002", "이미 투표했습니다");
 
     private final String code;
     private final String message;

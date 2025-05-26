@@ -11,6 +11,9 @@ import org.checkerframework.checker.units.qual.N;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "game")
 @SQLDelete(sql = "UPDATE game SET is_deleted = true WHERE game_id = ?")
@@ -35,6 +38,8 @@ public class Game extends BaseEntity {
     @Column(nullable = false)
     private Boolean isDeleted;
 
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GameVote> votes = new ArrayList<>();
     @Builder
     public Game(String question, String option_a, String option_b, Integer vote_a, Integer vote_b, Boolean isDeleted) {
         this.question = question;
@@ -50,6 +55,14 @@ public class Game extends BaseEntity {
         this.option_a = option_a;
         this.option_b = option_b;
         this.vote_a = vote_a;
+        this.vote_b = vote_b;
+    }
+
+    public void setVote_a(int vote_a) {
+        this.vote_a = vote_a;
+    }
+
+    public void setVote_b(int vote_b) {
         this.vote_b = vote_b;
     }
 }
