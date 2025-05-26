@@ -7,15 +7,17 @@ import com.littlebank.finance.domain.goal.domain.Goal;
 import com.littlebank.finance.domain.goal.domain.GoalCategory;
 import com.littlebank.finance.domain.goal.domain.repository.GoalRepository;
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
-import com.littlebank.finance.domain.goal.dto.response.ChildWeeklyGoalResponse;
+import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.P3CommonGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.exception.GoalException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +56,7 @@ public class GoalService {
     }
 
     @Transactional(readOnly = true)
-    public List<ChildWeeklyGoalResponse> getChildWeeklyGoal(Long familyId) {
+    public List<ChildGoalResponse> getChildWeeklyGoal(Long familyId) {
         return goalRepository.findChildWeeklyGoalResponses(familyId);
     }
 
@@ -69,6 +71,11 @@ public class GoalService {
         goal.acceptProposal();
 
         return P3CommonGoalResponse.of(goal);
+    }
+
+    @Transactional(readOnly = true)
+    public CustomPageResponse<ChildGoalResponse> getChildGoals(Long familyId, Pageable pageable) {
+        return CustomPageResponse.of(goalRepository.findAllChildGoalResponses(familyId, pageable));
     }
 
     private void verifyDuplicateGoalCategory(User user, GoalCategory category) {
