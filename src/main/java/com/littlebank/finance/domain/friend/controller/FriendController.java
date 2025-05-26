@@ -45,7 +45,7 @@ public class FriendController {
             @RequestParam(name = "pageNumber") Integer pageNumber,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.FRIEND_LIST_PAGE_SIZE);
+        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.GENERAL_PAGE_SIZE);
         CustomPageResponse<FriendInfoResponse> response = friendService.getFriendList(customUserDetails.getId(), pageable);
         return ResponseEntity.ok(response);
     }
@@ -57,7 +57,7 @@ public class FriendController {
             @RequestParam(name = "pageNumber") Integer pageNumber,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.ADDED_ME_FRIEND_LIST_PAGE_SIZE);
+        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.GENERAL_PAGE_SIZE);
         CustomPageResponse<FriendInfoResponse> response = friendService.getFriendAddedMe(customUserDetails.getId(), pageable);
         return ResponseEntity.ok(response);
     }

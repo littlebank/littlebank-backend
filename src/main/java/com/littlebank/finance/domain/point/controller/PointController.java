@@ -43,7 +43,7 @@ public class PointController {
             @RequestParam(name = "pageNumber") Integer pageNumber,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.PAYMENT_HISTORY_PAGE_SIZE);
+        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.GENERAL_PAGE_SIZE);
         CustomPageResponse<PaymentHistoryResponse> response = pointService.getPaymentHistory(customUserDetails.getId(), pageable);
         return ResponseEntity.ok(response);
     }
