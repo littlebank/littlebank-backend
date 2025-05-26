@@ -12,6 +12,7 @@ public interface CustomFamilyMemberRepository {
     Optional<FamilyMember> findByUserIdAndStatusWithUser(Long userId, Status status);
     List<FamilyMember> findByMemberIdWithFamilyAndUser(Long memberId);
     List<FamilyMember> findAllByFamilyIdAndStatusWithUser(Long familyId, Status status);
+    List<FamilyMember> findParentsByFamilyId(Long familyId);
 
     FamilyInfoResponse getFamilyInfoByUserId(Long userId);
 }
