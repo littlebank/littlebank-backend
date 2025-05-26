@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.game.controller;
 
 import com.littlebank.finance.domain.game.dto.request.GameVoteRequestDto;
+import com.littlebank.finance.domain.game.dto.response.GameMainResponseDto;
 import com.littlebank.finance.domain.game.dto.response.GameVoteResponseDto;
 import com.littlebank.finance.domain.game.service.GameService;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -10,6 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static com.littlebank.finance.domain.user.domain.QUser.user;
 
 @RestController
 @RequestMapping("/api-user/game")
@@ -28,4 +33,14 @@ public class GameController {
         GameVoteResponseDto response = gameService.joinGame(user.getId(), gameId, request);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "게임 조회")
+    @GetMapping("/main")
+    public ResponseEntity<List<GameMainResponseDto>> showGameResults (
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        List<GameMainResponseDto> games = gameService.getGames(user.getId());
+        return ResponseEntity.ok(games);
+    }
+
 }

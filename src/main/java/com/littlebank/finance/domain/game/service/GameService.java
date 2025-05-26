@@ -6,6 +6,7 @@ import com.littlebank.finance.domain.game.domain.GameVote;
 import com.littlebank.finance.domain.game.domain.repository.GameRepository;
 import com.littlebank.finance.domain.game.domain.repository.GameVoteRepository;
 import com.littlebank.finance.domain.game.dto.request.GameVoteRequestDto;
+import com.littlebank.finance.domain.game.dto.response.GameMainResponseDto;
 import com.littlebank.finance.domain.game.dto.response.GameVoteResponseDto;
 import com.littlebank.finance.domain.game.exception.GameException;
 import com.littlebank.finance.domain.user.domain.User;
@@ -20,7 +21,13 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -78,5 +85,29 @@ public class GameService {
                 lock.unlock();
             }
         }
+    }
+
+    public List<GameMainResponseDto> getGames(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        List<Game> allGames = gameRepository.findAllByIsDeletedFalse();
+
+        // 날짜 기반 seed
+        long seed = LocalDate.now().toEpochDay();
+        Collections.shuffle(allGames, new Random(seed));
+
+        List<Game> selectedGames = allGames.stream()
+                .limit(2)
+                .toList();
+
+        return selectedGames.stream().map(game -> {
+            GameVote vote = gameVoteRepository.findByGameAndUser(game, user);
+            if (vote!= null) {
+                return GameMainResponseDto.ofWithResult(game, vote);
+            } else {
+                return GameMainResponseDto.ofWithoutResult(game);
+            }
+                })
+                .collect(Collectors.toList());
     }
 }
