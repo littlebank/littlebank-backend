@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class ChildWeeklyGoalResponse {
+public class ChildGoalResponse {
     private Long goalId;
     private String title;
     private GoalCategory category;

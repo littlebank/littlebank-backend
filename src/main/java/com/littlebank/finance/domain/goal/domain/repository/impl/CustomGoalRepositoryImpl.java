@@ -6,11 +6,14 @@ import com.littlebank.finance.domain.goal.domain.Goal;
 import com.littlebank.finance.domain.goal.domain.GoalCategory;
 import com.littlebank.finance.domain.goal.domain.QGoal;
 import com.littlebank.finance.domain.goal.domain.repository.CustomGoalRepository;
-import com.littlebank.finance.domain.goal.dto.response.ChildWeeklyGoalResponse;
+import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -68,10 +71,10 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
         return results;
     }
 
-    public List<ChildWeeklyGoalResponse> findChildWeeklyGoalResponses(Long familyId) {
+    public List<ChildGoalResponse> findChildWeeklyGoalResponses(Long familyId) {
         return queryFactory
                 .select(Projections.constructor(
-                        ChildWeeklyGoalResponse.class,
+                        ChildGoalResponse.class,
                         g.id,
                         g.title,
                         g.category,
@@ -94,6 +97,34 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
                                 .and(g.createdBy.id.eq(fm.user.id))
                 )
                 .fetch();
+    }
+
+    public Page<ChildGoalResponse> findAllChildGoalResponses(Long familyId, Pageable pageable) {
+        List<ChildGoalResponse> results = queryFactory
+                .select(Projections.constructor(
+                        ChildGoalResponse.class,
+                        g.id,
+                        g.title,
+                        g.category,
+                        g.reward,
+                        g.startDate,
+                        g.endDate,
+                        g.status,
+                        fm.id,
+                        fm.nickname
+                ))
+                .from(g)
+                .join(g.family, f)
+                .join(f.members, fm)
+                .where(
+                        g.family.id.eq(familyId)
+                                .and(g.createdBy.id.eq(fm.user.id))
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return new PageImpl<>(results, pageable, results.size());
     }
 
 }
