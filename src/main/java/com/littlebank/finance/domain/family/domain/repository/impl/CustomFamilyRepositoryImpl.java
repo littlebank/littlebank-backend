@@ -3,6 +3,7 @@ package com.littlebank.finance.domain.family.domain.repository.impl;
 import com.littlebank.finance.domain.family.domain.Family;
 import com.littlebank.finance.domain.family.domain.QFamily;
 import com.littlebank.finance.domain.family.domain.QFamilyMember;
+import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.family.domain.repository.CustomFamilyRepository;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -28,7 +29,8 @@ public class CustomFamilyRepositoryImpl implements CustomFamilyRepository {
                         .selectFrom(f)
                         .join(m).on(m.family.id.eq(f.id)).fetchJoin()
                         .join(u).on(u.id.eq(m.user.id)).fetchJoin()
-                        .where(m.user.id.eq(userId))
+                        .where(m.user.id.eq(userId)
+                                .and(m.status.eq(Status.JOINED)))
                         .fetchOne());
     }
 }
