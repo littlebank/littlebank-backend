@@ -164,7 +164,7 @@ public class ChallengeService {
         return ChallengeAdminResponseDto.of(challenge, currentActiveParticipants);
     }
 
-    public CustomPageResponse<ChallengeAdminResponseDto> getMyChallenges(Long userId, ChallengeStatus challengeStatus, int page) {
+    public CustomPageResponse<ChallengeUserResponseDto> getMyChallenges(Long userId, ChallengeStatus challengeStatus, int page) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
@@ -185,18 +185,11 @@ public class ChallengeService {
         Page<ChallengeParticipation> participations = participationRepository
                 .findMyValidParticipations(user.getId(), filterStatuses, pageable);
 
-        List<ChallengeAdminResponseDto> challengeList = participations.stream()
-                .map(participation -> {
-                    Challenge challenge = participation.getChallenge();
-                    int current = participationRepository.countByChallengeIdAndStatuses(
-                            challenge.getId(),
-                            List.of(ChallengeStatus.BEFORE, ChallengeStatus.IN_PROGRESS)
-                    );
-                    return ChallengeAdminResponseDto.of(challenge, current);
-                })
+        List<ChallengeUserResponseDto> challengeList = participations.stream()
+                .map(ChallengeUserResponseDto::of)
                 .toList();
 
-        Page<ChallengeAdminResponseDto> responsePage = new PageImpl<>(challengeList, pageable, participations.getTotalElements());
+        Page<ChallengeUserResponseDto> responsePage = new PageImpl<>(challengeList, pageable, participations.getTotalElements());
         return CustomPageResponse.of(responsePage);
 
     }
