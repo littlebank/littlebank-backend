@@ -15,6 +15,7 @@ public class ChallengeAdminResponseDto {
     private String title;
     private String description;
     private String category;
+    private String subject;
     private LocalDate startDate;
     private LocalDate endDate;
     private Integer totalStudyTime;
@@ -28,6 +29,7 @@ public class ChallengeAdminResponseDto {
                 .title(challenge.getTitle())
                 .description(challenge.getDescription())
                 .category(challenge.getCategory().name())
+                .subject(challenge.getSubject())
                 .startDate(challenge.getStartDate())
                 .endDate(challenge.getEndDate())
                 .totalStudyTime(challenge.getTotalStudyTime())

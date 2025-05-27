@@ -32,6 +32,8 @@ public class ChallengeParticipation extends BaseEntity {
     private LocalDate startDate;
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
+    @Column(nullable = false, length = 100)
+    private String title;
     @Column(nullable = false, length = 20)
     private String subject;
     @Column(name = "start_time", nullable = false)
@@ -44,12 +46,13 @@ public class ChallengeParticipation extends BaseEntity {
     private Boolean isDeleted = false;
 
     @Builder
-    public ChallengeParticipation(Challenge challenge, User user, ChallengeStatus challengeStatus, LocalDate startDate, LocalDate endDate, String subject, LocalTime startTime, Integer totalStudyTime, Integer reward) {
+    public ChallengeParticipation(Challenge challenge, User user, ChallengeStatus challengeStatus, LocalDate startDate, LocalDate endDate, String title, String subject, LocalTime startTime, Integer totalStudyTime, Integer reward) {
         this.challenge = challenge;
         this.user = user;
         this.challengeStatus = challengeStatus;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.title = title;
         this.subject = subject;
         this.startTime = startTime;
         this.totalStudyTime = totalStudyTime;

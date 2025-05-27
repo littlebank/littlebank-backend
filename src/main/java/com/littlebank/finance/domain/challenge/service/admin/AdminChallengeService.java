@@ -29,6 +29,7 @@ public class AdminChallengeService {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .category(ChallengeCategory.valueOf(request.getCategory()))
+                .subject(request.getSubject())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .totalStudyTime(request.getTotalStudyTime())
