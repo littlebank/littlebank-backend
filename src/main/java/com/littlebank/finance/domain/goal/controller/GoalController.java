@@ -3,6 +3,7 @@ package com.littlebank.finance.domain.goal.controller;
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
 import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.P3CommonGoalResponse;
+import com.littlebank.finance.domain.goal.dto.response.StampCheckResponse;
 import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.service.GoalService;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -82,6 +83,16 @@ public class GoalController {
             @RequestParam("day") Integer day
     ) {
         P3CommonGoalResponse response = goalService.checkGoal(goalId, day);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "(공통)도장 확인 API")
+    @GetMapping("/check/{goalId}")
+    public ResponseEntity<StampCheckResponse> checkStamp(
+            @Parameter(description = "도장을 확인할 목표 식별 id")
+            @PathVariable("goalId") Long goalId
+    ) {
+        StampCheckResponse response = goalService.checkStamp(goalId);
         return ResponseEntity.ok(response);
     }
 }
