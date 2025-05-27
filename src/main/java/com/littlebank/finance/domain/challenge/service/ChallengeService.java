@@ -6,11 +6,13 @@ import com.littlebank.finance.domain.challenge.domain.ChallengeParticipation;
 import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeParticipationRepository;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeRepository;
-import com.littlebank.finance.domain.challenge.dto.request.admin.ChallengeAdminRequestDto;
 import com.littlebank.finance.domain.challenge.dto.request.ChallengeUserRequestDto;
 import com.littlebank.finance.domain.challenge.dto.response.admin.ChallengeAdminResponseDto;
 import com.littlebank.finance.domain.challenge.dto.response.ChallengeUserResponseDto;
 import com.littlebank.finance.domain.challenge.exception.ChallengeException;
+import com.littlebank.finance.domain.family.domain.FamilyMember;
+import com.littlebank.finance.domain.family.domain.repository.FamilyMemberRepository;
+import com.littlebank.finance.domain.family.exception.FamilyException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
@@ -38,7 +40,10 @@ public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final ChallengeParticipationRepository participationRepository;
     private final RedissonClient redissonClient;
-    // USER
+    private final ChallengeParticipationRepository challengeParticipationRepository;
+    private final FamilyMemberRepository familyMemberRepository;
+
+
     public ChallengeUserResponseDto joinChallenge(Long userId, Long challengeId, ChallengeUserRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ChallengeException(ErrorCode.USER_NOT_FOUND));
@@ -103,7 +108,7 @@ public class ChallengeService {
                     .build();
 
             participationRepository.save(participation);
-            challenge.setCurrentParticipants(challenge.getCurrentParticipants()+ 1);
+            challenge.setCurrentParticipants(challenge.getCurrentParticipants() + 1);
             challengeRepository.save(challenge);
             return ChallengeUserResponseDto.of(participation);
         } catch (InterruptedException e) {
@@ -115,6 +120,7 @@ public class ChallengeService {
             }
         }
     }
+
     @Transactional(readOnly = true)
     public CustomPageResponse<ChallengeAdminResponseDto> getChallenges(Long userId, ChallengeCategory challengeCategory, int page) {
         User user = userRepository.findById(userId)
@@ -133,7 +139,7 @@ public class ChallengeService {
         }
 
         List<ChallengeAdminResponseDto> responseList = challenges.stream()
-                .map(challenge ->{
+                .map(challenge -> {
                     int currentActiveParticipants = participationRepository.countByChallengeIdAndStatuses(
                             challenge.getId(), List.of(ChallengeStatus.BEFORE, ChallengeStatus.IN_PROGRESS)
                     );
@@ -193,5 +199,18 @@ public class ChallengeService {
         Page<ChallengeAdminResponseDto> responsePage = new PageImpl<>(challengeList, pageable, participations.getTotalElements());
         return CustomPageResponse.of(responsePage);
 
+    }
+
+    public List<ChallengeUserResponseDto> getChildChallenge(Long familyId, Long userId) {
+        FamilyMember familyMember = familyMemberRepository.findByUserId(userId)
+                .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+
+        Long myFamilyId = familyMember.getFamily().getId();
+        if (!myFamilyId.equals(familyId)) {
+            throw new FamilyException(ErrorCode.FAMILY_NOT_FOUND);
+        }
+        List<ChallengeParticipation> participations = challengeParticipationRepository.findChildrenParticipationByFamilyId
+                (familyId, List.of(ChallengeStatus.BEFORE, ChallengeStatus.IN_PROGRESS));
+        return participations.stream().map(ChallengeUserResponseDto::of).toList();
     }
 }

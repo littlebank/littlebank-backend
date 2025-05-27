@@ -1,16 +1,16 @@
 package com.littlebank.finance.domain.challenge.dto.response.admin;
 
 import com.littlebank.finance.domain.challenge.domain.Challenge;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Getter
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class ChallengeAdminResponseDto {
+
     private Long id;
     private String title;
     private String description;
