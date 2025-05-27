@@ -31,6 +31,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Calendar.*;
+
 @Slf4j
 @Service
 @Transactional
@@ -103,6 +105,23 @@ public class GoalService {
     @Transactional(readOnly = true)
     public List<ChildGoalResponse> getChildGoals(Long familyId) {
         return goalRepository.findAllChildGoalResponses(familyId);
+    }
+
+    public P3CommonGoalResponse checkGoal(Long goalId, Integer day) {
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+
+        switch (day % 7 + 1) {
+            case MONDAY -> goal.checkMon(Boolean.TRUE);
+            case TUESDAY -> goal.checkTue(Boolean.TRUE);
+            case WEDNESDAY -> goal.checkWed(Boolean.TRUE);
+            case THURSDAY -> goal.checkThu(Boolean.TRUE);
+            case FRIDAY -> goal.checkFri(Boolean.TRUE);
+            case SATURDAY -> goal.checkSat(Boolean.TRUE);
+            case SUNDAY -> goal.checkSun(Boolean.TRUE);
+        }
+
+        return P3CommonGoalResponse.of(goal);
     }
 
     private void verifyDuplicateGoalCategory(User user, GoalCategory category) {
