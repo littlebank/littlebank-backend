@@ -6,6 +6,7 @@ import com.littlebank.finance.domain.challenge.domain.ChallengeParticipation;
 import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeParticipationRepository;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeRepository;
+import com.littlebank.finance.domain.challenge.domain.repository.ChallengeRepositoryCustom;
 import com.littlebank.finance.domain.challenge.dto.request.ChallengeUserRequestDto;
 import com.littlebank.finance.domain.challenge.dto.response.admin.ChallengeAdminResponseDto;
 import com.littlebank.finance.domain.challenge.dto.response.ChallengeUserResponseDto;
@@ -42,6 +43,7 @@ public class ChallengeService {
     private final RedissonClient redissonClient;
     private final ChallengeParticipationRepository challengeParticipationRepository;
     private final FamilyMemberRepository familyMemberRepository;
+    private final ChallengeRepositoryCustom challengeRepositoryCustom;
 
 
     public ChallengeUserResponseDto joinChallenge(Long userId, Long challengeId, ChallengeUserRequestDto request) {
@@ -94,18 +96,36 @@ public class ChallengeService {
                 challengeStatus = ChallengeStatus.IN_PROGRESS;
             }
 
-            ChallengeParticipation participation = ChallengeParticipation.builder()
-                    .challenge(challenge)
-                    .user(user)
-                    .challengeStatus(challengeStatus)
-                    .startDate(request.getStartDate())
-                    .endDate(request.getEndDate())
-                    .subject(request.getSubject())
-                    .startTime(request.getStartTime())
-                    .totalStudyTime(request.getTotalStudyTime())
-                    .reward(request.getReward())
-                    .isDeleted(false)
-                    .build();
+            ChallengeParticipation participation;
+            if (challenge.getCategory() == ChallengeCategory.WEEK) {
+                participation = ChallengeParticipation.builder()
+                        .challenge(challenge)
+                        .user(user)
+                        .challengeStatus(challengeStatus)
+                        .startDate(request.getStartDate())
+                        .endDate(request.getEndDate())
+                        .subject(request.getSubject())
+                        .title(challenge.getTitle())
+                        .startTime(request.getStartTime())
+                        .totalStudyTime(request.getTotalStudyTime())
+                        .reward(request.getReward())
+                        .isDeleted(false)
+                        .build();
+            } else {
+                participation = ChallengeParticipation.builder()
+                        .challenge(challenge)
+                        .user(user)
+                        .challengeStatus(challengeStatus)
+                        .startDate(request.getStartDate())
+                        .endDate(request.getEndDate())
+                        .subject(challenge.getSubject())
+                        .title(challenge.getTitle())
+                        .startTime(request.getStartTime())
+                        .totalStudyTime(request.getTotalStudyTime())
+                        .reward(request.getReward())
+                        .isDeleted(false)
+                        .build();
+            }
 
             participationRepository.save(participation);
             challenge.setCurrentParticipants(challenge.getCurrentParticipants() + 1);
@@ -122,7 +142,7 @@ public class ChallengeService {
     }
 
     @Transactional(readOnly = true)
-    public CustomPageResponse<ChallengeAdminResponseDto> getChallenges(Long userId, ChallengeCategory challengeCategory, int page) {
+    public CustomPageResponse<ChallengeAdminResponseDto> getAllChallenges(Long userId, ChallengeCategory challengeCategory, int page) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
@@ -133,7 +153,7 @@ public class ChallengeService {
 
         Page<Challenge> challenges;
         if (challengeCategory != null) {
-            challenges = challengeRepository.findByCategoryAndIsDeletedFalse(challengeCategory, pageable);
+            challenges = challengeRepositoryCustom.findAllByCategory(challengeCategory, pageable);
         } else {
             challenges = challengeRepository.findByIsDeletedFalse(pageable);
         }
@@ -148,7 +168,6 @@ public class ChallengeService {
                 .toList();
         Page<ChallengeAdminResponseDto> responsePage = new PageImpl<>(responseList, pageable, challenges.getTotalElements());
         return CustomPageResponse.of(responsePage);
-
     }
 
     public ChallengeAdminResponseDto getChallengeDetail(Long userId, Long challengeId) {

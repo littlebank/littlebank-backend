@@ -43,7 +43,7 @@ public class ChallengeController {
             @RequestParam(defaultValue = "0") int page,
             @AuthenticationPrincipal CustomUserDetails user
             ) {
-        CustomPageResponse<ChallengeAdminResponseDto> response = challengeService.getChallenges(user.getId(), challengeCategory, page);
+        CustomPageResponse<ChallengeAdminResponseDto> response = challengeService.getAllChallenges(user.getId(), challengeCategory, page);
         return ResponseEntity.ok(response);
     }
 

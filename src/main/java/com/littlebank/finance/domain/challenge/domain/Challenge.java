@@ -34,7 +34,7 @@ public class Challenge extends BaseEntity {
     private LocalDate startDate;
     @Column(name = "end_date")
     private LocalDate endDate;
-    @Column(name = "subject", length = 20)
+    @Column(name = "subject", length = 20, nullable = false)
     private String subject;
     @Column(name = "total_study_time")
     private Integer totalStudyTime;

@@ -9,6 +9,4 @@ import java.util.Optional;
 
 public interface FeedCommentLikeRepository extends JpaRepository<FeedCommentLike, Long> {
     Optional<FeedCommentLike> findByFeedCommentAndUser(FeedComment feedComment, User user);
-
-    int countByFeedComment(FeedComment feedComment);
 }
