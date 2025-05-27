@@ -30,7 +30,6 @@ public class ChallengeUserResponseDto {
                 .startTime(participation.getStartTime())
                 .totalStudyTime(participation.getTotalStudyTime())
                 .reward(participation.getReward())
-
                 .build();
     }
 }

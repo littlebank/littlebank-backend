@@ -59,12 +59,12 @@ public class ChallengeController {
 
     @Operation(summary = "내가 참여한 챌린지 조회")
     @GetMapping("/my")
-    public ResponseEntity<CustomPageResponse<ChallengeAdminResponseDto>> getMyChallenges(
+    public ResponseEntity<CustomPageResponse<ChallengeUserResponseDto>> getMyChallenges(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(required = true)ChallengeStatus challengeStatus,
             @RequestParam(defaultValue = "0") int page
     ) {
-        CustomPageResponse<ChallengeAdminResponseDto> response = challengeService.getMyChallenges(user.getId(), challengeStatus, page);
+        CustomPageResponse<ChallengeUserResponseDto> response = challengeService.getMyChallenges(user.getId(), challengeStatus, page);
         return ResponseEntity.ok(response);
     }
 
