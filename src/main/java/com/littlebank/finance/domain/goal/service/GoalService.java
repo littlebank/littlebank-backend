@@ -11,6 +11,7 @@ import com.littlebank.finance.domain.goal.domain.repository.GoalRepository;
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
 import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.P3CommonGoalResponse;
+import com.littlebank.finance.domain.goal.dto.response.StampCheckResponse;
 import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.exception.GoalException;
 import com.littlebank.finance.domain.notification.domain.Notification;
@@ -122,6 +123,14 @@ public class GoalService {
         }
 
         return P3CommonGoalResponse.of(goal);
+    }
+
+    @Transactional(readOnly = true)
+    public StampCheckResponse checkStamp(Long goalId) {
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+
+        return StampCheckResponse.of(goal);
     }
 
     private void verifyDuplicateGoalCategory(User user, GoalCategory category) {
