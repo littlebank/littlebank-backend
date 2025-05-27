@@ -72,4 +72,16 @@ public class GoalController {
         P3CommonGoalResponse response = goalService.acceptApplyGoal(goalId);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "(부모)목표 확인 도장 찍기 API")
+    @PatchMapping("/parent/check/{goalId}")
+    public ResponseEntity<P3CommonGoalResponse> acceptApplyGoal(
+            @Parameter(description = "확인 도장 찍을 목표 식별 id")
+            @PathVariable("goalId") Long goalId,
+            @Parameter(description = "월요일 - 1, 화요일 - 2, 수요일 - 3, ...")
+            @RequestParam("day") Integer day
+    ) {
+        P3CommonGoalResponse response = goalService.checkGoal(goalId, day);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -45,10 +45,26 @@ public class Goal extends BaseEntity {
     private Family family;
     @Column(nullable = false)
     private Boolean isDeleted;
+    @Column(nullable = false)
+    private Boolean mon;
+    @Column(nullable = false)
+    private Boolean tue;
+    @Column(nullable = false)
+    private Boolean wed;
+    @Column(nullable = false)
+    private Boolean thu;
+    @Column(nullable = false)
+    private Boolean fri;
+    @Column(nullable = false)
+    private Boolean sat;
+    @Column(nullable = false)
+    private Boolean sun;
 
     @Builder
     public Goal(String title, GoalCategory category, Integer reward, LocalDateTime startDate, LocalDateTime endDate,
-                GoalStatus status, User createdBy, Family family, Boolean isDeleted) {
+                GoalStatus status, User createdBy, Family family, Boolean isDeleted,
+                Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun
+                ) {
         this.title = title;
         this.category = category;
         this.reward = reward;
@@ -58,9 +74,44 @@ public class Goal extends BaseEntity {
         this.createdBy = createdBy;
         this.family = family;
         this.isDeleted = isDeleted == null ? false : isDeleted;
+        this.mon = mon == null ? false : mon;
+        this.tue = tue == null ? false : tue;
+        this.wed = wed == null ? false : wed;
+        this.thu = thu == null ? false : thu;
+        this.fri = fri == null ? false : fri;
+        this.sat = sat == null ? false : sat;
+        this.sun = sun == null ? false : sun;
     }
 
     public void acceptProposal() {
         this.status = GoalStatus.ACCEPT;
+    }
+
+    public void checkMon(Boolean aTrue) {
+        this.mon = aTrue;
+    }
+
+    public void checkTue(Boolean aTrue) {
+        this.mon = aTrue;
+    }
+
+    public void checkWed(Boolean aTrue) {
+        this.mon = aTrue;
+    }
+
+    public void checkThu(Boolean aTrue) {
+        this.mon = aTrue;
+    }
+
+    public void checkFri(Boolean aTrue) {
+        this.mon = aTrue;
+    }
+
+    public void checkSat(Boolean aTrue) {
+        this.mon = aTrue;
+    }
+
+    public void checkSun(Boolean aTrue) {
+        this.mon = aTrue;
     }
 }
