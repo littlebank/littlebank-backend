@@ -23,10 +23,12 @@ public interface ChallengeParticipationRepository extends JpaRepository<Challeng
 
     @Query("SELECT cp FROM ChallengeParticipation cp " +
             "JOIN FETCH cp.challenge c " +
+            "JOIN FETCH cp.user u " +
             "WHERE cp.user.id = :userId " +
             "AND cp.challengeStatus IN :statuses " +
             "AND cp.isDeleted = false " +
-            "AND c.isDeleted = false")
+            "AND c.isDeleted = false" +
+            "")
     Page<ChallengeParticipation> findMyValidParticipations(
             @Param("userId") Long userId,
             @Param("statuses") List<ChallengeStatus> statuses,
@@ -38,6 +40,7 @@ public interface ChallengeParticipationRepository extends JpaRepository<Challeng
     JOIN cp.user u
     JOIN FamilyMember fm ON fm.user = u
     WHERE fm.family.id = :familyId
+    AND fm.status = 'JOINED'
       AND u.role = 'CHILD'
       AND cp.challengeStatus IN :statuses
 """)

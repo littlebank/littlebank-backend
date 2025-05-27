@@ -21,4 +21,5 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long
     @Query(value = "UPDATE family_member SET is_deleted = true WHERE user = :userId AND status = :status", nativeQuery = true)
     int deleteByUserIdAndStatus(@Param("userId") Long userId, @Param("status") String status);
 
+    Optional<FamilyMember> findByUserId(Long userId);
 }

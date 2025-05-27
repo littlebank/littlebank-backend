@@ -72,9 +72,11 @@ public class ChallengeController {
     @GetMapping("/parent/{familyId}")
     public ResponseEntity<List<ChallengeUserResponseDto>> getChildChallenge (
             @Parameter(description = "챌린지를 조회할 가족 식별 id")
-            @PathVariable("familyId") Long familyId
+            @PathVariable("familyId") Long familyId,
+            @AuthenticationPrincipal CustomUserDetails user
+
     ) {
-        List<ChallengeUserResponseDto> response = challengeService.getChildChallenge(familyId);
+        List<ChallengeUserResponseDto> response = challengeService.getChildChallenge(familyId, user.getId());
         return ResponseEntity.ok(response);
     }
 }
