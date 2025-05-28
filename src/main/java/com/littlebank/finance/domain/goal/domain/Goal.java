@@ -92,26 +92,26 @@ public class Goal extends BaseEntity {
     }
 
     public void checkTue(Boolean aTrue) {
-        this.mon = aTrue;
+        this.tue = aTrue;
     }
 
     public void checkWed(Boolean aTrue) {
-        this.mon = aTrue;
+        this.wed = aTrue;
     }
 
     public void checkThu(Boolean aTrue) {
-        this.mon = aTrue;
+        this.thu = aTrue;
     }
 
     public void checkFri(Boolean aTrue) {
-        this.mon = aTrue;
+        this.fri = aTrue;
     }
 
     public void checkSat(Boolean aTrue) {
-        this.mon = aTrue;
+        this.sat = aTrue;
     }
 
     public void checkSun(Boolean aTrue) {
-        this.mon = aTrue;
+        this.sun = aTrue;
     }
 }
