@@ -1,13 +1,15 @@
 package com.littlebank.finance.domain.challenge.domain.repository;
 
 import com.littlebank.finance.domain.challenge.domain.ChallengeParticipation;
+import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
 import com.littlebank.finance.domain.challenge.domain.QChallenge;
 import com.littlebank.finance.domain.challenge.domain.QChallengeParticipation;
-import com.littlebank.finance.domain.challenge.domain.repository.CustomChallengeParticipationRepository;
 import com.littlebank.finance.domain.user.domain.QUser;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 
@@ -78,5 +80,30 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
                                 cp.challenge.endDate.lt(java.time.LocalDate.now())
                         )
                         .fetchOne());
+    }
+
+    @Override
+    public Page<ChallengeParticipation> findByUserIdAndChallengeStatusIn(Long userId, List<ChallengeStatus> statuses, Pageable pageable) {
+        QChallengeParticipation participation = QChallengeParticipation.challengeParticipation;
+
+        BooleanExpression condition = participation.user.id.eq(userId)
+                .and(participation.challengeStatus.in(statuses))
+                .and(participation.isDeleted.eq(false));
+
+        long total = queryFactory
+                .select(participation.count())
+                .from(participation)
+                .where(condition)
+                .fetchOne();
+
+        List<ChallengeParticipation> content = queryFactory
+                .selectFrom(participation)
+                .where(condition)
+                .orderBy(participation.createdDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        return new PageImpl<>(content, pageable, total);
     }
 }
