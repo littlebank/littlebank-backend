@@ -69,14 +69,16 @@ public class ChallengeController {
     }
 
     @Operation(summary = "(부모) 자녀가 참여 중인 챌린지 조회 API")
-    @GetMapping("/parent/{familyId}")
-    public ResponseEntity<List<ChallengeUserResponseDto>> getChildInProgressChallenge (
+    @GetMapping("/parent/{familyId}/{childId}")
+    public ResponseEntity<CustomPageResponse<ChallengeUserResponseDto>> getChildInProgressChallenge (
             @Parameter(description = "챌린지를 조회할 가족 식별 id")
             @PathVariable("familyId") Long familyId,
-            @AuthenticationPrincipal CustomUserDetails user
+            @PathVariable("childId") Long childId,
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(defaultValue = "0") int page
 
     ) {
-        List<ChallengeUserResponseDto> response = challengeService.getChildInProgressChallenge(familyId, user.getId());
+        CustomPageResponse<ChallengeUserResponseDto> response = challengeService.getChildInProgressChallenge(familyId,childId, user.getId(), page);
         return ResponseEntity.ok(response);
     }
 

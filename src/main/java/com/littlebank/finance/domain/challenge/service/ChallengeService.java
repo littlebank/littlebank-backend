@@ -13,6 +13,7 @@ import com.littlebank.finance.domain.challenge.dto.response.ChallengeUserRespons
 import com.littlebank.finance.domain.challenge.exception.ChallengeException;
 import com.littlebank.finance.domain.family.domain.Family;
 import com.littlebank.finance.domain.family.domain.FamilyMember;
+import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.family.domain.repository.FamilyMemberRepository;
 import com.littlebank.finance.domain.family.domain.repository.FamilyRepository;
 import com.littlebank.finance.domain.family.exception.FamilyException;
@@ -244,7 +245,7 @@ public class ChallengeService {
 
     }
 
-    public List<ChallengeUserResponseDto> getChildInProgressChallenge(Long familyId, Long userId) {
+    public CustomPageResponse<ChallengeUserResponseDto> getChildInProgressChallenge(Long familyId, Long childId, Long userId, int page) {
         FamilyMember familyMember = familyMemberRepository.findByUserId(userId)
                 .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
 
@@ -252,9 +253,28 @@ public class ChallengeService {
         if (!myFamilyId.equals(familyId)) {
             throw new FamilyException(ErrorCode.FAMILY_NOT_FOUND);
         }
-        List<ChallengeParticipation> participations = challengeParticipationRepository.findChildrenParticipationByFamilyId
-                (familyId, List.of(ChallengeStatus.REQUESTED, ChallengeStatus.ACCEPT));
-        return participations.stream().map(ChallengeUserResponseDto::of).toList();
+        FamilyMember childMember = familyMemberRepository.findByUserId(childId)
+                .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+        if (!childMember.getFamily().getId().equals(familyId)) {
+            throw new FamilyException(ErrorCode.NOT_CHILD_OF_FAMILY);
+        }
+
+        if (!childMember.getStatus().equals(Status.JOINED)) {
+            throw new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND);
+        }
+        Pageable pageable = PageRequest.of(page,
+                PaginationPolicy.CHALLENGE_LIST_PAGE_SIZE,
+                Sort.by(Sort.Direction.DESC, "createdDate")
+        );
+
+        Page<ChallengeParticipation> participations = challengeParticipationRepository.findByUserIdAndChallengeStatusIn
+                (childId, List.of(ChallengeStatus.REQUESTED, ChallengeStatus.ACCEPT), pageable);
+        List<ChallengeUserResponseDto> responseList = participations.stream()
+                .map(ChallengeUserResponseDto::of)
+                .toList();
+
+        Page<ChallengeUserResponseDto> responsePage = new PageImpl<>(responseList, pageable, participations.getTotalElements());
+        return CustomPageResponse.of(responsePage);
     }
 
     public ChallengeUserResponseDto acceptApplyChallenge(Long participationId, Long parentId) {

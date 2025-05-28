@@ -29,7 +29,7 @@ public enum ErrorCode {
     FAMILY_INVITE_ALREADY_SENT(409, "FM002", "가족 맴버로 초대를 보낸 상태입니다"),
     FAMILY_MEMBER_ALREADY_EXISTS(409, "FM003", "가족 맴버로 소속되어 있습니다"),
     MULTIPLE_PARENTS_NOT_ALLOWED(422, "FM004", "부모 역할이 2개 이상 존재할 수 없습니다"),
-
+    NOT_CHILD_OF_FAMILY( 400, "FM005", "아이가 가족멤버가 아닙니다"),
     // Goal
     GOAL_NOT_FOUND(404, "G001", "목표 데이터가 존재하지 않습니다"),
     GOAL_WEEKLY_DUPLICATE(409, "G002", "이번 주에 이미 신청한 목표 유형입니다"),
