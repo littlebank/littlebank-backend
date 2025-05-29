@@ -2,8 +2,7 @@ package com.littlebank.finance.domain.challenge.dto.response.admin;
 
 import com.littlebank.finance.domain.challenge.domain.Challenge;
 import lombok.*;
-
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -16,8 +15,8 @@ public class ChallengeAdminResponseDto {
     private String description;
     private String category;
     private String subject;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private Integer totalStudyTime;
     private Integer currentParticipants;
     private Integer totalParticipants;

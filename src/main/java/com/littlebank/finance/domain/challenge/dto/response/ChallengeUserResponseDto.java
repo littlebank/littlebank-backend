@@ -5,8 +5,7 @@ import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -14,12 +13,12 @@ import java.time.LocalTime;
 public class ChallengeUserResponseDto {
     private Long participationId;
     private Long challengeId;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private String title;
     private String subject;
     private ChallengeStatus challengeStatus;
-    private LocalTime startTime;
+    private LocalDateTime startTime;
     private Integer totalStudyTime;
     private Integer reward;
     private boolean isAccepted;

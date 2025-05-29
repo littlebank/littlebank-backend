@@ -37,8 +37,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -100,48 +98,23 @@ public class ChallengeService {
 
             LocalDateTime now = LocalDateTime.now();
 
-            ChallengeStatus challengeStatus;
-            if (now.isAfter(request.getEndDate().atTime(23, 59, 59))) {
-                challengeStatus = ChallengeStatus.FINISHED;
-            } else {
-                challengeStatus = ChallengeStatus.REQUESTED;
-            }
 
-            ChallengeParticipation participation;
-            if (challenge.getCategory() == ChallengeCategory.WEEK) {
-                participation = ChallengeParticipation.builder()
-                        .challenge(challenge)
-                        .user(user)
-                        .challengeStatus(challengeStatus)
-                        .startDate(request.getStartDate())
-                        .endDate(request.getEndDate())
-                        .subject(request.getSubject())
-                        .title(challenge.getTitle())
-                        .startTime(request.getStartTime())
-                        .totalStudyTime(request.getTotalStudyTime())
-                        .reward(request.getReward())
-                        .isAccepted(false)
-                        .isDeleted(false)
-                        .build();
-            } else {
-                participation = ChallengeParticipation.builder()
-                        .challenge(challenge)
-                        .user(user)
-                        .challengeStatus(challengeStatus)
-                        .startDate(request.getStartDate())
-                        .endDate(request.getEndDate())
-                        .subject(challenge.getSubject())
-                        .title(challenge.getTitle())
-                        .startTime(request.getStartTime())
-                        .totalStudyTime(request.getTotalStudyTime())
-                        .reward(request.getReward())
-                        .isAccepted(false)
-                        .isDeleted(false)
-                        .build();
-            }
+            ChallengeParticipation participation = ChallengeParticipation.builder()
+                    .challenge(challenge)
+                    .user(user)
+                    .challengeStatus(ChallengeStatus.REQUESTED)
+                    .startDate(request.getStartDate())
+                    .endDate(request.getEndDate())
+                    .subject(challenge.getSubject())
+                    .title(challenge.getTitle())
+                    .startTime(request.getStartTime())
+                    .totalStudyTime(request.getTotalStudyTime())
+                    .reward(request.getReward())
+                    .isAccepted(false)
+                    .isDeleted(false)
+                    .build();
 
             participationRepository.save(participation);
-            challenge.setCurrentParticipants(challenge.getCurrentParticipants() + 1);
             challengeRepository.save(challenge);
 
             // 알림
@@ -195,7 +168,7 @@ public class ChallengeService {
         List<ChallengeAdminResponseDto> responseList = challenges.stream()
                 .map(challenge -> {
                     int currentActiveParticipants = participationRepository.countByChallengeIdAndStatuses(
-                            challenge.getId(), List.of(ChallengeStatus.REQUESTED, ChallengeStatus.ACCEPT)
+                            challenge.getId(), List.of(ChallengeStatus.ACCEPT)
                     );
                     return ChallengeAdminResponseDto.of(challenge, currentActiveParticipants);
                 })
@@ -212,7 +185,7 @@ public class ChallengeService {
 
         challenge.increaseViewCount();
         int currentActiveParticipants = participationRepository.countByChallengeIdAndStatuses(
-                challengeId, List.of(ChallengeStatus.REQUESTED, ChallengeStatus.ACCEPT)
+                challengeId, List.of(ChallengeStatus.ACCEPT)
         );
         return ChallengeAdminResponseDto.of(challenge, currentActiveParticipants);
     }
@@ -267,8 +240,8 @@ public class ChallengeService {
                 Sort.by(Sort.Direction.DESC, "createdDate")
         );
 
-        Page<ChallengeParticipation> participations = challengeParticipationRepository.findByUserIdAndChallengeStatusIn
-                (childId, List.of(ChallengeStatus.REQUESTED, ChallengeStatus.ACCEPT), pageable);
+        Page<ChallengeParticipation> participations = challengeParticipationRepository.findOngoingParticipations(childId, pageable);
+
         List<ChallengeUserResponseDto> responseList = participations.stream()
                 .map(ChallengeUserResponseDto::of)
                 .toList();
@@ -284,13 +257,17 @@ public class ChallengeService {
         ChallengeParticipation participation = participationRepository.findById(participationId)
                 .orElseThrow(() -> new ChallengeException(ErrorCode.NOT_FOUND_PARTICIPATION));
 
-        if(participation.getEndDate().isBefore(LocalDate.now())) {
+        Challenge challenge = participation.getChallenge();
+        if(participation.getEndDate().isBefore(LocalDateTime.now())) {
             throw new ChallengeException(ErrorCode.CHALLENGE_END_DATE_EXPIRED);
         }
         if (!participation.getIsAccepted()) participation.setIsAccepted(true);
         else throw new ChallengeException(ErrorCode.ALREADY_ACCEPT);
 
         participation.setChallengeStatus(ChallengeStatus.ACCEPT);
+        challenge.setCurrentParticipants(challenge.getCurrentParticipants() + 1);
+        challengeRepository.save(challenge);
+
         return ChallengeUserResponseDto.of(participation);
     }
 }

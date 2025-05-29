@@ -9,9 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "challenge")
@@ -31,9 +29,9 @@ public class Challenge extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ChallengeCategory category;
     @Column(name = "start_date")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
     @Column(name = "end_date")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
     @Column(name = "subject", length = 20, nullable = false)
     private String subject;
     @Column(name = "total_study_time")
@@ -48,7 +46,7 @@ public class Challenge extends BaseEntity {
     private int viewCount = 0;
 
     @Builder
-    public Challenge(String title, String description, ChallengeCategory category, LocalDate startDate, LocalDate endDate, String subject, Integer totalStudyTime, Integer totalParticipants, Integer currentParticipants,  int viewCount) {
+    public Challenge(String title, String description, ChallengeCategory category, LocalDateTime startDate, LocalDateTime endDate, String subject, Integer totalStudyTime, Integer totalParticipants, Integer currentParticipants,  int viewCount) {
         this.title = title;
         this.description = description;
         this.category = category;
@@ -61,7 +59,7 @@ public class Challenge extends BaseEntity {
         this.viewCount = viewCount;
     }
 
-    public void update(String title, ChallengeCategory category, String subject, String description, LocalDate startDate, LocalDate endDate, Integer totalStudyTime, Integer totalParticipants) {
+    public void update(String title, ChallengeCategory category, String subject, String description, LocalDateTime startDate, LocalDateTime endDate, Integer totalStudyTime, Integer totalParticipants) {
         this.title = title;
         this.description = description;
         this.category = category;

@@ -6,9 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -29,15 +27,15 @@ public class ChallengeParticipation extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ChallengeStatus challengeStatus;
     @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
+    private LocalDateTime startDate;
     @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
+    private LocalDateTime endDate;
     @Column(nullable = false, length = 100)
     private String title;
     @Column(nullable = false, length = 20)
     private String subject;
     @Column(name = "start_time", nullable = false)
-    private LocalTime startTime;
+    private LocalDateTime startTime;
     @Column(name = "total_study_time", nullable = false)
     private Integer totalStudyTime;
     @Column(nullable = false)
@@ -48,7 +46,7 @@ public class ChallengeParticipation extends BaseEntity {
     private Boolean isDeleted = false;
 
     @Builder
-    public ChallengeParticipation(Challenge challenge, User user, ChallengeStatus challengeStatus, LocalDate startDate, LocalDate endDate, String title, String subject, LocalTime startTime, Integer totalStudyTime, Integer reward) {
+    public ChallengeParticipation(Challenge challenge, User user, ChallengeStatus challengeStatus, LocalDateTime startDate, LocalDateTime endDate, String title, String subject, LocalDateTime startTime, Integer totalStudyTime, Integer reward) {
         this.challenge = challenge;
         this.user = user;
         this.challengeStatus = challengeStatus;
