@@ -27,13 +27,16 @@ public class Family extends BaseEntity {
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
     @Column(nullable = false)
+    private Integer minStampCount; // 목표 달성 최소 도장 갯수
+    @Column(nullable = false)
     private Boolean isDeleted;
     @OneToMany(mappedBy = "family", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FamilyMember> members = new ArrayList<>();
 
     @Builder
-    public Family(User createdBy, Boolean isDeleted) {
+    public Family(User createdBy, Integer minStampCount, Boolean isDeleted) {
         this.createdBy = createdBy;
+        this.minStampCount = minStampCount == null ? 7 : minStampCount;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 }
