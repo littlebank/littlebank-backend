@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -34,7 +34,8 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
                         cp.user.id.eq(userId),
                         cp.isDeleted.isFalse(),
                         cp.challenge.isDeleted.isFalse(),
-                        cp.challenge.endDate.goe(java.time.LocalDate.now())
+                        cp.challengeStatus.eq(ChallengeStatus.ACCEPT),
+                        cp.challenge.endDate.goe(LocalDateTime.now())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -48,7 +49,8 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
                                 cp.user.id.eq(userId),
                                 cp.isDeleted.isFalse(),
                                 cp.challenge.isDeleted.isFalse(),
-                                cp.challenge.endDate.goe(java.time.LocalDate.now())
+                                cp.challengeStatus.eq(ChallengeStatus.ACCEPT),
+                                cp.challenge.endDate.goe(LocalDateTime.now())
                         )
                         .fetchOne());
     }
@@ -63,7 +65,8 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
                         cp.user.id.eq(userId),
                         cp.isDeleted.isFalse(),
                         cp.challenge.isDeleted.isFalse(),
-                        cp.challenge.endDate.lt(java.time.LocalDate.now())
+                        cp.challengeStatus.eq(ChallengeStatus.ACCEPT),
+                        cp.challenge.endDate.lt(LocalDateTime.now())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -77,7 +80,8 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
                                 cp.user.id.eq(userId),
                                 cp.isDeleted.isFalse(),
                                 cp.challenge.isDeleted.isFalse(),
-                                cp.challenge.endDate.lt(java.time.LocalDate.now())
+                                cp.challengeStatus.eq(ChallengeStatus.ACCEPT),
+                                cp.challenge.endDate.lt(LocalDateTime.now())
                         )
                         .fetchOne());
     }
