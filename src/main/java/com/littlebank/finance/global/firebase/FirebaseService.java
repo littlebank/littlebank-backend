@@ -20,6 +20,7 @@ public class FirebaseService {
                 .setNotification(
                         com.google.firebase.messaging.Notification.builder()
                                 .setTitle(notification.getMessage())
+                                .setBody(notification.getSubMessage())
                                 .setImage(NOTIFICATION_IMAGE_URL)
                                 .build()
                 )

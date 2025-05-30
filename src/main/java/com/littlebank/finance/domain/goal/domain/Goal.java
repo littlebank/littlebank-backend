@@ -114,4 +114,20 @@ public class Goal extends BaseEntity {
     public void checkSun(Boolean aTrue) {
         this.sun = aTrue;
     }
+
+    public int getStampCount() {
+        int count = 0;
+        if (Boolean.TRUE.equals(mon)) count++;
+        if (Boolean.TRUE.equals(tue)) count++;
+        if (Boolean.TRUE.equals(wed)) count++;
+        if (Boolean.TRUE.equals(thu)) count++;
+        if (Boolean.TRUE.equals(fri)) count++;
+        if (Boolean.TRUE.equals(sat)) count++;
+        if (Boolean.TRUE.equals(sun)) count++;
+        return count;
+    }
+
+    public void achieve() {
+        this.status = GoalStatus.ACHIEVEMENT;
+    }
 }

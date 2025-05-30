@@ -7,6 +7,7 @@ import com.littlebank.finance.domain.family.domain.repository.FamilyRepository;
 import com.littlebank.finance.domain.family.exception.FamilyException;
 import com.littlebank.finance.domain.goal.domain.Goal;
 import com.littlebank.finance.domain.goal.domain.GoalCategory;
+import com.littlebank.finance.domain.goal.domain.GoalStatus;
 import com.littlebank.finance.domain.goal.domain.repository.GoalRepository;
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
 import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
@@ -120,6 +121,12 @@ public class GoalService {
             case FRIDAY -> goal.checkFri(Boolean.TRUE);
             case SATURDAY -> goal.checkSat(Boolean.TRUE);
             case SUNDAY -> goal.checkSun(Boolean.TRUE);
+        }
+
+        // 최소 도장 갯수에 도달하면 상태 업데이트
+        if ((goal.getStampCount() >= goal.getFamily().getMinStampCount()) &&
+                goal.getStatus() != GoalStatus.ACHIEVEMENT) {
+            goal.achieve();
         }
 
         return P3CommonGoalResponse.of(goal);
