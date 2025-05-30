@@ -1,7 +1,6 @@
 package com.littlebank.finance.domain.challenge.controller;
 
 import com.littlebank.finance.domain.challenge.domain.ChallengeCategory;
-import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
 import com.littlebank.finance.domain.challenge.dto.request.ChallengeUserRequestDto;
 import com.littlebank.finance.domain.challenge.dto.response.admin.ChallengeAdminResponseDto;
 import com.littlebank.finance.domain.challenge.dto.response.ChallengeUserResponseDto;
@@ -16,7 +15,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api-user/challenge")
@@ -68,7 +66,18 @@ public class ChallengeController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "(부모) 자녀가 참여 중인 챌린지 조회 API")
+    @Operation(summary = "(부모) 자녀가 신청한 챌린지 1개 조회 API")
+    @GetMapping("/parent/requested/{participationId}")
+    public ResponseEntity<ChallengeUserResponseDto> getChildRequestedChallenge (
+        @PathVariable("participationId") Long participationId,
+        @AuthenticationPrincipal CustomUserDetails parent
+    ) {
+        ChallengeUserResponseDto response = challengeService.getChildRequestedChallenge(parent.getId(), participationId);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Operation(summary = "(부모) 자녀의 챌린지 조회 API")
     @GetMapping("/parent/{familyId}/{childId}")
     public ResponseEntity<CustomPageResponse<ChallengeUserResponseDto>> getChildInProgressChallenge (
             @Parameter(description = "챌린지를 조회할 가족 식별 id")
@@ -78,7 +87,7 @@ public class ChallengeController {
             @RequestParam(defaultValue = "0") int page
 
     ) {
-        CustomPageResponse<ChallengeUserResponseDto> response = challengeService.getChildInProgressChallenge(familyId,childId, user.getId(), page);
+        CustomPageResponse<ChallengeUserResponseDto> response = challengeService.getChildChallenges(familyId, childId, user.getId(), page);
         return ResponseEntity.ok(response);
     }
 

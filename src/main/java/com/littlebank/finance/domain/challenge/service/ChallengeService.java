@@ -77,7 +77,7 @@ public class ChallengeService {
                     .orElseThrow(() -> new ChallengeException(ErrorCode.CHALLENGE_NOT_FOUND));
 
             if (participationRepository.existsByChallengeIdAndUserId(challengeId, userId)) {
-                throw new ChallengeException(ErrorCode.ALREADY_JOINED);
+                throw new ChallengeException(ErrorCode.ALREADY_JOINED_CHALLENGE);
             }
 
             if (request.getStartDate().isBefore(challenge.getStartDate()) || request.getEndDate().isAfter(challenge.getEndDate())) {
@@ -218,7 +218,7 @@ public class ChallengeService {
 
     }
 
-    public CustomPageResponse<ChallengeUserResponseDto> getChildInProgressChallenge(Long familyId, Long childId, Long userId, int page) {
+    public CustomPageResponse<ChallengeUserResponseDto> getChildChallenges(Long familyId, Long childId, Long userId, int page) {
         FamilyMember familyMember = familyMemberRepository.findByUserId(userId)
                 .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
 
@@ -240,7 +240,7 @@ public class ChallengeService {
                 Sort.by(Sort.Direction.DESC, "createdDate")
         );
 
-        Page<ChallengeParticipation> participations = challengeParticipationRepository.findOngoingParticipations(childId, pageable);
+        Page<ChallengeParticipation> participations = challengeParticipationRepository.findByUserId(childId, pageable);
 
         List<ChallengeUserResponseDto> responseList = participations.stream()
                 .map(ChallengeUserResponseDto::of)
@@ -262,12 +262,24 @@ public class ChallengeService {
             throw new ChallengeException(ErrorCode.CHALLENGE_END_DATE_EXPIRED);
         }
         if (!participation.getIsAccepted()) participation.setIsAccepted(true);
-        else throw new ChallengeException(ErrorCode.ALREADY_ACCEPT);
+        else throw new ChallengeException(ErrorCode.ALREADY_CHALLENGE_ACCEPT);
 
         participation.setChallengeStatus(ChallengeStatus.ACCEPT);
         challenge.setCurrentParticipants(challenge.getCurrentParticipants() + 1);
         challengeRepository.save(challenge);
 
+        return ChallengeUserResponseDto.of(participation);
+    }
+
+    public ChallengeUserResponseDto getChildRequestedChallenge(Long parentId, Long participationId) {
+        User parent = userRepository.findById(parentId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        ChallengeParticipation participation = participationRepository.findById(participationId)
+                .orElseThrow(() -> new ChallengeException(ErrorCode.NOT_FOUND_PARTICIPATION));
+        if (participation.getChallengeStatus().equals(ChallengeStatus.ACCEPT)) {
+            throw new ChallengeException(ErrorCode.NOT_REQUESTED_CHALLENGE);
+        }
         return ChallengeUserResponseDto.of(participation);
     }
 }

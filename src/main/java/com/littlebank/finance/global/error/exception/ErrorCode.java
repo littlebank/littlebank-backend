@@ -57,24 +57,26 @@ public enum ErrorCode {
     // Feed
     FEED_NOT_FOUND(404, "F001","피드를 찾을 수 없습니다" ),
     USER_NOT_EQUAL(403, "F002", "접근 권한이 없습니다"),
-    ALREADY_LIKED(400, "F003", "이미 좋아요 눌렀습니다"),
+    ALREADY_LIKED(409, "F003", "이미 좋아요 눌렀습니다"),
     LIKE_NOT_FOUND(404, "F004", "좋아요 정보가 존재하지 않습니다"),
     COMMENT_NOT_FOUND(404, "F005", "댓글을 찾을 수 없습니다"),
     INVALID_PARENT_COMMENT(404, "F006", "댓글 아이디를 찾을 수 없습니다"),
-    LIKE_ALREADY_DELETED(400, "F008" , "좋아요 정보가 존재하지 않습니다"),
+    LIKE_ALREADY_DELETED(404, "F008" , "좋아요 정보가 존재하지 않습니다"),
     FAIL_TO_GET_LOCK(409, "F009", "락 획득 실패했습니다"),
 
     // Challenge
     CHALLENGE_NOT_FOUND(404, "CH001", "챌린지를 찾을 수 없습니다"),
-    ALREADY_JOINED(400, "CH002", "이미 참여 중입니다"),
+    ALREADY_JOINED_CHALLENGE(409, "CH002", "이미 참여 중입니다"),
     INVALID_PARTICIPATION_PERIOD(400, "CH003", "챌린지 참여 기간 다시 입력하세요"),
     LOCK_INTERUPPTED(500, "CH004", "챌린지 참여 처리 중 오류 발생했습니다"),
-    CHALLENGE_FULL(400, "CH005", "챌린지 참여 인원을 초과했습니다"),
+    CHALLENGE_FULL(409, "CH005", "챌린지 참여 인원을 초과했습니다"),
     INVALID_CHALLENGE_CATEGORY(400, "CH006", "카테고리가 타당하지 않습니다"),
     CHALLENGE_END_DATE_EXPIRED(400, "CH007", "챌린지 기한이 지났습니다"),
     NOT_FOUND_PARTICIPATION(400, "CH008", "자식이 챌린지에 참여하지 않았습니다"),
-    ALREADY_ACCEPT(400, "CH009", "이미 아이의 챌리지 신청을 승낙했습니다"),
-    UNVALID_MY_PARTICIPATION_TYPE( 400, "CH010", "타입은 진행중, 완료한 두 개만 존재합니다"),
+    ALREADY_CHALLENGE_ACCEPT(409, "CH009", "이미 아이의 챌리지 신청을 승낙했습니다"),
+    UNVALID_MY_PARTICIPATION_TYPE( 422, "CH010", "타입은 진행중, 완료한 두 개만 존재합니다"),
+    NOT_REQUESTED_CHALLENGE(400, "CH011", "이미 챌린지를 승낙했습니다"),
+
     // GAME
     GAME_NOT_FOUND( 404, "G001", "게임을 찾을 수 없습니다"),
     ALREADY_VOTED(400, "G002", "이미 투표했습니다");
