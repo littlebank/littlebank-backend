@@ -21,7 +21,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequiredArgsConstructor
 @Tag(name = "challenge")
 public class ChallengeController {
-
     private final ChallengeService challengeService;
 
     @Operation(summary = "챌린지 참여하기 API")
@@ -38,20 +37,9 @@ public class ChallengeController {
     @GetMapping
     public ResponseEntity<CustomPageResponse<ChallengeAdminResponseDto>> getAllChallenges(
             @RequestParam(required = false) ChallengeCategory challengeCategory,
-            @RequestParam(defaultValue = "0") int page,
-            @AuthenticationPrincipal CustomUserDetails user
+            @RequestParam(defaultValue = "0") int page
             ) {
-        CustomPageResponse<ChallengeAdminResponseDto> response = challengeService.getAllChallenges(user.getId(), challengeCategory, page);
-        return ResponseEntity.ok(response);
-    }
-
-    @Operation(summary = "챌린지 상세 조회 API")
-    @GetMapping("/{challengeId}")
-    public ResponseEntity<ChallengeAdminResponseDto> getChallengeDetial(
-            @PathVariable Long challengeId,
-            @AuthenticationPrincipal CustomUserDetails user
-    ) {
-        ChallengeAdminResponseDto response = challengeService.getChallengeDetail(user.getId(), challengeId);
+        CustomPageResponse<ChallengeAdminResponseDto> response = challengeService.getAllChallenges(challengeCategory, page);
         return ResponseEntity.ok(response);
     }
 
@@ -76,7 +64,6 @@ public class ChallengeController {
         return ResponseEntity.ok(response);
     }
 
-
     @Operation(summary = "(부모) 자녀의 챌린지 조회 API")
     @GetMapping("/parent/{familyId}/{childId}")
     public ResponseEntity<CustomPageResponse<ChallengeUserResponseDto>> getChildInProgressChallenge (
@@ -85,7 +72,6 @@ public class ChallengeController {
             @PathVariable("childId") Long childId,
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(defaultValue = "0") int page
-
     ) {
         CustomPageResponse<ChallengeUserResponseDto> response = challengeService.getChildChallenges(familyId, childId, user.getId(), page);
         return ResponseEntity.ok(response);
@@ -95,11 +81,9 @@ public class ChallengeController {
     @PatchMapping("/parent/apply/accept/{participationId}")
     public ResponseEntity<ChallengeUserResponseDto> acceptApplyChallenge (
             @Parameter(description = "신청을 수락할 챌린지참여 식별 id")
-            @PathVariable("participationId") Long participationId,
-            @AuthenticationPrincipal CustomUserDetails parent
+            @PathVariable("participationId") Long participationId
     ) {
-        ChallengeUserResponseDto response = challengeService.acceptApplyChallenge(participationId, parent.getId());
+        ChallengeUserResponseDto response = challengeService.acceptApplyChallenge(participationId);
         return ResponseEntity.ok(response);
     }
-
 }

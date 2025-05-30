@@ -24,8 +24,6 @@ public class Challenge extends BaseEntity {
     private Long id;
     @Column(nullable = false, length = 100)
     private String title;
-    @Column(nullable = false, length = 1000)
-    private String description;
     @Enumerated(EnumType.STRING)
     private ChallengeCategory category;
     @Column(name = "start_date")
@@ -34,8 +32,6 @@ public class Challenge extends BaseEntity {
     private LocalDateTime endDate;
     @Column(name = "subject", length = 20, nullable = false)
     private String subject;
-    @Column(name = "total_study_time")
-    private Integer totalStudyTime;
     @Column(name = "total_participants")
     private Integer totalParticipants;
     @Column(name = "current_participants")
@@ -46,27 +42,23 @@ public class Challenge extends BaseEntity {
     private int viewCount = 0;
 
     @Builder
-    public Challenge(String title, String description, ChallengeCategory category, LocalDateTime startDate, LocalDateTime endDate, String subject, Integer totalStudyTime, Integer totalParticipants, Integer currentParticipants,  int viewCount) {
+    public Challenge(String title, ChallengeCategory category, LocalDateTime startDate, LocalDateTime endDate, String subject, Integer totalParticipants, Integer currentParticipants,  int viewCount) {
         this.title = title;
-        this.description = description;
         this.category = category;
         this.subject = subject;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.totalStudyTime = totalStudyTime;
         this.totalParticipants = totalParticipants;
         this.currentParticipants = currentParticipants;
         this.viewCount = viewCount;
     }
 
-    public void update(String title, ChallengeCategory category, String subject, String description, LocalDateTime startDate, LocalDateTime endDate, Integer totalStudyTime, Integer totalParticipants) {
+    public void update(String title, ChallengeCategory category, String subject, LocalDateTime startDate, LocalDateTime endDate, Integer totalParticipants) {
         this.title = title;
-        this.description = description;
         this.category = category;
         this.subject = subject;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.totalStudyTime = totalStudyTime;
         this.totalParticipants = totalParticipants;
     }
 
