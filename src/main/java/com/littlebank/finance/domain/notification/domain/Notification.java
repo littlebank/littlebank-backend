@@ -16,33 +16,29 @@ public class Notification extends BaseEntity {
     @Id @GeneratedValue
     @Column(name = "notification_id")
     private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id")
     private User receiver;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 10)
     private NotificationType type;
-
     @Column(name = "target_id", nullable = false)
     private Long targetId;
-
-    @Column(name = "message", nullable = false)
+    @Column(name = "message", length = 100, nullable = false)
     private String message;
-
+    @Column(name = "sub_message", length = 100)
+    private String subMessage;
     @Column(name = "is_read", nullable = false)
     private boolean isRead = false;
 
     @Builder
-    public static Notification of (User receiver, NotificationType type, Long targetId, String message, boolean isRead) {
-        Notification n = new Notification();
-        n.receiver = receiver;
-        n.type = type;
-        n.targetId = targetId;
-        n.message = message;
-        n.isRead = isRead;
-        return n;
+    public Notification(User receiver, NotificationType type, Long targetId, String message, String subMessage, boolean isRead) {
+        this.receiver = receiver;
+        this.type = type;
+        this.targetId = targetId;
+        this.message = message;
+        this.subMessage = subMessage;
+        this.isRead = isRead;
     }
 
     public void markAsRead() {
