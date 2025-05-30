@@ -149,10 +149,7 @@ public class ChallengeService {
     }
 
     @Transactional(readOnly = true)
-    public CustomPageResponse<ChallengeAdminResponseDto> getAllChallenges(Long userId, ChallengeCategory challengeCategory, int page) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
+    public CustomPageResponse<ChallengeAdminResponseDto> getAllChallenges(ChallengeCategory challengeCategory, int page) {
         Pageable pageable = PageRequest.of(page,
                 PaginationPolicy.CHALLENGE_LIST_PAGE_SIZE,
                 Sort.by(Sort.Direction.DESC, "createdDate")
@@ -177,23 +174,8 @@ public class ChallengeService {
         return CustomPageResponse.of(responsePage);
     }
 
-    public ChallengeAdminResponseDto getChallengeDetail(Long userId, Long challengeId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-        Challenge challenge = challengeRepository.findById(challengeId)
-                .orElseThrow(() -> new ChallengeException(ErrorCode.CHALLENGE_NOT_FOUND));
-
-        challenge.increaseViewCount();
-        int currentActiveParticipants = participationRepository.countByChallengeIdAndStatuses(
-                challengeId, List.of(ChallengeStatus.ACCEPT)
-        );
-        return ChallengeAdminResponseDto.of(challenge, currentActiveParticipants);
-    }
 
     public CustomPageResponse<ChallengeUserResponseDto> getMyChallenges(Long userId, String type, int page) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
         Pageable pageable = PageRequest.of(page,
                 PaginationPolicy.CHALLENGE_LIST_PAGE_SIZE,
                 Sort.by(Sort.Direction.DESC, "createdDate")
@@ -221,39 +203,25 @@ public class ChallengeService {
     public CustomPageResponse<ChallengeUserResponseDto> getChildChallenges(Long familyId, Long childId, Long userId, int page) {
         FamilyMember familyMember = familyMemberRepository.findByUserId(userId)
                 .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
-
         Long myFamilyId = familyMember.getFamily().getId();
         if (!myFamilyId.equals(familyId)) {
             throw new FamilyException(ErrorCode.FAMILY_NOT_FOUND);
         }
-        FamilyMember childMember = familyMemberRepository.findByUserId(childId)
+        FamilyMember childMember = familyMemberRepository.findByUserIdAndStatusWithUser(childId, Status.JOINED)
                 .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
-        if (!childMember.getFamily().getId().equals(familyId)) {
-            throw new FamilyException(ErrorCode.NOT_CHILD_OF_FAMILY);
-        }
 
-        if (!childMember.getStatus().equals(Status.JOINED)) {
-            throw new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND);
-        }
         Pageable pageable = PageRequest.of(page,
                 PaginationPolicy.CHALLENGE_LIST_PAGE_SIZE,
                 Sort.by(Sort.Direction.DESC, "createdDate")
         );
+        Page<ChallengeParticipation> participations = challengeParticipationRepository.findByUserId(childMember.getUser().getId(), pageable);
 
-        Page<ChallengeParticipation> participations = challengeParticipationRepository.findByUserId(childId, pageable);
 
-        List<ChallengeUserResponseDto> responseList = participations.stream()
-                .map(ChallengeUserResponseDto::of)
-                .toList();
-
-        Page<ChallengeUserResponseDto> responsePage = new PageImpl<>(responseList, pageable, participations.getTotalElements());
+        Page<ChallengeUserResponseDto> responsePage = participations.map(ChallengeUserResponseDto::of);
         return CustomPageResponse.of(responsePage);
     }
 
-    public ChallengeUserResponseDto acceptApplyChallenge(Long participationId, Long parentId) {
-        User parent = userRepository.findById(parentId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
+    public ChallengeUserResponseDto acceptApplyChallenge(Long participationId) {
         ChallengeParticipation participation = participationRepository.findById(participationId)
                 .orElseThrow(() -> new ChallengeException(ErrorCode.NOT_FOUND_PARTICIPATION));
 

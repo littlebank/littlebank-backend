@@ -27,12 +27,10 @@ public class AdminChallengeService {
                 .orElseThrow(() -> new ChallengeException(ErrorCode.USER_NOT_FOUND));
         Challenge challenge = Challenge.builder()
                 .title(request.getTitle())
-                .description(request.getDescription())
                 .category(ChallengeCategory.valueOf(request.getCategory()))
                 .subject(request.getSubject())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
-                .totalStudyTime(request.getTotalStudyTime())
                 .totalParticipants(request.getTotalParticipants())
                 .currentParticipants(0)
                 .build();
@@ -51,10 +49,8 @@ public class AdminChallengeService {
                 request.getTitle(),
                 ChallengeCategory.valueOf(request.getCategory()),
                 request.getSubject(),
-                request.getDescription(),
                 request.getStartDate(),
                 request.getEndDate(),
-                request.getTotalStudyTime(),
                 request.getTotalParticipants()
         );
 

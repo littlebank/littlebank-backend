@@ -86,28 +86,5 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
                         .fetchOne());
     }
 
-    @Override
-    public Page<ChallengeParticipation> findByUserIdAndChallengeStatusIn(Long userId, List<ChallengeStatus> statuses, Pageable pageable) {
-        QChallengeParticipation participation = QChallengeParticipation.challengeParticipation;
 
-        BooleanExpression condition = participation.user.id.eq(userId)
-                .and(participation.challengeStatus.in(statuses))
-                .and(participation.isDeleted.eq(false));
-
-        long total = queryFactory
-                .select(participation.count())
-                .from(participation)
-                .where(condition)
-                .fetchOne();
-
-        List<ChallengeParticipation> content = queryFactory
-                .selectFrom(participation)
-                .where(condition)
-                .orderBy(participation.createdDate.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        return new PageImpl<>(content, pageable, total);
-    }
 }

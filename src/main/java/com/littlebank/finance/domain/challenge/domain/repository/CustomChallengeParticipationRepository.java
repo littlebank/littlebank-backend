@@ -11,5 +11,5 @@ public interface CustomChallengeParticipationRepository {
     Page<ChallengeParticipation> findOngoingParticipations(Long userId, Pageable pageable);
     Page<ChallengeParticipation> findCompletedParticipations(Long userId, Pageable pageable);
 
-    Page<ChallengeParticipation> findByUserIdAndChallengeStatusIn(Long childId, List<ChallengeStatus> statuses, Pageable pageable);
+
 }

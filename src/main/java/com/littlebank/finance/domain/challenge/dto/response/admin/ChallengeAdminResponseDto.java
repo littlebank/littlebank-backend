@@ -17,7 +17,6 @@ public class ChallengeAdminResponseDto {
     private String subject;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private Integer totalStudyTime;
     private Integer currentParticipants;
     private Integer totalParticipants;
     private int viewCount;
@@ -26,12 +25,10 @@ public class ChallengeAdminResponseDto {
         return ChallengeAdminResponseDto.builder()
                 .id(challenge.getId())
                 .title(challenge.getTitle())
-                .description(challenge.getDescription())
                 .category(challenge.getCategory().name())
                 .subject(challenge.getSubject())
                 .startDate(challenge.getStartDate())
                 .endDate(challenge.getEndDate())
-                .totalStudyTime(challenge.getTotalStudyTime())
                 .currentParticipants(currentActiveParticipants)
                 .totalParticipants(challenge.getTotalParticipants())
                 .viewCount(challenge.getViewCount())
