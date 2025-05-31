@@ -76,4 +76,8 @@ public class Mission extends BaseEntity {
         this.child = child;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
+
+    public void acceptProposal() {
+        this.status = MissionStatus.ACCEPT;
+    }
 }
