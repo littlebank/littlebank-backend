@@ -11,7 +11,7 @@ import com.littlebank.finance.domain.goal.domain.GoalStatus;
 import com.littlebank.finance.domain.goal.domain.repository.GoalRepository;
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
 import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
-import com.littlebank.finance.domain.goal.dto.response.P3CommonGoalResponse;
+import com.littlebank.finance.domain.goal.dto.response.CommonGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.StampCheckResponse;
 import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.exception.GoalException;
@@ -47,7 +47,7 @@ public class GoalService {
     private final NotificationRepository notificationRepository;
     private final FirebaseService firebaseService;
 
-    public P3CommonGoalResponse applyGoal(Long userId, GoalApplyRequest request) {
+    public CommonGoalResponse applyGoal(Long userId, GoalApplyRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         verifyDuplicateGoalCategory(user, request.getCategory());
@@ -74,7 +74,7 @@ public class GoalService {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
 
-        return P3CommonGoalResponse.of(goal);
+        return CommonGoalResponse.of(goal);
     }
 
     @Transactional(readOnly = true)
@@ -91,7 +91,7 @@ public class GoalService {
         return goalRepository.findChildWeeklyGoalResponses(familyId);
     }
 
-    public P3CommonGoalResponse acceptApplyGoal(Long targetGoalId) {
+    public CommonGoalResponse acceptApplyGoal(Long targetGoalId) {
         Goal goal = goalRepository.findById(targetGoalId)
                 .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
 
@@ -101,7 +101,7 @@ public class GoalService {
 
         goal.acceptProposal();
 
-        return P3CommonGoalResponse.of(goal);
+        return CommonGoalResponse.of(goal);
     }
 
     @Transactional(readOnly = true)
@@ -109,7 +109,7 @@ public class GoalService {
         return goalRepository.findAllChildGoalResponses(familyId);
     }
 
-    public P3CommonGoalResponse checkGoal(Long goalId, Integer day) {
+    public CommonGoalResponse checkGoal(Long goalId, Integer day) {
         Goal goal = goalRepository.findById(goalId)
                 .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
 
@@ -129,7 +129,7 @@ public class GoalService {
             goal.achieve();
         }
 
-        return P3CommonGoalResponse.of(goal);
+        return CommonGoalResponse.of(goal);
     }
 
     @Transactional(readOnly = true)
