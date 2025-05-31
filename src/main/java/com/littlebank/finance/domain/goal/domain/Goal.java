@@ -8,14 +8,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
 @Entity
-@SQLDelete(sql = "UPDATE goal SET is_deleted = true WHERE goal_id = ?")
-@Where(clause = "is_deleted = false")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Goal extends BaseEntity {
@@ -44,8 +40,6 @@ public class Goal extends BaseEntity {
     @JoinColumn(name = "family", nullable = false)
     private Family family;
     @Column(nullable = false)
-    private Boolean isDeleted;
-    @Column(nullable = false)
     private Boolean mon;
     @Column(nullable = false)
     private Boolean tue;
@@ -62,7 +56,7 @@ public class Goal extends BaseEntity {
 
     @Builder
     public Goal(String title, GoalCategory category, Integer reward, LocalDateTime startDate, LocalDateTime endDate,
-                GoalStatus status, User createdBy, Family family, Boolean isDeleted,
+                GoalStatus status, User createdBy, Family family,
                 Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun
                 ) {
         this.title = title;
@@ -73,7 +67,6 @@ public class Goal extends BaseEntity {
         this.status = status;
         this.createdBy = createdBy;
         this.family = family;
-        this.isDeleted = isDeleted == null ? false : isDeleted;
         this.mon = mon == null ? false : mon;
         this.tue = tue == null ? false : tue;
         this.wed = wed == null ? false : wed;

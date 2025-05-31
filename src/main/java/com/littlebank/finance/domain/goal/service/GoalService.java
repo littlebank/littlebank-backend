@@ -108,6 +108,17 @@ public class GoalService {
         return CommonGoalResponse.of(goal);
     }
 
+    public void deleteGoal(Long goalId) {
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+
+        if (goal.getStatus() != GoalStatus.REQUESTED) {
+            throw new GoalException(ErrorCode.INVALID_DELETE_STATUS);
+        }
+
+        goalRepository.deleteById(goal.getId());
+    }
+
     @Transactional(readOnly = true)
     public List<ChildGoalResponse> getChildWeeklyGoal(Long familyId) {
         return goalRepository.findChildWeeklyGoalResponses(familyId);
