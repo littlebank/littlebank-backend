@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -37,7 +38,10 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
     private QUser u = user;
     private final static int MONDAY = 1;
 
-    public Boolean existsCategoryAndWeekly(Long userId, GoalCategory category) {
+    /**
+     * 동일 주간 목표 중 동일 카테고리 존재 여부
+     */
+    public Boolean existsCategorySameWeek(Long userId, GoalCategory category, LocalDateTime compareTargetDate) {
         Boolean exists = queryFactory
                 .selectOne()
                 .from(g)
@@ -50,7 +54,7 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
                                                 "YEARWEEK({0}, {1})", g.startDate, MONDAY
                                         )
                                         .eq(
-                                                Expressions.stringTemplate("YEARWEEK(CURDATE(), {0})", MONDAY)
+                                                Expressions.stringTemplate("YEARWEEK({0}, {1})", compareTargetDate, MONDAY)
                                         )
                         )
                 )

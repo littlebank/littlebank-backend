@@ -10,8 +10,9 @@ import com.littlebank.finance.domain.goal.domain.GoalCategory;
 import com.littlebank.finance.domain.goal.domain.GoalStatus;
 import com.littlebank.finance.domain.goal.domain.repository.GoalRepository;
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
+import com.littlebank.finance.domain.goal.dto.request.GoalUpdateRequest;
 import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
-import com.littlebank.finance.domain.goal.dto.response.P3CommonGoalResponse;
+import com.littlebank.finance.domain.goal.dto.response.CommonGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.StampCheckResponse;
 import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
 import com.littlebank.finance.domain.goal.exception.GoalException;
@@ -47,10 +48,10 @@ public class GoalService {
     private final NotificationRepository notificationRepository;
     private final FirebaseService firebaseService;
 
-    public P3CommonGoalResponse applyGoal(Long userId, GoalApplyRequest request) {
+    public CommonGoalResponse applyGoal(Long userId, GoalApplyRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-        verifyDuplicateGoalCategory(user, request.getCategory());
+        verifyDuplicateGoalCategory(user.getId(), request.getCategory(), request.getStartDate());
 
         Family family = familyRepository.findByUserIdWithMember(userId)
                 .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_NOT_FOUND));
@@ -74,7 +75,7 @@ public class GoalService {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
 
-        return P3CommonGoalResponse.of(goal);
+        return CommonGoalResponse.of(goal);
     }
 
     @Transactional(readOnly = true)
@@ -86,12 +87,27 @@ public class GoalService {
                 .collect(Collectors.toList());
     }
 
+    public CommonGoalResponse updateGoal(Long userId, GoalUpdateRequest request) {
+        Goal goal = goalRepository.findById(request.getGoalId())
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+        verifyDuplicateGoalCategory(userId, request.getCategory(), request.getStartDate());
+
+        if (goal.getStatus() != GoalStatus.REQUESTED) {
+            throw new GoalException(ErrorCode.INVALID_MODIFICATION_STATUS);
+        }
+
+        Goal target = request.toEntity();
+        goal.update(target);
+
+        return CommonGoalResponse.of(goal);
+    }
+
     @Transactional(readOnly = true)
     public List<ChildGoalResponse> getChildWeeklyGoal(Long familyId) {
         return goalRepository.findChildWeeklyGoalResponses(familyId);
     }
 
-    public P3CommonGoalResponse acceptApplyGoal(Long targetGoalId) {
+    public CommonGoalResponse acceptApplyGoal(Long targetGoalId) {
         Goal goal = goalRepository.findById(targetGoalId)
                 .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
 
@@ -101,7 +117,7 @@ public class GoalService {
 
         goal.acceptProposal();
 
-        return P3CommonGoalResponse.of(goal);
+        return CommonGoalResponse.of(goal);
     }
 
     @Transactional(readOnly = true)
@@ -109,7 +125,7 @@ public class GoalService {
         return goalRepository.findAllChildGoalResponses(familyId);
     }
 
-    public P3CommonGoalResponse checkGoal(Long goalId, Integer day) {
+    public CommonGoalResponse checkGoal(Long goalId, Integer day) {
         Goal goal = goalRepository.findById(goalId)
                 .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
 
@@ -129,7 +145,7 @@ public class GoalService {
             goal.achieve();
         }
 
-        return P3CommonGoalResponse.of(goal);
+        return CommonGoalResponse.of(goal);
     }
 
     @Transactional(readOnly = true)
@@ -140,9 +156,9 @@ public class GoalService {
         return StampCheckResponse.of(goal);
     }
 
-    private void verifyDuplicateGoalCategory(User user, GoalCategory category) {
-        if (goalRepository.existsCategoryAndWeekly(user.getId(), category)) {
-            throw new GoalException(ErrorCode.GOAL_WEEKLY_DUPLICATE);
+    private void verifyDuplicateGoalCategory(Long userId, GoalCategory category, LocalDateTime dateTime) {
+        if (goalRepository.existsCategorySameWeek(userId, category, dateTime)) {
+            throw new GoalException(ErrorCode.GOAL_CATEGORY_DUPLICATED);
         }
     }
 }
