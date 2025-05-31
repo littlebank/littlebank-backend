@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface MissionRepository extends JpaRepository<Mission, Long> {
+public interface MissionRepository extends JpaRepository<Mission, Long>, CustomMissionRepository {
     Optional<Mission> findTopByChildIdAndStatusOrderByEndDateDesc(Long UserId, MissionStatus missionStatus);
 
     Page<Mission> findByChild(User user, Pageable pageable);
