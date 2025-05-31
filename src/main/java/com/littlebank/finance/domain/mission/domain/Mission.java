@@ -11,9 +11,6 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @SQLDelete(sql = "UPDATE mission SET is_deleted = true WHERE mission_id = ?")
 @Where(clause = "is_deleted = false")
@@ -25,34 +22,58 @@ public class Mission extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mission_id")
     private Long id;
+
     @Column(name = "title", nullable = false, length = 50)
     private String title;
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private MissionSubject subject;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MissionType type;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mission_category", nullable = false)
+    private MissionCategory category;
+
+    @Enumerated(EnumType.STRING)
+    private MissionSubject subject;
+
     @Column(nullable = false)
-    private int reward;
+    @Enumerated(EnumType.STRING)
+    private MissionStatus status;
+
+    @Column(nullable = false)
+    private Integer reward;
+
+    @Column(nullable = false)
     private LocalDateTime startDate;
+
+    @Column(nullable = false)
     private LocalDateTime endDate;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "child_id", nullable = false)
+    private User child;
+
     @Column(nullable = false)
     private Boolean isDeleted;
-    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MissionAssignment> assignments = new ArrayList<>();
+
     @Builder
-    public Mission(String title, MissionSubject subject, MissionType type, int reward, LocalDateTime startDate, LocalDateTime endDate, User createdBy, Boolean isDeleted) {
+    public Mission(String title, MissionType type, MissionCategory category, MissionSubject subject, MissionStatus status, Integer reward, LocalDateTime startDate, LocalDateTime endDate, User createdBy, User child, Boolean isDeleted) {
         this.title = title;
-        this.subject = subject;
         this.type = type;
+        this.category = category;
+        this.subject = subject;
+        this.status = status;
         this.reward = reward;
         this.startDate = startDate;
         this.endDate = endDate;
         this.createdBy = createdBy;
+        this.child = child;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 }

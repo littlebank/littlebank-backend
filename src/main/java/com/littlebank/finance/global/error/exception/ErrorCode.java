@@ -79,7 +79,11 @@ public enum ErrorCode {
 
     // GAME
     GAME_NOT_FOUND( 404, "G001", "게임을 찾을 수 없습니다"),
-    ALREADY_VOTED(400, "G002", "이미 투표했습니다");
+    ALREADY_VOTED(400, "G002", "이미 투표했습니다"),
+
+    // MISSION
+    MISSION_NOT_FOUND(404, "MS001", "미션을 찾을 수 없습니다"),
+    MISSION_END_DATE_EXPIRED(410, "MS002", "설정한 미션 진행 기간이 지났습니다");
 
     private final String code;
     private final String message;
