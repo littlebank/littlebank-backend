@@ -11,6 +11,7 @@ import com.littlebank.finance.domain.mission.domain.repository.MissionRepository
 import com.littlebank.finance.domain.mission.dto.request.CreateMissionRequestDto;
 import com.littlebank.finance.domain.mission.dto.response.CommonMissionResponseDto;
 import com.littlebank.finance.domain.mission.dto.response.MissionRecentRewardResponseDto;
+import com.littlebank.finance.domain.mission.exception.MissionException;
 import com.littlebank.finance.domain.notification.domain.repository.NotificationRepository;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,5 +57,15 @@ public class MissionService {
                 .map(Mission::getReward)
                 .orElse(0);
         return new MissionRecentRewardResponseDto(recentReward);
+    }
+
+    public CommonMissionResponseDto acceptMission(Long missionId) {
+        Mission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new UserException(ErrorCode.MISSION_NOT_FOUND));
+        if (mission.getEndDate().isBefore(LocalDateTime.now())) {
+            throw new MissionException(ErrorCode.MISSION_END_DATE_EXPIRED);
+        }
+        mission.acceptProposal();
+        return CommonMissionResponseDto.of(mission);
     }
 }

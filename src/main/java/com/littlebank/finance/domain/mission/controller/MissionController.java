@@ -40,4 +40,12 @@ public class MissionController {
         MissionRecentRewardResponseDto response = missionService.getRecentReward(childId);
         return ResponseEntity.ok(response);
     }
+    @Operation(summary = "(아이) 미션 수락하기 API", description = "아이가 미션 수락")
+    @PatchMapping("/child/apply/accept/{missionId}")
+    public ResponseEntity<CommonMissionResponseDto> acceptMission (
+            @PathVariable Long missionId
+    ) {
+        CommonMissionResponseDto response = missionService.acceptMission(missionId);
+        return ResponseEntity.ok(response);
+    }
 }
