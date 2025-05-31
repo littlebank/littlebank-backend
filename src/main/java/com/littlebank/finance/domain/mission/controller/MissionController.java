@@ -4,6 +4,7 @@ import com.littlebank.finance.domain.mission.dto.request.CreateMissionRequestDto
 import com.littlebank.finance.domain.mission.dto.response.CommonMissionResponseDto;
 import com.littlebank.finance.domain.mission.dto.response.MissionRecentRewardResponseDto;
 import com.littlebank.finance.domain.mission.service.MissionService;
+import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,6 +47,16 @@ public class MissionController {
             @PathVariable Long missionId
     ) {
         CommonMissionResponseDto response = missionService.acceptMission(missionId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "(아이) 나의 모든 미션 조회 API")
+    @GetMapping("/child/all")
+    public ResponseEntity<CustomPageResponse<CommonMissionResponseDto>> getMyMissions (
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(defaultValue = "0") int page
+    ) {
+        CustomPageResponse<CommonMissionResponseDto> response = missionService.getMyMissions(user.getId(), page);
         return ResponseEntity.ok(response);
     }
 }
