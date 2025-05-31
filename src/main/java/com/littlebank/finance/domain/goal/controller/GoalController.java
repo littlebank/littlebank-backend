@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.goal.controller;
 
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
+import com.littlebank.finance.domain.goal.dto.request.GoalUpdateRequest;
 import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.CommonGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.StampCheckResponse;
@@ -42,6 +43,16 @@ public class GoalController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         List<WeeklyGoalResponse> response = goalService.getWeeklyGoal(customUserDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "(아이)목표 수정 API")
+    @PutMapping("/child/update")
+    public ResponseEntity<CommonGoalResponse> updateGoal(
+            @RequestBody @Valid GoalUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        CommonGoalResponse response = goalService.updateGoal(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
 

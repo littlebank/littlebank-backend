@@ -130,4 +130,12 @@ public class Goal extends BaseEntity {
     public void achieve() {
         this.status = GoalStatus.ACHIEVEMENT;
     }
+
+    public void update(Goal target) {
+        this.title = target.getTitle();
+        this.category = target.getCategory();
+        this.reward = target.getReward();
+        this.startDate = target.getStartDate();
+        this.endDate = target.getEndDate();
+    }
 }

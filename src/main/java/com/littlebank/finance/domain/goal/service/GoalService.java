@@ -10,6 +10,7 @@ import com.littlebank.finance.domain.goal.domain.GoalCategory;
 import com.littlebank.finance.domain.goal.domain.GoalStatus;
 import com.littlebank.finance.domain.goal.domain.repository.GoalRepository;
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
+import com.littlebank.finance.domain.goal.dto.request.GoalUpdateRequest;
 import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.CommonGoalResponse;
 import com.littlebank.finance.domain.goal.dto.response.StampCheckResponse;
@@ -84,6 +85,17 @@ public class GoalService {
         return results.stream()
                 .map(g -> WeeklyGoalResponse.of(g))
                 .collect(Collectors.toList());
+    }
+
+    public CommonGoalResponse updateGoal(Long userId, GoalUpdateRequest request) {
+        Goal goal = goalRepository.findById(request.getGoalId())
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+        verifyDuplicateGoalCategory(userId, request.getCategory(), request.getStartDate());
+
+        Goal target = request.toEntity();
+        goal.update(target);
+
+        return CommonGoalResponse.of(goal);
     }
 
     @Transactional(readOnly = true)
