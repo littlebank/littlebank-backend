@@ -50,7 +50,7 @@ public class GoalService {
     public CommonGoalResponse applyGoal(Long userId, GoalApplyRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-        verifyDuplicateGoalCategory(user, request.getCategory());
+        verifyDuplicateGoalCategory(user.getId(), request.getCategory(), request.getStartDate());
 
         Family family = familyRepository.findByUserIdWithMember(userId)
                 .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_NOT_FOUND));
@@ -140,9 +140,9 @@ public class GoalService {
         return StampCheckResponse.of(goal);
     }
 
-    private void verifyDuplicateGoalCategory(User user, GoalCategory category) {
-        if (goalRepository.existsCategoryAndWeekly(user.getId(), category)) {
-            throw new GoalException(ErrorCode.GOAL_WEEKLY_DUPLICATE);
+    private void verifyDuplicateGoalCategory(Long userId, GoalCategory category, LocalDateTime dateTime) {
+        if (goalRepository.existsCategorySameWeek(userId, category, dateTime)) {
+            throw new GoalException(ErrorCode.GOAL_CATEGORY_DUPLICATED);
         }
     }
 }

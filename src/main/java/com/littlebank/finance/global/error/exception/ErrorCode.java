@@ -30,9 +30,10 @@ public enum ErrorCode {
     FAMILY_MEMBER_ALREADY_EXISTS(409, "FM003", "가족 맴버로 소속되어 있습니다"),
     MULTIPLE_PARENTS_NOT_ALLOWED(422, "FM004", "부모 역할이 2개 이상 존재할 수 없습니다"),
     NOT_CHILD_OF_FAMILY( 400, "FM005", "아이가 가족멤버가 아닙니다"),
+
     // Goal
     GOAL_NOT_FOUND(404, "G001", "목표 데이터가 존재하지 않습니다"),
-    GOAL_WEEKLY_DUPLICATE(409, "G002", "이번 주에 이미 신청한 목표 유형입니다"),
+    GOAL_CATEGORY_DUPLICATED(409, "G002", "같은 주간에 이미 동일한 유형의 목표가 존재합니다"),
     GOAL_END_DATE_EXPIRED(410, "G003", "설정한 목표 진행 기간이 지났습니다"),
 
     // Point
