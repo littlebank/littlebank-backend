@@ -92,6 +92,10 @@ public class GoalService {
                 .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
         verifyDuplicateGoalCategory(userId, request.getCategory(), request.getStartDate());
 
+        if (goal.getStatus() != GoalStatus.REQUESTED) {
+            throw new GoalException(ErrorCode.INVALID_MODIFICATION_STATUS);
+        }
+
         Goal target = request.toEntity();
         goal.update(target);
 
