@@ -20,7 +20,7 @@ public class PushNotificationScheduler {
      * 부모에게 아이들의 달성한 목표에 대해 포인트 지급에 대한 알림
      */
     //@Scheduled(cron = "0 0 8 * * 1")
-    @Scheduled(cron = "* */10 * * * *") // 테스트 매 시 10분 간격으로 실행 (10분, 20분, 30분...)
+    @Scheduled(cron = "0 */10 * * * *") // 테스트 매 시 10분 간격으로 실행 (10분, 20분, 30분...)
     public void notifyParentOfChildGoalAchievements() {
         fixPushNotificationService.sendWeeklyGoalAchievementAlertToParents();
     }
