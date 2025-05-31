@@ -2,10 +2,7 @@ package com.littlebank.finance.domain.goal.controller;
 
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
 import com.littlebank.finance.domain.goal.dto.request.GoalUpdateRequest;
-import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
-import com.littlebank.finance.domain.goal.dto.response.CommonGoalResponse;
-import com.littlebank.finance.domain.goal.dto.response.StampCheckResponse;
-import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
+import com.littlebank.finance.domain.goal.dto.response.*;
 import com.littlebank.finance.domain.goal.service.GoalService;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,6 +41,15 @@ public class GoalController {
     ) {
         List<WeeklyGoalResponse> response = goalService.getWeeklyGoal(customUserDetails.getId());
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "(아이)내 모든 목표 조회 API")
+    @GetMapping("/child/all")
+    public ResponseEntity<List<MyGoalResponse>> getMyGoals(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        List<MyGoalResponse> responses = goalService.getMyGoals(customUserDetails.getId());
+        return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "(아이)목표 수정 API")

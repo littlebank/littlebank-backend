@@ -11,10 +11,7 @@ import com.littlebank.finance.domain.goal.domain.GoalStatus;
 import com.littlebank.finance.domain.goal.domain.repository.GoalRepository;
 import com.littlebank.finance.domain.goal.dto.request.GoalApplyRequest;
 import com.littlebank.finance.domain.goal.dto.request.GoalUpdateRequest;
-import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
-import com.littlebank.finance.domain.goal.dto.response.CommonGoalResponse;
-import com.littlebank.finance.domain.goal.dto.response.StampCheckResponse;
-import com.littlebank.finance.domain.goal.dto.response.WeeklyGoalResponse;
+import com.littlebank.finance.domain.goal.dto.response.*;
 import com.littlebank.finance.domain.goal.exception.GoalException;
 import com.littlebank.finance.domain.notification.domain.Notification;
 import com.littlebank.finance.domain.notification.domain.NotificationType;
@@ -80,10 +77,19 @@ public class GoalService {
 
     @Transactional(readOnly = true)
     public List<WeeklyGoalResponse> getWeeklyGoal(Long userId) {
-        List<Goal> results = goalRepository.findByCreatedByAndWeekly(userId);
+        List<Goal> goals = goalRepository.findByCreatedByAndWeekly(userId);
 
-        return results.stream()
+        return goals.stream()
                 .map(g -> WeeklyGoalResponse.of(g))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<MyGoalResponse> getMyGoals(Long userId) {
+        List<Goal> goals = goalRepository.findByCreatedById(userId);
+
+        return goals.stream()
+                .map(g -> MyGoalResponse.of(g))
                 .collect(Collectors.toList());
     }
 
