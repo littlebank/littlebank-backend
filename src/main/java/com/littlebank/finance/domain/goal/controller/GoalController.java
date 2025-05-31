@@ -62,6 +62,16 @@ public class GoalController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "(아이)목표 삭제 API")
+    @DeleteMapping("/child/{goalId}")
+    public ResponseEntity<Void> deleteGoal(
+            @Parameter(description = "삭제할 목표 식별 id")
+            @PathVariable("goalId") Long goalId
+    ) {
+        goalService.deleteGoal(goalId);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "(부모)이번 주 아이들의 목표 조회 API")
     @GetMapping("/parent/weekly/{familyId}")
     public ResponseEntity<List<ChildGoalResponse>> getChildWeeklyGoal(
