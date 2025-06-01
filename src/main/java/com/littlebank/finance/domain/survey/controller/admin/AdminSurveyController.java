@@ -12,30 +12,30 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api-admin/quiz")
-@Tag(name = "quiz")
+@RequestMapping("/api-admin/survey")
+@Tag(name = "survey")
 @RequiredArgsConstructor
 public class AdminSurveyController {
     private final AdminSurveyService adminSurveyService;
 
-    @Operation(summary = "퀴즈 생성")
+    @Operation(summary = "설문 생성")
     @PostMapping("/create")
-    public ResponseEntity<CreateSurveyResponseDto> createQuiz (
+    public ResponseEntity<CreateSurveyResponseDto> createSurvey (
             @RequestBody CreateSurveyRequestDto request,
             @AuthenticationPrincipal CustomUserDetails admin
             ) {
-        CreateSurveyResponseDto response = adminSurveyService.createQuiz(admin.getId(), request);
+        CreateSurveyResponseDto response = adminSurveyService.createSurvey(admin.getId(), request);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "퀴즈 수정")
-    @PutMapping("/update/{quizId}")
-    public ResponseEntity<CreateSurveyResponseDto> updateQuiz (
-            @PathVariable Long quizId,
+    @Operation(summary = "설문 수정")
+    @PutMapping("/update/{surveyId}")
+    public ResponseEntity<CreateSurveyResponseDto> updateSurvey (
+            @PathVariable Long surveyId,
             @RequestBody CreateSurveyRequestDto request,
             @AuthenticationPrincipal CustomUserDetails admin
     ) {
-        CreateSurveyResponseDto response = adminSurveyService.updateQuiz(admin.getId(), quizId, request);
+        CreateSurveyResponseDto response = adminSurveyService.updateSurvey(admin.getId(), surveyId, request);
         return ResponseEntity.ok(response);
     }
 }

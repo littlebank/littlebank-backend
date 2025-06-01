@@ -9,7 +9,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class CreateSurveyResponseDto {
-    private Long quizId;
+    private Long surveyId;
     private String question;
     private String optionA;
     private String optionB;
@@ -20,7 +20,7 @@ public class CreateSurveyResponseDto {
 
     public static CreateSurveyResponseDto of(Survey survey) {
         return CreateSurveyResponseDto.builder()
-                .quizId(survey.getId())
+                .surveyId(survey.getId())
                 .question(survey.getQuestion())
                 .optionA(survey.getOptionA())
                 .optionB(survey.getOptionB())

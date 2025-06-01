@@ -16,6 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -28,36 +32,24 @@ public class SurveyService {
     private final RedisDao redisDao;
     private final RedissonClient redissonClient;
 
-    public SurveyVoteResponseDto joinQuiz(Long userId, Long quizId, SurveyVoteRequestDto request) {
-        String redisKey = RedisPolicy.QUIZ_VOTE_PREFIX + quizId + ":" + userId;
-
-        String lockKey = RedisPolicy.QUIZ_VOTE_LOCK_PREFIX + quizId;
+    public SurveyVoteResponseDto joinSurvey(Long userId, Long surveyId, SurveyVoteRequestDto request) {
+        String redisKey = RedisPolicy.SURVEY_VOTE_PREFIX + surveyId + ":" + userId;
+        String lockKey = RedisPolicy.SURVEY_VOTE_LOCK_PREFIX + surveyId;
         RLock lock = redissonClient.getLock(lockKey);
         try {
-            if (lock.tryLock(2, 5, TimeUnit.SECONDS)) {
-                if (redisDao.existData(redisKey)) {
-                    throw new SurveyException(ErrorCode.ALREADY_VOTED);
-                }
-
-                Survey survey = surveyRepository.findById(quizId)
-                        .orElseThrow(() -> new SurveyException(ErrorCode.QUIZ_NOT_FOUND));
-                String choice = request.getChoice();
-                switch (choice) {
-                    case "A" -> survey.setVoteA(survey.getVoteA() + 1);
-                    case "B" -> survey.setVoteB(survey.getVoteB() + 1);
-                    case "C" -> survey.setVoteB(survey.getVoteC() + 1);
-                    default -> throw new SurveyException(ErrorCode.INVALID_INPUT_VALUE);
-                }
-                surveyRepository.save(survey);
-                redisDao.setValues(redisKey, choice, Duration.ofDays(1));
-
-                return SurveyVoteResponseDto.of(
-                        quizId, choice,
-                        survey.getVoteA(), survey.getVoteB(), survey.getVoteC()
-                );
-            } else {
+            if (!lock.tryLock(2, 5, TimeUnit.SECONDS)) {
                 throw new SurveyException(ErrorCode.FAIL_TO_GET_LOCK);
             }
+            if (redisDao.existData(redisKey)) {
+                throw new SurveyException(ErrorCode.ALREADY_VOTED);
+            }
+            Survey survey = surveyRepository.findById(surveyId)
+                    .orElseThrow(() -> new SurveyException(ErrorCode.SURVEY_NOT_FOUND));
+            increaseVote(survey, request.getChoice());
+            surveyRepository.save(survey);
+            redisDao.setValues(redisKey, request.getChoice(), Duration.ofDays(1));
+
+            return SurveyVoteResponseDto.ofWithResult(survey, request.getChoice());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new SurveyException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -65,6 +57,31 @@ public class SurveyService {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
             }
+        }
+    }
+
+    private void increaseVote(Survey survey, String choice) {
+        switch (choice) {
+            case "A" -> survey.setVoteA(survey.getVoteA() + 1);
+            case "B" -> survey.setVoteB(survey.getVoteB() + 1);
+            case "C" -> survey.setVoteC(survey.getVoteC() + 1);
+            default -> throw new SurveyException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+    }
+
+    public SurveyVoteResponseDto showSurvey(Long userId) {
+        List<Survey> allSurveys = surveyRepository.findAllByIsDeletedFalse();
+        long seed = LocalDate.now().toEpochDay();
+        Collections.shuffle(allSurveys, new Random(seed));
+
+        Survey survey = allSurveys.get(0);
+        String redisKey = RedisPolicy.SURVEY_VOTE_PREFIX + survey.getId() + ":" + userId;
+
+        if (redisDao.existData(redisKey)) {
+            String choice = redisDao.getValues(redisKey);
+            return SurveyVoteResponseDto.ofWithResult(survey, choice);
+        } else {
+            return SurveyVoteResponseDto.ofWithoutResult(survey);
         }
     }
 }

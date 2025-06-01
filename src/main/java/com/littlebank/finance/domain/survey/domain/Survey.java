@@ -8,13 +8,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="quiz")
+@Table(name="survey")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Survey extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "quiz_id")
+    @Column(name = "survey_id")
     private Long id;
     @Column(nullable = false, length = 100)
     private String question;

@@ -12,20 +12,29 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api-user/quiz")
+@RequestMapping("/api-user/survey")
 @RequiredArgsConstructor
-@Tag(name = "quiz")
+@Tag(name = "survey")
 public class SurveyController {
     private final SurveyService surveyService;
 
-    @Operation(summary = "퀴즈 참여하기")
-    @PostMapping("/join/{quizId}")
-    public ResponseEntity<SurveyVoteResponseDto> joinQuiz (
-            @PathVariable Long quizId,
+    @Operation(summary = "설문 참여하기")
+    @PostMapping("/join/{surveyId}")
+    public ResponseEntity<SurveyVoteResponseDto> joinSurvey (
+            @PathVariable Long surveyId,
             @RequestBody SurveyVoteRequestDto request,
             @AuthenticationPrincipal CustomUserDetails user
             ) {
-        SurveyVoteResponseDto response = surveyService.joinQuiz(user.getId(), quizId, request);
+        SurveyVoteResponseDto response = surveyService.joinSurvey(user.getId(), surveyId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "설문 조회")
+    @GetMapping("/main")
+    public ResponseEntity<SurveyVoteResponseDto> showSurvey (
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        SurveyVoteResponseDto response = surveyService.showSurvey(user.getId());
         return ResponseEntity.ok(response);
     }
 }

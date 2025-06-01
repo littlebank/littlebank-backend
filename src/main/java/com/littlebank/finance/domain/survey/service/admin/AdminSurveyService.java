@@ -23,18 +23,18 @@ public class AdminSurveyService {
     private final UserRepository userRepository;
     private final SurveyRepository surveyRepository;
 
-    public CreateSurveyResponseDto createQuiz(Long adminId, CreateSurveyRequestDto request) {
+    public CreateSurveyResponseDto createSurvey(Long adminId, CreateSurveyRequestDto request) {
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-        Survey survey = surveyRepository.save(request.toQuiz());
+        Survey survey = surveyRepository.save(request.toSurvey());
         return CreateSurveyResponseDto.of(survey);
     }
 
-    public CreateSurveyResponseDto updateQuiz(Long adminId, Long quizId, CreateSurveyRequestDto request) {
+    public CreateSurveyResponseDto updateSurvey(Long adminId, Long surveyId, CreateSurveyRequestDto request) {
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-        Survey survey = surveyRepository.findById(quizId)
-                .orElseThrow(() -> new SurveyException(ErrorCode.QUIZ_NOT_FOUND));
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new SurveyException(ErrorCode.SURVEY_NOT_FOUND));
         survey.update(request.getQuestion(), request.getOptionA(), request.getOptionB(), request.getOptionC());
         return CreateSurveyResponseDto.of(survey);
     }

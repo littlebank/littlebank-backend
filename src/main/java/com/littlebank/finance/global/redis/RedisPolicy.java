@@ -16,6 +16,6 @@ public class RedisPolicy {
     public static final String CHALLENGE_JOIN_KEY_PREFIX = "CHALLENGE:JOIN:";
     public static final String CHALLENGE_CURRENT_COUNT_KEY_PREFIX = "CHALLENGE:CURRENT_COUNT:";
     public static final String GAME_VOTE_LOCK_PREFIX = "GAME:VOTE:";
-    public static final String QUIZ_VOTE_PREFIX = "QUIZ:VOTE:LOCK:";
-    public static final String QUIZ_VOTE_LOCK_PREFIX = "QUIZ:VOTE:LOCK:";
+    public static final String SURVEY_VOTE_PREFIX = "QUIZ:VOTE:";
+    public static final String SURVEY_VOTE_LOCK_PREFIX = "QUIZ:VOTE:LOCK:";
 }

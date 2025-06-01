@@ -15,7 +15,7 @@ public class CreateSurveyRequestDto {
     @NotNull
     private String optionC;
 
-    public Survey toQuiz() {
+    public Survey toSurvey() {
         return Survey.builder()
                 .question(question)
                 .optionA(optionA)
