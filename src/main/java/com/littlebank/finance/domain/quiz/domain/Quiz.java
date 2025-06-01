@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.checkerframework.checker.units.qual.N;
 
 @Entity
 @Table(name="quiz")
@@ -45,5 +44,12 @@ public class Quiz extends BaseEntity {
         this.voteB = voteB != null ? voteB : 0 ;
         this.voteC = voteC != null ? voteC : 0 ;
         this.isDeleted = isDeleted == null ? false : isDeleted;
+    }
+
+    public void update(String question, String optionA, String optionB, String optionC) {
+        this.question = question;
+        this.optionA = optionA;
+        this.optionB = optionB;
+        this.optionC = optionC;
     }
 }

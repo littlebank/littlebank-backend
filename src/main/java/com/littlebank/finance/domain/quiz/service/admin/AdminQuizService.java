@@ -5,6 +5,7 @@ import com.littlebank.finance.domain.quiz.domain.Quiz;
 import com.littlebank.finance.domain.quiz.domain.repository.QuizRepository;
 import com.littlebank.finance.domain.quiz.dto.request.CreateQuizRequestDto;
 import com.littlebank.finance.domain.quiz.dto.response.CreateQuizResponseDto;
+import com.littlebank.finance.domain.quiz.exception.QuizException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
@@ -27,6 +28,15 @@ public class AdminQuizService {
         User admin = userRepository.findById(adminId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         Quiz quiz = quizRepository.save(request.toQuiz());
+        return CreateQuizResponseDto.of(quiz);
+    }
+
+    public CreateQuizResponseDto updateQuiz(Long adminId, Long quizId, CreateQuizRequestDto request) {
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new QuizException(ErrorCode.QUIZ_NOT_FOUND));
+        quiz.update(request.getQuestion(), request.getOptionA(), request.getOptionB(), request.getOptionC());
         return CreateQuizResponseDto.of(quiz);
     }
 }
