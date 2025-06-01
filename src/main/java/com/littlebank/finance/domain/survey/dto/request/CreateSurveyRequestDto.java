@@ -1,11 +1,11 @@
-package com.littlebank.finance.domain.quiz.dto.request;
+package com.littlebank.finance.domain.survey.dto.request;
 
-import com.littlebank.finance.domain.quiz.domain.Quiz;
+import com.littlebank.finance.domain.survey.domain.Survey;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class CreateQuizRequestDto {
+public class CreateSurveyRequestDto {
     @NotNull
     private String question;
     @NotNull
@@ -15,8 +15,8 @@ public class CreateQuizRequestDto {
     @NotNull
     private String optionC;
 
-    public Quiz toQuiz() {
-        return Quiz.builder()
+    public Survey toQuiz() {
+        return Survey.builder()
                 .question(question)
                 .optionA(optionA)
                 .optionB(optionB)

@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.quiz.domain;
+package com.littlebank.finance.domain.survey.domain;
 
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name="quiz")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Quiz extends BaseEntity {
+public class Survey extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "quiz_id")
@@ -34,8 +34,8 @@ public class Quiz extends BaseEntity {
     private Boolean isDeleted;
 
     @Builder
-    public Quiz(String question, String optionA, String optionB, String optionC,
-                Integer voteA, Integer voteB, Integer voteC, Boolean isDeleted) {
+    public Survey(String question, String optionA, String optionB, String optionC,
+                  Integer voteA, Integer voteB, Integer voteC, Boolean isDeleted) {
         this.question = question;
         this.optionA = optionA;
         this.optionB = optionB;
@@ -51,5 +51,15 @@ public class Quiz extends BaseEntity {
         this.optionA = optionA;
         this.optionB = optionB;
         this.optionC = optionC;
+    }
+
+    public void setVoteA(int voteA) {
+        this.voteA = voteA;
+    }
+    public void setVoteB(int voteB) {
+        this.voteB = voteB;
+    }
+    public void setVoteC(int voteC) {
+        this.voteC = voteC;
     }
 }
