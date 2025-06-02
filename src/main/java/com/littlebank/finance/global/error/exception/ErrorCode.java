@@ -86,7 +86,10 @@ public enum ErrorCode {
 
     // MISSION
     MISSION_NOT_FOUND(404, "MS001", "미션을 찾을 수 없습니다"),
-    MISSION_END_DATE_EXPIRED(410, "MS002", "설정한 미션 진행 기간이 지났습니다");
+    MISSION_END_DATE_EXPIRED(410, "MS002", "설정한 미션 진행 기간이 지났습니다"),
+
+    // SURVEY
+    SURVEY_NOT_FOUND( 404, "Q001", "퀴즈를 찾을 수 없습니다");
 
     private final String code;
     private final String message;
