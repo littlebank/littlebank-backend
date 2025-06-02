@@ -70,7 +70,7 @@ public class UserController {
             @RequestBody @Valid UserInfoUpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        MyInfoResponse response = userService.updateMyInfo(customUserDetails.getId(), request.toEntity());
+        MyInfoResponse response = userService.updateMyInfo(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
 
