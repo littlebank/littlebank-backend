@@ -3,14 +3,19 @@ package com.littlebank.finance.domain.user.service;
 import com.littlebank.finance.domain.user.domain.Authority;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
+import com.littlebank.finance.domain.user.dto.request.AccountHolderVerifyRequest;
 import com.littlebank.finance.domain.user.dto.request.LoginRequest;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginRequest;
+import com.littlebank.finance.domain.user.dto.response.AccountHolderVerifyResponse;
 import com.littlebank.finance.domain.user.dto.response.ReissueResponse;
 import com.littlebank.finance.domain.user.exception.AuthException;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.jwt.TokenProvider;
 import com.littlebank.finance.global.jwt.dto.TokenDto;
+import com.littlebank.finance.global.portone.PortoneService;
+import com.littlebank.finance.global.portone.dto.AccountHolderDto;
+import com.littlebank.finance.global.portone.exception.PortoneException;
 import com.littlebank.finance.global.redis.RedisDao;
 import com.littlebank.finance.global.redis.RedisPolicy;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +39,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
+    private final PortoneService portoneService;
     private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
     private final AuthenticationManager authenticationManager;
@@ -179,5 +185,17 @@ public class AuthService {
                 refreshToken,
                 Duration.ofMillis(tokenProvider.getExpiration(refreshToken))
         );
+    }
+
+    @Transactional(readOnly = true)
+    public AccountHolderVerifyResponse verifyAccountHolder(AccountHolderVerifyRequest request) {
+        String accessToken = portoneService.getAccessToken();
+        AccountHolderDto accountHolderDto = portoneService.getAccountHolder(request.getBankCode(), request.getBankNumber(), accessToken);
+
+        if (!accountHolderDto.getBankHolder().equals(request.getHolderName())) {
+            throw new PortoneException(ErrorCode.ACCOUNT_HOLDER_NOT_MATCHED);
+        }
+
+        return AccountHolderVerifyResponse.of(accountHolderDto.getBankHolder());
     }
 }

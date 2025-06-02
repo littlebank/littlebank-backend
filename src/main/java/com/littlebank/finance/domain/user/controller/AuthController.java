@@ -1,8 +1,10 @@
 package com.littlebank.finance.domain.user.controller;
 
+import com.littlebank.finance.domain.user.dto.request.AccountHolderVerifyRequest;
 import com.littlebank.finance.domain.user.dto.request.LoginRequest;
 import com.littlebank.finance.domain.user.dto.request.ReissueRequest;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginRequest;
+import com.littlebank.finance.domain.user.dto.response.AccountHolderVerifyResponse;
 import com.littlebank.finance.domain.user.dto.response.LoginResponse;
 import com.littlebank.finance.domain.user.dto.response.ReissueResponse;
 import com.littlebank.finance.domain.user.service.AuthService;
@@ -18,10 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api-user/auth")
@@ -86,5 +85,14 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookieUtil.createCookie(tokenDto.getRefreshToken()).toString())
                 .body(LoginResponse.of(tokenDto.getAccessToken()));
+    }
+
+    @Operation(summary = "계좌 검증 API")
+    @PostMapping("/public/account/holder/verify")
+    public ResponseEntity<AccountHolderVerifyResponse> verifyAccountHolder(
+            @RequestBody @Valid AccountHolderVerifyRequest request
+    ) {
+        AccountHolderVerifyResponse holder = authService.verifyAccountHolder(request);
+        return ResponseEntity.ok(holder);
     }
 }
