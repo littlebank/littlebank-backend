@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.point.dto;
+package com.littlebank.finance.global.portone.dto;
 
 import com.littlebank.finance.domain.point.domain.PaymentStatus;
 import lombok.AllArgsConstructor;

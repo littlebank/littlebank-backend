@@ -10,6 +10,11 @@ public enum ErrorCode {
     HANDLE_ACCESS_DENIED(403, "C006", "Access is Denied"),
     NOT_AUTHENTICATED(401, "C007", "Unauthorized"),
 
+    // PortOne
+    PAYMENT_INFO_NOT_EXISTS(404, "PO001", "결제 정보가 존재하지 않습니다"),
+    ACCOUNT_INFO_NOT_FOUND(404, "PO002", "계좌 정보를 조회하지 못했습니다"),
+    ACCOUNT_HOLDER_NOT_MATCHED(400, "PO003", "예금주 정보가 일치하지 않습니다"),
+
     // User
     USER_NOT_FOUND(404, "U001", "유저가 존재하지 않습니다"),
     EMAIL_DUPLICATED(409, "U002", "중복된 이메일이 존재합니다"),
@@ -29,7 +34,6 @@ public enum ErrorCode {
     FAMILY_INVITE_ALREADY_SENT(409, "FM002", "가족 맴버로 초대를 보낸 상태입니다"),
     FAMILY_MEMBER_ALREADY_EXISTS(409, "FM003", "가족 맴버로 소속되어 있습니다"),
     MULTIPLE_PARENTS_NOT_ALLOWED(422, "FM004", "부모 역할이 2개 이상 존재할 수 없습니다"),
-    NOT_CHILD_OF_FAMILY( 400, "FM005", "아이가 가족멤버가 아닙니다"),
 
     // Goal
     GOAL_NOT_FOUND(404, "G001", "목표 데이터가 존재하지 않습니다"),
