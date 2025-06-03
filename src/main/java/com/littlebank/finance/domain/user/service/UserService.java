@@ -4,6 +4,7 @@ import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginAdditionalInfoRequest;
 import com.littlebank.finance.domain.user.dto.request.UpdateStatusMessageRequest;
+import com.littlebank.finance.domain.user.dto.request.UserInfoUpdateRequest;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
@@ -51,17 +52,19 @@ public class UserService {
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
     }
 
-    public MyInfoResponse updateMyInfo(Long userId, User updateInfo) {
-        verifyDuplicatedPhone(updateInfo.getPhone());
-
+    public MyInfoResponse updateMyInfo(Long userId, UserInfoUpdateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        User target = request.toEntity();
 
-        user.update(updateInfo);
+        if (userRepository.existsByEmailAndIdNot(target.getEmail(), user.getId())) {
+            throw new UserException(ErrorCode.EMAIL_DUPLICATED);
+        }
+
+        user.update(target);
 
         return MyInfoResponse.of(user);
     }
-
 
     public UpdateStatusMessageResponse updateStatusMessage(Long userId, UpdateStatusMessageRequest request) {
         User user = userRepository.findById(userId)

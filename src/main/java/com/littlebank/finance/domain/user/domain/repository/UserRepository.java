@@ -12,10 +12,10 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long>, CustomUserRepository {
     boolean existsByEmail(String email);
     boolean existsByPhone(String phone);
-
-    Optional<User> findByEmail(String email);
+    boolean existsByEmailAndIdNot(String email, Long userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT u FROM User u WHERE u.id = :id")
     Optional<User> findByIdWithLock(@Param("id") Long userId);
+    Optional<User> findByEmail(String email);
 }
