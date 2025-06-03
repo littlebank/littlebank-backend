@@ -2,10 +2,7 @@ package com.littlebank.finance.domain.point.controller;
 
 import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
 import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
-import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
-import com.littlebank.finance.domain.point.dto.response.PaymentInfoSaveResponse;
-import com.littlebank.finance.domain.point.dto.response.CommonPointTransferResponse;
-import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryResponse;
+import com.littlebank.finance.domain.point.dto.response.*;
 import com.littlebank.finance.domain.point.service.PointService;
 
 import com.littlebank.finance.global.common.CustomPageResponse;
@@ -63,13 +60,25 @@ public class PointController {
 
     @Operation(summary = "들어온 포인트 내역 조회 API")
     @GetMapping("/transfer/receive/history")
-    public ResponseEntity<CustomPageResponse<ReceivePointHistoryResponse>> getTransferHistory(
+    public ResponseEntity<CustomPageResponse<ReceivePointHistoryResponse>> getReceivedPointHistory(
             @Parameter(description = "페이지 번호, 0부터 시작")
             @RequestParam(name = "pageNumber") Integer pageNumber,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.GENERAL_PAGE_SIZE);
-        CustomPageResponse<ReceivePointHistoryResponse> response = pointService.getTransferHistory(customUserDetails.getId(), pageable);
+        CustomPageResponse<ReceivePointHistoryResponse> response = pointService.getReceivedPointHistory(customUserDetails.getId(), pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "보낸 포인트 내역 조회 API")
+    @GetMapping("/transfer/sent/history")
+    public ResponseEntity<CustomPageResponse<SendPointHistoryResponse>> getSentPointHistory(
+            @Parameter(description = "페이지 번호, 0부터 시작")
+            @RequestParam(name = "pageNumber") Integer pageNumber,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.GENERAL_PAGE_SIZE);
+        CustomPageResponse<SendPointHistoryResponse> response = pointService.getSentPointHistory(customUserDetails.getId(), pageable);
         return ResponseEntity.ok(response);
     }
 }

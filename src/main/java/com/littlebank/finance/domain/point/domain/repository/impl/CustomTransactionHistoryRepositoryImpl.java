@@ -3,6 +3,7 @@ package com.littlebank.finance.domain.point.domain.repository.impl;
 import com.littlebank.finance.domain.point.domain.QTransactionHistory;
 import com.littlebank.finance.domain.point.domain.repository.CustomTransactionHistoryRepository;
 import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryResponse;
+import com.littlebank.finance.domain.point.dto.response.SendPointHistoryResponse;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -15,13 +16,13 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import static com.littlebank.finance.domain.point.domain.QTransactionHistory.transactionHistory;
-import static com.littlebank.finance.domain.user.domain.QUser.user;
 
 @RequiredArgsConstructor
 public class CustomTransactionHistoryRepositoryImpl implements CustomTransactionHistoryRepository {
     private final JPAQueryFactory queryFactory;
     private QTransactionHistory th = transactionHistory;
-    private QUser u = user;
+    private QUser sender = new QUser("sender");
+    private QUser receiver = new QUser("receiver");
 
     @Override
     public Page<ReceivePointHistoryResponse> findReceivedPointHistoryByUserId(Long userId, Pageable pageable) {
@@ -32,13 +33,37 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                         th.pointAmount,
                         th.message,
                         th.receiverRemainingPoint,
-                        u.id,
-                        u.name,
+                        sender.id,
+                        sender.name,
                         th.createdDate
                 ))
                 .from(th)
-                .join(th.sender, u)
+                .join(th.sender, sender)
                 .where(th.receiver.id.eq(userId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(th.createdDate.desc())
+                .fetch();
+
+        return new PageImpl<>(results, pageable, results.size());
+    }
+
+    @Override
+    public Page<SendPointHistoryResponse> findSentPointHistoryByUserId(Long userId, Pageable pageable) {
+        List<SendPointHistoryResponse> results = queryFactory
+                .select(Projections.constructor(
+                        SendPointHistoryResponse.class,
+                        th.id,
+                        th.pointAmount,
+                        th.message,
+                        th.senderRemainingPoint,
+                        receiver.id,
+                        receiver.name,
+                        th.createdDate
+                ))
+                .from(th)
+                .join(th.receiver, receiver)
+                .where(th.sender.id.eq(userId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(th.createdDate.desc())
