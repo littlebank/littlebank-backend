@@ -7,15 +7,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE payment SET is_deleted = true WHERE family_id = ?")
-@Where(clause = "is_deleted = false")
 @Table(name = "payment", uniqueConstraints = {
         @UniqueConstraint(columnNames = "impUid")
 })
@@ -43,12 +39,10 @@ public class Payment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @Column(nullable = false)
-    private Boolean isDeleted;
 
     @Builder
     public Payment(String impUid, String merchantUid, Integer amount, String payMethod, String pgProvider,
-                   PaymentStatus status, Integer remainingPoint, LocalDateTime paidAt, User user, Boolean isDeleted) {
+                   PaymentStatus status, Integer remainingPoint, LocalDateTime paidAt, User user) {
         this.impUid = impUid;
         this.merchantUid = merchantUid;
         this.amount = amount;
@@ -58,7 +52,6 @@ public class Payment extends BaseEntity {
         this.remainingPoint = remainingPoint;
         this.paidAt = paidAt;
         this.user = user;
-        this.isDeleted = isDeleted;
     }
 
     public void recordRemainingPoint(User user) {

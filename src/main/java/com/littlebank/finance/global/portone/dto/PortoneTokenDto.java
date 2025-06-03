@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.point.dto;
+package com.littlebank.finance.global.portone.dto;
 
 import lombok.Getter;
 

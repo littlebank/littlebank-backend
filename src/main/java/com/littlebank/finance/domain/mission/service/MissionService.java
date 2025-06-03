@@ -10,6 +10,10 @@ import com.littlebank.finance.domain.mission.domain.*;
 import com.littlebank.finance.domain.mission.domain.repository.MissionRepository;
 import com.littlebank.finance.domain.mission.dto.request.CreateMissionRequestDto;
 import com.littlebank.finance.domain.mission.dto.response.*;
+
+import com.littlebank.finance.domain.mission.dto.request.MissionRecentRewardRequestDto;
+import com.littlebank.finance.domain.mission.dto.response.CommonMissionResponseDto;
+import com.littlebank.finance.domain.mission.dto.response.MissionRecentRewardResponseDto;
 import com.littlebank.finance.domain.mission.exception.MissionException;
 import com.littlebank.finance.domain.notification.domain.Notification;
 import com.littlebank.finance.domain.notification.domain.NotificationType;
@@ -72,15 +76,19 @@ public class MissionService {
         return responses;
     }
 
-    public MissionRecentRewardResponseDto getRecentReward(Long childId) {
+    public MissionRecentRewardResponseDto getRecentReward(MissionRecentRewardRequestDto request, Long childId) {
         FamilyMember childMember = familyMemberRepository.findByUserIdAndStatusWithUser(childId, Status.JOINED)
                 .orElseThrow(() -> new UserException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
-        Integer recentReward = missionRepository.findTopByChildIdAndStatusOrderByEndDateDesc(childId, MissionStatus.ACHIEVEMENT)
-                .map(Mission::getReward)
-                .orElse(0);
-        return new MissionRecentRewardResponseDto(recentReward);
-    }
+        Integer recentReward = missionRepository.findRecentReward(childId, MissionType.FAMILY, request.getCategory(), request.getSubject());
 
+        MissionRecentRewardResponseDto response = MissionRecentRewardResponseDto.builder()
+                .type(MissionType.FAMILY)
+                .category(request.getCategory())
+                .subject(request.getSubject())
+                .recentReward(recentReward)
+                .build();
+        return response;
+    }
     public CommonMissionResponseDto acceptMission(Long missionId) {
         Mission mission = missionRepository.findById(missionId)
                 .orElseThrow(() -> new UserException(ErrorCode.MISSION_NOT_FOUND));
@@ -167,6 +175,16 @@ public class MissionService {
 
                 }).sorted(Comparator.comparingDouble(MissionRankingResponseDto::getCompletionRate).reversed())
                 .toList();
+    public CustomPageResponse<CommonMissionResponseDto> getChildMissions(Long childId, int page) {
+        FamilyMember childMember = familyMemberRepository.findByUserIdAndStatusWithUser(childId, Status.JOINED)
+                .orElseThrow(() -> new UserException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+        Pageable pageable = PageRequest.of(page,
+                PaginationPolicy.CHALLENGE_LIST_PAGE_SIZE,
+                Sort.by(Sort.Direction.DESC, "createdDate")
+        );
+        Page<Mission> missions = missionRepository.findByChild(childMember.getUser(), pageable);
+        Page<CommonMissionResponseDto> responsePage = missions.map(CommonMissionResponseDto::of);
+        return CustomPageResponse.of(responsePage);
     }
 }
 
