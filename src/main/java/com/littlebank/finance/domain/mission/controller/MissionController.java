@@ -4,6 +4,7 @@ import com.littlebank.finance.domain.mission.domain.RankingRange;
 import com.littlebank.finance.domain.mission.domain.MissionCategory;
 import com.littlebank.finance.domain.mission.domain.MissionSubject;
 import com.littlebank.finance.domain.mission.domain.MissionType;
+import com.littlebank.finance.domain.mission.domain.RankingRange;
 import com.littlebank.finance.domain.mission.dto.request.CreateMissionRequestDto;
 import com.littlebank.finance.domain.mission.dto.request.MissionRecentRewardRequestDto;
 import com.littlebank.finance.domain.mission.dto.response.CommonMissionResponseDto;
@@ -66,7 +67,6 @@ public class MissionController {
         CustomPageResponse<CommonMissionResponseDto> response = missionService.getChildMissions(childId, page);
         return ResponseEntity.ok(response);
     }
-
     @Operation(summary = "(아이) 미션 수락하기 API", description = "아이가 미션 수락")
     @PatchMapping("/child/apply/accept/{missionId}")
     public ResponseEntity<CommonMissionResponseDto> acceptMission (

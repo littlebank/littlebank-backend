@@ -14,6 +14,7 @@ import com.littlebank.finance.domain.mission.dto.response.*;
 import com.littlebank.finance.domain.mission.dto.request.MissionRecentRewardRequestDto;
 import com.littlebank.finance.domain.mission.dto.response.CommonMissionResponseDto;
 import com.littlebank.finance.domain.mission.dto.response.MissionRecentRewardResponseDto;
+import com.littlebank.finance.domain.mission.dto.response.*;
 import com.littlebank.finance.domain.mission.exception.MissionException;
 import com.littlebank.finance.domain.notification.domain.Notification;
 import com.littlebank.finance.domain.notification.domain.NotificationType;
@@ -50,6 +51,7 @@ public class MissionService {
     private final FirebaseService firebaseService;
     private final FamilyMemberRepository familyMemberRepository;
     private final FriendRepository friendRepository;
+
     public List<CommonMissionResponseDto> createMission(CreateMissionRequestDto request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -89,6 +91,7 @@ public class MissionService {
                 .build();
         return response;
     }
+
     public CommonMissionResponseDto acceptMission(Long missionId) {
         Mission mission = missionRepository.findById(missionId)
                 .orElseThrow(() -> new UserException(ErrorCode.MISSION_NOT_FOUND));
@@ -111,6 +114,17 @@ public class MissionService {
         return CustomPageResponse.of(responsePage);
     }
 
+    public CustomPageResponse<CommonMissionResponseDto> getChildMissions(Long childId, int page) {
+        FamilyMember childMember = familyMemberRepository.findByUserIdAndStatusWithUser(childId, Status.JOINED)
+                .orElseThrow(() -> new UserException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
+        Pageable pageable = PageRequest.of(page,
+                PaginationPolicy.CHALLENGE_LIST_PAGE_SIZE,
+                Sort.by(Sort.Direction.DESC, "createdDate")
+        );
+        Page<Mission> missions = missionRepository.findByChild(childMember.getUser(), pageable);
+        Page<CommonMissionResponseDto> responsePage = missions.map(CommonMissionResponseDto::of);
+        return CustomPageResponse.of(responsePage);
+    }
     public List<MissionRankingResponseDto> getFriendRanking(Long userId, RankingRange range, int page) {
         LocalDate today = LocalDate.now();
         LocalDateTime startDay = range.calculateStartDay(today);
@@ -175,33 +189,5 @@ public class MissionService {
 
                 }).sorted(Comparator.comparingDouble(MissionRankingResponseDto::getCompletionRate).reversed())
                 .toList();
-    public CustomPageResponse<CommonMissionResponseDto> getChildMissions(Long childId, int page) {
-        FamilyMember childMember = familyMemberRepository.findByUserIdAndStatusWithUser(childId, Status.JOINED)
-                .orElseThrow(() -> new UserException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
-        Pageable pageable = PageRequest.of(page,
-                PaginationPolicy.CHALLENGE_LIST_PAGE_SIZE,
-                Sort.by(Sort.Direction.DESC, "createdDate")
-        );
-        Page<Mission> missions = missionRepository.findByChild(childMember.getUser(), pageable);
-        Page<CommonMissionResponseDto> responsePage = missions.map(CommonMissionResponseDto::of);
-        return CustomPageResponse.of(responsePage);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
