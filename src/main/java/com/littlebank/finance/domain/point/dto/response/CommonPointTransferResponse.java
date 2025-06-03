@@ -9,7 +9,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class CommonPointTransferResponse {
-    private Long transactionHistoryId;
+    private Long historyId;
     private Integer pointAmount;
     private String message;
     private Integer remainingPoint;
@@ -17,10 +17,10 @@ public class CommonPointTransferResponse {
 
     public static CommonPointTransferResponse of(TransactionHistory transactionHistory) {
         return CommonPointTransferResponse.builder()
-                .transactionHistoryId(transactionHistory.getId())
+                .historyId(transactionHistory.getId())
                 .pointAmount(transactionHistory.getPointAmount())
                 .message(transactionHistory.getMessage())
-                .remainingPoint(transactionHistory.getRemainingPoint())
+                .remainingPoint(transactionHistory.getSenderRemainingPoint())
                 .receiverId(transactionHistory.getReceiver().getId())
                 .build();
     }

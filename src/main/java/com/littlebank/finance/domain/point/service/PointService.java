@@ -10,6 +10,7 @@ import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
 import com.littlebank.finance.domain.point.dto.response.CommonPointTransferResponse;
 import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.PaymentInfoSaveResponse;
+import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryResponse;
 import com.littlebank.finance.domain.point.exception.PointException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
@@ -75,7 +76,6 @@ public class PointService {
     public CommonPointTransferResponse transferPoint(Long userId, PointTransferRequest request) {
         User sender = userRepository.findByIdWithLock(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
         if (sender.getPoint() < request.getPointAmount()) {
             throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
         }
@@ -88,14 +88,20 @@ public class PointService {
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
-                .pointAmount(request.getPointAmount())
-                .message(request.getMessage())
-                .remainingPoint(sender.getPoint())
-                .sender(sender)
-                .receiver(receiver)
-                .build()
+                        .pointAmount(request.getPointAmount())
+                        .message(request.getMessage())
+                        .senderRemainingPoint(sender.getPoint())
+                        .receiverRemainingPoint(receiver.getPoint())
+                        .sender(sender)
+                        .receiver(receiver)
+                        .build()
         );
 
         return CommonPointTransferResponse.of(transactionHistory);
+    }
+
+    @Transactional(readOnly = true)
+    public CustomPageResponse<ReceivePointHistoryResponse> getTransferHistory(Long userId, Pageable pageable) {
+        return CustomPageResponse.of(transactionHistoryRepository.findReceivedPointHistoryByUserId(userId, pageable));
     }
 }
