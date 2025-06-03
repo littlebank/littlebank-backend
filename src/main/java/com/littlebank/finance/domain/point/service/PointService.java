@@ -106,4 +106,9 @@ public class PointService {
     public CustomPageResponse<SendPointHistoryResponse> getSentPointHistory(Long userId, Pageable pageable) {
         return CustomPageResponse.of(transactionHistoryRepository.findSentPointHistoryByUserId(userId, pageable));
     }
+
+    @Transactional(readOnly = true)
+    public CustomPageResponse<LatestSentAccountResponse> getLatestSentAccount(Long userId, Pageable pageable) {
+        return CustomPageResponse.of(transactionHistoryRepository.findLatestSentAccountByUserId(userId, pageable));
+    }
 }
