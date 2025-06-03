@@ -2,18 +2,36 @@
 REPOSITORY=/home/ubuntu/
 cd $REPOSITORY/littlebank
 
-# docker compose up
-if [ "$DEPLOYMENT_GROUP_NAME" = "env-dev" ]; then
-  echo "> Stop & Remove spring_boot container only (dev)"
-  docker compose -f docker-compose.dev.yml rm -f spring_boot
+# Redis 컨테이너 실행 여부 확인 함수
+is_redis_running() {
+  docker compose -f "$1" ps --services --filter "status=running" | grep -q "^redis$"
+}
 
-  echo "> Rebuild & restart spring_boot service only (dev)"
-  docker compose -f docker-compose.dev.yml up --build -d spring_boot
+if [ "$DEPLOYMENT_GROUP_NAME" = "env-dev" ]; then
+  COMPOSE_FILE="docker-compose.dev.yml"
+
+  # Redis가 실행 중이지 않다면 redis도 재시작
+  if ! is_redis_running "$COMPOSE_FILE"; then
+    echo "> Redis is NOT running. Restarting redis (dev)"
+    docker compose -f "$COMPOSE_FILE" rm -f redis
+    docker compose -f "$COMPOSE_FILE" up --build -d redis
+  fi
+
+  # Spring Boot는 항상 재시작
+  echo "> Restarting spring_boot (dev)"
+  docker compose -f "$COMPOSE_FILE" rm -f spring_boot
+  docker compose -f "$COMPOSE_FILE" up --build -d spring_boot
 
 elif [ "$DEPLOYMENT_GROUP_NAME" = "env-prod" ]; then
-  echo "> Stop & Remove spring_boot container only (prod)"
-  docker compose -f docker-compose.prod.yml rm -f spring_boot
+  COMPOSE_FILE="docker-compose.prod.yml"
 
-  echo "> Rebuild & restart spring_boot service only (prod)"
-  docker compose -f docker-compose.prod.yml up --build -d spring_boot
+  if ! is_redis_running "$COMPOSE_FILE"; then
+    echo "> Redis is NOT running. Restarting redis (prod)"
+    docker compose -f "$COMPOSE_FILE" rm -f redis
+    docker compose -f "$COMPOSE_FILE" up --build -d redis
+  fi
+
+  echo "> Restarting spring_boot (prod)"
+  docker compose -f "$COMPOSE_FILE" rm -f spring_boot
+  docker compose -f "$COMPOSE_FILE" up --build -d spring_boot
 fi
