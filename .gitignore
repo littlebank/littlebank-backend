@@ -44,5 +44,6 @@ application-*.yml
 /src/main/resources/firebase
 
 ### test file ###
+/src/main/java/com/littlebank/finance/global/test
 /src/main/resources/static
 /src/main/resources/templates/test

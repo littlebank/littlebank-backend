@@ -1,11 +1,13 @@
 package com.littlebank.finance.domain.point.service;
 
-import com.littlebank.finance.global.portone.PortoneService;
 import com.littlebank.finance.domain.point.domain.Payment;
 import com.littlebank.finance.domain.point.domain.PaymentStatus;
+import com.littlebank.finance.domain.point.domain.TransactionHistory;
 import com.littlebank.finance.domain.point.domain.repository.PaymentRepository;
-import com.littlebank.finance.global.portone.dto.PortonePaymentDto;
+import com.littlebank.finance.domain.point.domain.repository.TransactionHistoryRepository;
 import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
+import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
+import com.littlebank.finance.domain.point.dto.response.CommonPointTransferResponse;
 import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.PaymentInfoSaveResponse;
 import com.littlebank.finance.domain.point.exception.PointException;
@@ -14,7 +16,8 @@ import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
-
+import com.littlebank.finance.global.portone.PortoneService;
+import com.littlebank.finance.global.portone.dto.PortonePaymentDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PointService {
     private final PaymentRepository paymentRepository;
+    private final TransactionHistoryRepository transactionHistoryRepository;
     private final UserRepository userRepository;
     private final PortoneService portoneService;
 
@@ -54,7 +58,6 @@ public class PointService {
                 .status(paymentDto.getStatus())
                 .paidAt(LocalDateTime.now())
                 .user(user)
-                .isDeleted(Boolean.FALSE)
                 .build());
 
         user.addPoint(payment.getAmount());
@@ -69,5 +72,30 @@ public class PointService {
         return CustomPageResponse.of(paymentRepository.findHistoryByUserId(userId, pageable));
     }
 
+    public CommonPointTransferResponse transferPoint(Long userId, PointTransferRequest request) {
+        User sender = userRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
+        if (sender.getPoint() < request.getPointAmount()) {
+            throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
+        }
+
+        User receiver = userRepository.findByIdWithLock(request.getReceiverId())
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        sender.sendPoint(request.getPointAmount());
+        receiver.receivePoint(request.getPointAmount());
+
+        TransactionHistory transactionHistory = transactionHistoryRepository.save(
+                TransactionHistory.builder()
+                .pointAmount(request.getPointAmount())
+                .message(request.getMessage())
+                .remainingPoint(sender.getPoint())
+                .sender(sender)
+                .receiver(receiver)
+                .build()
+        );
+
+        return CommonPointTransferResponse.of(transactionHistory);
+    }
 }

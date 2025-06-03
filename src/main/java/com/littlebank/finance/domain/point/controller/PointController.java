@@ -1,8 +1,10 @@
 package com.littlebank.finance.domain.point.controller;
 
 import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
+import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
 import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.PaymentInfoSaveResponse;
+import com.littlebank.finance.domain.point.dto.response.CommonPointTransferResponse;
 import com.littlebank.finance.domain.point.service.PointService;
 
 import com.littlebank.finance.global.common.CustomPageResponse;
@@ -45,6 +47,16 @@ public class PointController {
     ) {
         Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.GENERAL_PAGE_SIZE);
         CustomPageResponse<PaymentHistoryResponse> response = pointService.getPaymentHistory(customUserDetails.getId(), pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "포인트 이체 API")
+    @PostMapping("/transfer")
+    public ResponseEntity<CommonPointTransferResponse> transferPoint(
+            @RequestBody @Valid PointTransferRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        CommonPointTransferResponse response = pointService.transferPoint(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
 }
