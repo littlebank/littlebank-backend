@@ -14,7 +14,6 @@ import com.littlebank.finance.domain.mission.dto.response.*;
 import com.littlebank.finance.domain.mission.dto.request.MissionRecentRewardRequestDto;
 import com.littlebank.finance.domain.mission.dto.response.CommonMissionResponseDto;
 import com.littlebank.finance.domain.mission.dto.response.MissionRecentRewardResponseDto;
-import com.littlebank.finance.domain.mission.dto.response.*;
 import com.littlebank.finance.domain.mission.exception.MissionException;
 import com.littlebank.finance.domain.notification.domain.Notification;
 import com.littlebank.finance.domain.notification.domain.NotificationType;
@@ -125,12 +124,19 @@ public class MissionService {
         Page<CommonMissionResponseDto> responsePage = missions.map(CommonMissionResponseDto::of);
         return CustomPageResponse.of(responsePage);
     }
+
     public List<MissionRankingResponseDto> getFriendRanking(Long userId, RankingRange range, int page) {
         LocalDate today = LocalDate.now();
         LocalDateTime startDay = range.calculateStartDay(today);
         LocalDateTime endDay = range.calculateEndDay(today);
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        FriendInfoResponse self = FriendInfoResponse.ofSelf(user); // 별도 팩토리 메서드 필요
+
         List<FriendInfoResponse> friends = friendRepository.findFriendsByUserId(userId);
+        friends.add(self);
+
         List<Long> friendIds = friends.stream().map(f -> f.getUserInfo().getUserId()).toList();
         List<MissionStatDto> stats = missionRepository.getMissionStatsByPeriod(friendIds, startDay, endDay);
 
@@ -150,6 +156,8 @@ public class MissionService {
 
                     int habitTotal = 0;
                     int habitCompleted = 0;
+                    int learningTotal = 0;
+                    int learningCompleted = 0;
                     int total = 0;
                     int completed = 0;
 
@@ -165,6 +173,8 @@ public class MissionService {
                             if (s.getStatus() == MissionStatus.ACHIEVEMENT) {
                                 learningStatMap.get(s.getSubject())[1] += count;
                             }
+                            learningTotal += count;
+                            if (isCompleted) learningCompleted += count;
                         } else if (s.getCategory() == MissionCategory.HABIT) {
                             habitTotal += count;
                             if (isCompleted) habitCompleted += count;
@@ -183,9 +193,10 @@ public class MissionService {
                                 return LearningMissionStats.of(entry.getKey(), subjectTotal, subjectCompleted, subjectRate);
                             }).toList();
 
+                    double learningRate = learningTotal == 0 ? 0.0 : Math.round((learningCompleted * 100.0 / learningTotal) * 100) / 100.0;
                     double totalRate = total == 0 ? 0.0 : Math.round((completed * 100.0 / total) * 100) / 100.0;
                     double habitRate = habitTotal == 0 ? 0.0 : Math.round((habitCompleted * 100.0 / habitTotal) * 100) / 100.0;
-                    return MissionRankingResponseDto.of(friendUserId, friendId, friendName, isBestFriend, total, completed, totalRate, learningStats, habitTotal, habitCompleted, habitRate);
+                    return MissionRankingResponseDto.of(friendUserId, friendId, friendName, isBestFriend, total, completed, totalRate, learningStats, habitTotal, habitCompleted, habitRate, learningTotal, learningCompleted, learningRate);
 
                 }).sorted(Comparator.comparingDouble(MissionRankingResponseDto::getCompletionRate).reversed())
                 .toList();

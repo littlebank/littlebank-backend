@@ -12,4 +12,12 @@ public class CommonFriendInfoResponse {
     private String customName;
     private Boolean isBlocked;
     private Boolean isBestFriend;
+    public static CommonFriendInfoResponse ofMe() {
+        return new CommonFriendInfoResponse(
+                null,
+                "나",
+                false,
+                false
+        );
+    }
 }
