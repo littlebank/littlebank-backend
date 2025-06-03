@@ -2,35 +2,36 @@
 REPOSITORY=/home/ubuntu/
 cd $REPOSITORY/littlebank
 
-# 디스크 용량 확인 및 정리
-USED=$(df / | grep / | awk '{ print $5 }' | sed 's/%//g')
+# Redis 컨테이너 실행 여부 확인 함수
+is_redis_running() {
+  docker compose -f "$1" ps --services --filter "status=running" | grep -q "^redis$"
+}
 
-if [ "$USED" -gt 90 ]; then
-  echo "> 디스크 용량 부족 감지 ($USED%). 캐시 정리 시작..."
-
-  echo "> Docker 시스템 캐시 삭제"
-  docker system prune -af
-
-  echo "> Gradle 캐시 삭제"
-  rm -rf ~/.gradle/caches
-
-  echo "> 캐시 정리 완료"
-else
-  echo "> 디스크 용량 정상 ($USED%). 캐시 정리 생략"
-fi
-
-# docker compose up
 if [ "$DEPLOYMENT_GROUP_NAME" = "env-dev" ]; then
-  echo "> Stop & Remove spring_boot container only (dev)"
-  docker compose -f docker-compose.dev.yml rm -f spring_boot
+  COMPOSE_FILE="docker-compose.dev.yml"
 
-  echo "> Rebuild & restart spring_boot service only (dev)"
-  docker compose -f docker-compose.dev.yml up --build -d spring_boot
+  # Redis가 실행 중이지 않다면 redis도 재시작
+  if ! is_redis_running "$COMPOSE_FILE"; then
+    echo "> Redis is NOT running. Restarting redis (dev)"
+    docker compose -f "$COMPOSE_FILE" rm -f redis
+    docker compose -f "$COMPOSE_FILE" up --build -d redis
+  fi
+
+  # Spring Boot는 항상 재시작
+  echo "> Restarting spring_boot (dev)"
+  docker compose -f "$COMPOSE_FILE" rm -f spring_boot
+  docker compose -f "$COMPOSE_FILE" up --build -d spring_boot
 
 elif [ "$DEPLOYMENT_GROUP_NAME" = "env-prod" ]; then
-  echo "> Stop & Remove spring_boot container only (prod)"
-  docker compose -f docker-compose.prod.yml rm -f spring_boot
+  COMPOSE_FILE="docker-compose.prod.yml"
 
-  echo "> Rebuild & restart spring_boot service only (prod)"
-  docker compose -f docker-compose.prod.yml up --build -d spring_boot
+  if ! is_redis_running "$COMPOSE_FILE"; then
+    echo "> Redis is NOT running. Restarting redis (prod)"
+    docker compose -f "$COMPOSE_FILE" rm -f redis
+    docker compose -f "$COMPOSE_FILE" up --build -d redis
+  fi
+
+  echo "> Restarting spring_boot (prod)"
+  docker compose -f "$COMPOSE_FILE" rm -f spring_boot
+  docker compose -f "$COMPOSE_FILE" up --build -d spring_boot
 fi
