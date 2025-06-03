@@ -4,6 +4,7 @@ import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.friend.domain.repository.CustomFriendRepository;
 import com.littlebank.finance.domain.friend.dto.response.CommonFriendInfoResponse;
 import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
+import com.littlebank.finance.domain.mission.domain.QMission;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.littlebank.finance.domain.user.dto.response.CommonUserInfoResponse;
 import com.querydsl.core.types.Projections;
@@ -25,7 +26,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
     private QUser u = user;
     private QFriend f = friend;
     private QFriend f1 = new QFriend("f1");
-
+    private QMission m = QMission.mission;
     @Override
     public Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable) {
         List<FriendInfoResponse> results =
@@ -106,4 +107,39 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
 
         return new PageImpl<>(results, pageable, results.size());
     }
+     public List<FriendInfoResponse> findFriendsByUserId(Long userId) {
+        return queryFactory.select(Projections.constructor(
+                        FriendInfoResponse.class,
+                        Projections.constructor(
+                                CommonUserInfoResponse.class,
+                                u.id,
+                                u.name,
+                                u.rrn,
+                                u.statusMessage,
+                                u.profileImagePath,
+                                u.role
+                        ),
+                        Projections.constructor(
+                                CommonFriendInfoResponse.class,
+                                f.id,
+                                f.customName,
+                                f.isBlocked,
+                                f.isBestFriend
+                        )
+        ))
+                .from(f)
+                .join(u).on(u.id.eq(f.toUser.id))
+                .where (
+                        f.fromUser.id.eq(userId),
+                        JPAExpressions.selectOne()
+                                .from(f1)
+                                .where(
+                                        f1.fromUser.id.eq(f.toUser.id),
+                                        f1.toUser.id.eq(userId),
+                                        f1.isBlocked.isTrue()
+                                )
+                                .notExists()
+                )
+                .fetch();
+     }
 }

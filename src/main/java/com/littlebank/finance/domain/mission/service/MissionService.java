@@ -4,13 +4,12 @@ package com.littlebank.finance.domain.mission.service;
 import com.littlebank.finance.domain.family.domain.FamilyMember;
 import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.family.domain.repository.FamilyMemberRepository;
-import com.littlebank.finance.domain.family.domain.repository.FamilyRepository;
-import com.littlebank.finance.domain.mission.domain.Mission;
-import com.littlebank.finance.domain.mission.domain.MissionStatus;
+import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
+import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
+import com.littlebank.finance.domain.mission.domain.*;
 import com.littlebank.finance.domain.mission.domain.repository.MissionRepository;
 import com.littlebank.finance.domain.mission.dto.request.CreateMissionRequestDto;
-import com.littlebank.finance.domain.mission.dto.response.CommonMissionResponseDto;
-import com.littlebank.finance.domain.mission.dto.response.MissionRecentRewardResponseDto;
+import com.littlebank.finance.domain.mission.dto.response.*;
 import com.littlebank.finance.domain.mission.exception.MissionException;
 import com.littlebank.finance.domain.notification.domain.Notification;
 import com.littlebank.finance.domain.notification.domain.NotificationType;
@@ -31,10 +30,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -46,7 +45,7 @@ public class MissionService {
     private final NotificationRepository notificationRepository;
     private final FirebaseService firebaseService;
     private final FamilyMemberRepository familyMemberRepository;
-
+    private final FriendRepository friendRepository;
     public List<CommonMissionResponseDto> createMission(CreateMissionRequestDto request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -96,11 +95,95 @@ public class MissionService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         Pageable pageable = PageRequest.of(page,
-                PaginationPolicy.CHALLENGE_LIST_PAGE_SIZE,
+                PaginationPolicy.MISSION_LIST_PAGE_SIZE,
                 Sort.by(Sort.Direction.DESC, "createdDate")
         );
         Page<Mission> missions = missionRepository.findByChild(user, pageable);
         Page<CommonMissionResponseDto> responsePage = missions.map(CommonMissionResponseDto::of);
         return CustomPageResponse.of(responsePage);
     }
+
+    public List<MissionRankingResponseDto> getFriendRanking(Long userId, RankingRange range, int page) {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startDay = range.calculateStartDay(today);
+        LocalDateTime endDay = range.calculateEndDay(today);
+
+        List<FriendInfoResponse> friends = friendRepository.findFriendsByUserId(userId);
+        List<Long> friendIds = friends.stream().map(f -> f.getUserInfo().getUserId()).toList();
+        List<MissionStatDto> stats = missionRepository.getMissionStatsByPeriod(friendIds, startDay, endDay);
+
+        Map<Long, List<MissionStatDto>> grouped = stats.stream()
+                .collect(Collectors.groupingBy(MissionStatDto::getChildId));
+
+        return friends.stream().map(friend -> {
+                    Long friendUserId = friend.getUserInfo().getUserId();
+                    Long friendId = friend.getFriendInfo().getFriendId();
+                    String friendName = friend.getFriendInfo().getCustomName();
+                    boolean isBestFriend = friend.getFriendInfo().getIsBestFriend();
+
+                    List<MissionStatDto> userStats = grouped.getOrDefault(friendUserId, List.of());
+
+                    // 누적 계산용 Map
+                    Map<MissionSubject, int[]> learningStatMap = new EnumMap<>(MissionSubject.class);
+
+                    int habitTotal = 0;
+                    int habitCompleted = 0;
+                    int total = 0;
+                    int completed = 0;
+
+                    for (MissionStatDto s : userStats) {
+                        int count = s.getCount();
+                        boolean isCountable = s.getStatus() == MissionStatus.ACHIEVEMENT || s.getStatus() == MissionStatus.ACCEPT;
+                        boolean isCompleted = s.getStatus() == MissionStatus.ACHIEVEMENT;
+                        if (!isCountable) continue;
+
+                        if (s.getCategory() == MissionCategory.LEARNING && s.getSubject() != null) {
+                            learningStatMap.putIfAbsent(s.getSubject(), new int[]{0, 0}); // [total, completed]
+                            learningStatMap.get(s.getSubject())[0] += count;
+                            if (s.getStatus() == MissionStatus.ACHIEVEMENT) {
+                                learningStatMap.get(s.getSubject())[1] += count;
+                            }
+                        } else if (s.getCategory() == MissionCategory.HABIT) {
+                            habitTotal += count;
+                            if (isCompleted) habitCompleted += count;
+                        }
+
+                        total += count;
+                        if (isCompleted) completed += count;
+                    }
+
+                    List<LearningMissionStats> learningStats = learningStatMap.entrySet().stream()
+                            .map(entry -> {
+                                int subjectTotal = entry.getValue()[0];
+                                int subjectCompleted = entry.getValue()[1];
+                                double subjectRate = subjectTotal == 0 ? 0.0 : Math.round((subjectCompleted * 100.0 / subjectTotal) * 100) / 100.0;
+
+                                return LearningMissionStats.of(entry.getKey(), subjectTotal, subjectCompleted, subjectRate);
+                            }).toList();
+
+                    double totalRate = total == 0 ? 0.0 : Math.round((completed * 100.0 / total) * 100) / 100.0;
+                    double habitRate = habitTotal == 0 ? 0.0 : Math.round((habitCompleted * 100.0 / habitTotal) * 100) / 100.0;
+                    return MissionRankingResponseDto.of(friendUserId, friendId, friendName, isBestFriend, total, completed, totalRate, learningStats, habitTotal, habitCompleted, habitRate);
+
+                }).sorted(Comparator.comparingDouble(MissionRankingResponseDto::getCompletionRate).reversed())
+                .toList();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
