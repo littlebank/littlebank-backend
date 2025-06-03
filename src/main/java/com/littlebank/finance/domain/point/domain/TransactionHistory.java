@@ -21,7 +21,9 @@ public class TransactionHistory extends BaseEntity {
     @Column(length = 100, nullable = false)
     private String message;
     @Column(nullable = false)
-    private Integer remainingPoint;
+    private Integer senderRemainingPoint;
+    @Column(nullable = false)
+    private Integer receiverRemainingPoint;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
     private User sender;
@@ -30,10 +32,11 @@ public class TransactionHistory extends BaseEntity {
     private User receiver;
 
     @Builder
-    public TransactionHistory(Integer pointAmount, String message, Integer remainingPoint, User sender, User receiver) {
+    public TransactionHistory(Integer pointAmount, String message, Integer senderRemainingPoint, Integer receiverRemainingPoint, User sender, User receiver) {
         this.pointAmount = pointAmount;
         this.message = message;
-        this.remainingPoint = remainingPoint;
+        this.senderRemainingPoint = senderRemainingPoint;
+        this.receiverRemainingPoint = receiverRemainingPoint;
         this.sender = sender;
         this.receiver = receiver;
     }

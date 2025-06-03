@@ -75,7 +75,6 @@ public class PointService {
     public CommonPointTransferResponse transferPoint(Long userId, PointTransferRequest request) {
         User sender = userRepository.findByIdWithLock(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-
         if (sender.getPoint() < request.getPointAmount()) {
             throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
         }
@@ -88,12 +87,13 @@ public class PointService {
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
-                .pointAmount(request.getPointAmount())
-                .message(request.getMessage())
-                .remainingPoint(sender.getPoint())
-                .sender(sender)
-                .receiver(receiver)
-                .build()
+                        .pointAmount(request.getPointAmount())
+                        .message(request.getMessage())
+                        .senderRemainingPoint(sender.getPoint())
+                        .receiverRemainingPoint(receiver.getPoint())
+                        .sender(sender)
+                        .receiver(receiver)
+                        .build()
         );
 
         return CommonPointTransferResponse.of(transactionHistory);
