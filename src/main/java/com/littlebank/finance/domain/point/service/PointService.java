@@ -7,10 +7,7 @@ import com.littlebank.finance.domain.point.domain.repository.PaymentRepository;
 import com.littlebank.finance.domain.point.domain.repository.TransactionHistoryRepository;
 import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
 import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
-import com.littlebank.finance.domain.point.dto.response.CommonPointTransferResponse;
-import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
-import com.littlebank.finance.domain.point.dto.response.PaymentInfoSaveResponse;
-import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryResponse;
+import com.littlebank.finance.domain.point.dto.response.*;
 import com.littlebank.finance.domain.point.exception.PointException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
@@ -101,7 +98,12 @@ public class PointService {
     }
 
     @Transactional(readOnly = true)
-    public CustomPageResponse<ReceivePointHistoryResponse> getTransferHistory(Long userId, Pageable pageable) {
+    public CustomPageResponse<ReceivePointHistoryResponse> getReceivedPointHistory(Long userId, Pageable pageable) {
         return CustomPageResponse.of(transactionHistoryRepository.findReceivedPointHistoryByUserId(userId, pageable));
+    }
+
+    @Transactional(readOnly = true)
+    public CustomPageResponse<SendPointHistoryResponse> getSentPointHistory(Long userId, Pageable pageable) {
+        return CustomPageResponse.of(transactionHistoryRepository.findSentPointHistoryByUserId(userId, pageable));
     }
 }
