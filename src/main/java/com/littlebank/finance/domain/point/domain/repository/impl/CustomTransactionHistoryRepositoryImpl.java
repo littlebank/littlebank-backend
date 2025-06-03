@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.point.domain.repository.impl;
 
 import com.littlebank.finance.domain.point.domain.QTransactionHistory;
 import com.littlebank.finance.domain.point.domain.repository.CustomTransactionHistoryRepository;
+import com.littlebank.finance.domain.point.dto.response.LatestSentAccountResponse;
 import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.SendPointHistoryResponse;
 import com.littlebank.finance.domain.user.domain.QUser;
@@ -59,6 +60,29 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                         th.senderRemainingPoint,
                         receiver.id,
                         receiver.name,
+                        th.createdDate
+                ))
+                .from(th)
+                .join(th.receiver, receiver)
+                .where(th.sender.id.eq(userId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(th.createdDate.desc())
+                .fetch();
+
+        return new PageImpl<>(results, pageable, results.size());
+    }
+
+    @Override
+    public Page<LatestSentAccountResponse> findLatestSentAccountByUserId(Long userId, Pageable pageable) {
+        List<LatestSentAccountResponse> results = queryFactory
+                .select(Projections.constructor(
+                        LatestSentAccountResponse.class,
+                        receiver.id,
+                        receiver.name,
+                        receiver.bankName,
+                        receiver.bankCode,
+                        receiver.bankAccount,
                         th.createdDate
                 ))
                 .from(th)

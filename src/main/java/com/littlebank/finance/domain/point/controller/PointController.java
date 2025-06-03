@@ -81,4 +81,16 @@ public class PointController {
         CustomPageResponse<SendPointHistoryResponse> response = pointService.getSentPointHistory(customUserDetails.getId(), pageable);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "최근 포인트를 보낸 계좌 조회 API")
+    @GetMapping("/transfer/latest/account")
+    public ResponseEntity<CustomPageResponse<LatestSentAccountResponse>> getLatestSentAccount(
+            @Parameter(description = "페이지 번호, 0부터 시작")
+            @RequestParam(name = "pageNumber") Integer pageNumber,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.GENERAL_PAGE_SIZE);
+        CustomPageResponse<LatestSentAccountResponse> response = pointService.getLatestSentAccount(customUserDetails.getId(), pageable);
+        return ResponseEntity.ok(response);
+    }
 }
