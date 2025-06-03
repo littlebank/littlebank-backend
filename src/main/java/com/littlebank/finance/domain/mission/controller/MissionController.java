@@ -1,16 +1,19 @@
 package com.littlebank.finance.domain.mission.controller;
 
+import com.littlebank.finance.domain.mission.domain.RankingRange;
 import com.littlebank.finance.domain.mission.domain.MissionCategory;
 import com.littlebank.finance.domain.mission.domain.MissionSubject;
 import com.littlebank.finance.domain.mission.domain.MissionType;
 import com.littlebank.finance.domain.mission.dto.request.CreateMissionRequestDto;
 import com.littlebank.finance.domain.mission.dto.request.MissionRecentRewardRequestDto;
 import com.littlebank.finance.domain.mission.dto.response.CommonMissionResponseDto;
+import com.littlebank.finance.domain.mission.dto.response.MissionRankingResponseDto;
 import com.littlebank.finance.domain.mission.dto.response.MissionRecentRewardResponseDto;
 import com.littlebank.finance.domain.mission.service.MissionService;
 import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api-user/mission")
@@ -81,4 +85,17 @@ public class MissionController {
         CustomPageResponse<CommonMissionResponseDto> response = missionService.getMyMissions(user.getId(), page);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "(아이) 미션 랭킹 조회")
+    @GetMapping("/child/ranking")
+    public ResponseEntity<Map<String, List<MissionRankingResponseDto>>> getMissionRanking (
+            @Parameter(description = "페이지 번호, 0부터 시작")
+            @RequestParam(name = "pageNumber", defaultValue = "0") int page,
+            @RequestParam(defaultValue = "WEEK") RankingRange range,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        List<MissionRankingResponseDto> response = missionService.getFriendRanking(user.getId(), range, page);
+        return ResponseEntity.ok(Map.of(range.name(), response));
+    }
+
 }

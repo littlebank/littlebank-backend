@@ -10,4 +10,5 @@ public class PaginationPolicy {
 
     // Challenge
     public static final int CHALLENGE_LIST_PAGE_SIZE = 10;
+    public static final int MISSION_LIST_PAGE_SIZE = 10;
 }
