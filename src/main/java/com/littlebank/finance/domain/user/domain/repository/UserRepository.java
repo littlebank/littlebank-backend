@@ -18,4 +18,5 @@ public interface UserRepository extends JpaRepository<User, Long>, CustomUserRep
     @Query("SELECT u FROM User u WHERE u.id = :id")
     Optional<User> findByIdWithLock(@Param("id") Long userId);
     Optional<User> findByEmail(String email);
+    Optional<User> findByBankCodeAndBankAccount(String bankCode, String account);
 }

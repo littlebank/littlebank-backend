@@ -40,7 +40,7 @@ public class User extends BaseEntity {
     private String bankName;
     @Column(length = 3)
     private String bankCode;
-    @Column(length = 20)
+    @Column(length = 20, unique = true)
     private String bankAccount;
     @Column(length = 150)
     private String profileImagePath;
