@@ -120,4 +120,16 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "계좌정보 유저 조회 API")
+    @GetMapping("/search/by-account")
+    public ResponseEntity<CommonUserInfoResponse> searchUserByAccount(
+            @Parameter(description = "은행 고유 코드")
+            @RequestParam(value = "bankCode") String bankCode,
+            @Parameter(description = "계좌 번호")
+            @RequestParam(value = "account") String account
+    ) {
+        CommonUserInfoResponse response = userService.searchUserByAccount(bankCode, account);
+        return ResponseEntity.ok(response);
+    }
+
 }

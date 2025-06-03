@@ -99,6 +99,14 @@ public class UserService {
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
     }
 
+    @Transactional(readOnly = true)
+    public CommonUserInfoResponse searchUserByAccount(String bankCode, String account) {
+        User target = userRepository.findByBankCodeAndBankAccount(bankCode, account)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        return CommonUserInfoResponse.of(target);
+    }
+
     private void verifyDuplicatedEmail(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new UserException(ErrorCode.EMAIL_DUPLICATED);
