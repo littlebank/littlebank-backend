@@ -10,6 +10,7 @@ import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
 import com.littlebank.finance.domain.point.dto.response.CommonPointTransferResponse;
 import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.PaymentInfoSaveResponse;
+import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryResponse;
 import com.littlebank.finance.domain.point.exception.PointException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
@@ -97,5 +98,10 @@ public class PointService {
         );
 
         return CommonPointTransferResponse.of(transactionHistory);
+    }
+
+    @Transactional(readOnly = true)
+    public CustomPageResponse<ReceivePointHistoryResponse> getTransferHistory(Long userId, Pageable pageable) {
+        return CustomPageResponse.of(transactionHistoryRepository.findReceivedPointHistoryByUserId(userId, pageable));
     }
 }
