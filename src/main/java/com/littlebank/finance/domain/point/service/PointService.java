@@ -1,17 +1,19 @@
 package com.littlebank.finance.domain.point.service;
 
-import com.littlebank.finance.domain.point.domain.Payment;
-import com.littlebank.finance.domain.point.domain.PaymentStatus;
-import com.littlebank.finance.domain.point.domain.TransactionHistory;
+import com.littlebank.finance.domain.point.domain.*;
 import com.littlebank.finance.domain.point.domain.repository.PaymentRepository;
+import com.littlebank.finance.domain.point.domain.repository.RefundRepository;
 import com.littlebank.finance.domain.point.domain.repository.TransactionHistoryRepository;
 import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
+import com.littlebank.finance.domain.point.dto.request.PointRefundRequest;
 import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
 import com.littlebank.finance.domain.point.dto.response.*;
 import com.littlebank.finance.domain.point.exception.PointException;
 import com.littlebank.finance.domain.user.domain.User;
+import com.littlebank.finance.domain.user.domain.UserRole;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.business.PointPolicy;
 import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.portone.PortoneService;
@@ -28,8 +30,9 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PointService {
     private final PaymentRepository paymentRepository;
-    private final TransactionHistoryRepository transactionHistoryRepository;
     private final UserRepository userRepository;
+    private final TransactionHistoryRepository transactionHistoryRepository;
+    private final RefundRepository refundRepository;
     private final PortoneService portoneService;
 
     public PaymentInfoSaveResponse verifyAndSave(Long userId, PaymentInfoSaveRequest request) {
@@ -110,5 +113,33 @@ public class PointService {
     @Transactional(readOnly = true)
     public CustomPageResponse<LatestSentAccountResponse> getLatestSentAccount(Long userId, Pageable pageable) {
         return CustomPageResponse.of(transactionHistoryRepository.findLatestSentAccountByUserId(userId, pageable));
+    }
+
+    public PointRefundResponse refundPoint(Long userId, PointRefundRequest request) {
+        User user = userRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        if (user.getPoint() < request.getExchangeAmount()) {
+            throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
+        }
+
+        user.exchangePointToMoney(request.getExchangeAmount());
+
+        int processedAmount = request.getExchangeAmount();
+        if (user.getRole() == UserRole.CHILD &&
+                request.getExchangeAmount() < PointPolicy.EXCHANGE_FEE_EXEMPTION_AMOUNT) {
+            processedAmount -= PointPolicy.CHILD_COMMISSION;
+        }
+
+        Refund refund = refundRepository.save(
+                Refund.builder()
+                        .requestedAmount(request.getExchangeAmount())
+                        .processedAmount(processedAmount)
+                        .remainingPoint(user.getPoint())
+                        .status(RefundStatus.WAIT)
+                        .user(user)
+                        .build()
+        );
+
+        return PointRefundResponse.of(refund);
     }
 }

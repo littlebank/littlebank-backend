@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.point.controller;
 
 import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
+import com.littlebank.finance.domain.point.dto.request.PointRefundRequest;
 import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
 import com.littlebank.finance.domain.point.dto.response.*;
 import com.littlebank.finance.domain.point.service.PointService;
@@ -15,6 +16,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +35,7 @@ public class PointController {
         @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         PaymentInfoSaveResponse response = pointService.verifyAndSave(customUserDetails.getId(), request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "포인트 충전 내역 조회 API")
@@ -92,5 +94,15 @@ public class PointController {
         Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.GENERAL_PAGE_SIZE);
         CustomPageResponse<LatestSentAccountResponse> response = pointService.getLatestSentAccount(customUserDetails.getId(), pageable);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "포인트 꺼내기 API")
+    @PostMapping("/refund")
+    public ResponseEntity<PointRefundResponse> refundPoint(
+            @RequestBody @Valid PointRefundRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        PointRefundResponse response = pointService.refundPoint(customUserDetails.getId(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

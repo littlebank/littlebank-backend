@@ -32,7 +32,6 @@ public class Payment extends BaseEntity {
     @Column(length = 50)
     private String pgProvider;  // 이용한 결제대행사(kakaopay, tosspay 등)
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
     private PaymentStatus status;
     private Integer remainingPoint;  // 결제 시점 남은 포인트
     private LocalDateTime paidAt;
