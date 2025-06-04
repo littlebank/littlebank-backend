@@ -135,4 +135,8 @@ public class User extends BaseEntity {
     public void receivePoint(Integer point) {
         this.point += point;
     }
+
+    public void exchangePointToMoney(Integer point) {
+        this.point -= point;
+    }
 }
