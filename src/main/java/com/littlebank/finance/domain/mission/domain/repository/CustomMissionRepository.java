@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CustomMissionRepository {
-    List<MissionStatDto> getMissionStatsByPeriod(List<Long> friendIds, LocalDateTime start, LocalDateTime end);
-
     Integer findRecentReward(Long childId, MissionType type, MissionCategory category, MissionSubject subject);
+    List<MissionStatDto> getMissionStatsByPeriod(List<Long> friendIds, LocalDateTime start, LocalDateTime end);
 }

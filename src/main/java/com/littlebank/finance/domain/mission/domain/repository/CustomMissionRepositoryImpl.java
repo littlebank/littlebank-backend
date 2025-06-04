@@ -6,6 +6,7 @@ import com.littlebank.finance.domain.mission.dto.response.MissionStatDto;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.littlebank.finance.domain.mission.domain.*;
 import com.littlebank.finance.domain.mission.dto.response.MissionRecentRewardResponseDto;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +20,22 @@ public class CustomMissionRepositoryImpl implements CustomMissionRepository{
     private QMission m = QMission.mission;
     private QUser u = QUser.user;
     private final JPAQueryFactory queryFactory;
+
+
+    @Override
+    public Integer findRecentReward(Long childId, MissionType type, MissionCategory category, MissionSubject subject) {
+        Mission result = queryFactory
+                .selectFrom(m)
+                .where(m.child.id.eq(childId),
+                        m.type.eq(type),
+                        m.status.eq(MissionStatus.ACHIEVEMENT),
+                        m.category.eq(category),
+                        category == MissionCategory.LEARNING ? m.subject.eq(subject) : null)
+                .orderBy(m.endDate.desc())
+                .fetchFirst();
+        return result != null ? result.getReward() : 0;
+    }
+
     @Override
     public List<MissionStatDto> getMissionStatsByPeriod(List<Long> friendIds, LocalDateTime start, LocalDateTime end) {
         return queryFactory
@@ -36,18 +53,5 @@ public class CustomMissionRepositoryImpl implements CustomMissionRepository{
                 )
                 .groupBy(m.child.id, m.category, m.subject, m.status)
                 .fetch();
-
-    @Override
-    public Integer findRecentReward(Long childId, MissionType type, MissionCategory category, MissionSubject subject) {
-        Mission result = queryFactory
-                .selectFrom(m)
-                .where(m.child.id.eq(childId),
-                        m.type.eq(type),
-                        m.status.eq(MissionStatus.ACHIEVEMENT),
-                        m.category.eq(category),
-                        category == MissionCategory.LEARNING ? m.subject.eq(subject) : null)
-                .orderBy(m.endDate.desc())
-                .fetchFirst();
-        return result != null ? result.getReward() : 0;
     }
 }

@@ -33,4 +33,16 @@ public class CommonUserInfoResponse {
                 .role(user.getRole())
                 .build();
     }
+
+    public CommonUserInfoResponse(Long userId, String realName, String rrn, String statusMessage, String profileImagePath, UserRole role) {
+        this.userId = userId;
+        this.realName = realName;
+        this.rrn = rrn;
+        this.statusMessage = statusMessage;
+        this.profileImagePath = profileImagePath;
+        this.role = role;
+        this.backName = null;
+        this.backCode = null;
+        this.backAccount = null;
+    }
 }

@@ -22,6 +22,10 @@ public class MissionRankingResponseDto {
     private int habitCompletedCount;
     private double habitCompletionRate;
 
+    private int learningMissionCount;
+    private int learningCompletedCount;
+    private double learningCompletionRate;
+
     public static MissionRankingResponseDto of (
             Long friendUserId,
             Long friendId,
@@ -33,7 +37,10 @@ public class MissionRankingResponseDto {
             List<LearningMissionStats> learningStats,
             int habitTotal,
             int habitCompleted,
-            double habitCompletionRate
+            double habitCompletionRate,
+            int learningTotal,
+            int learningCompleted,
+            double learningCompletionRate
     ) {
         return MissionRankingResponseDto.builder()
                 .friendUserId(friendUserId)
@@ -47,6 +54,9 @@ public class MissionRankingResponseDto {
                 .habitMissionCount(habitTotal)
                 .habitCompletedCount(habitCompleted)
                 .habitCompletionRate(habitCompletionRate)
+                .learningMissionCount(learningTotal)
+                .learningCompletedCount(learningCompleted)
+                .learningCompletionRate(learningCompletionRate)
                 .build();
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import static com.littlebank.finance.domain.friend.domain.QFriend.friend;
+import static com.littlebank.finance.domain.mission.domain.QMission.mission;
 import static com.littlebank.finance.domain.user.domain.QUser.user;
 
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
     private QUser u = user;
     private QFriend f = friend;
     private QFriend f1 = new QFriend("f1");
-    private QMission m = QMission.mission;
+    private QMission m = mission;
     @Override
     public Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable) {
         List<FriendInfoResponse> results =
@@ -113,13 +114,13 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
 
         return new PageImpl<>(results, pageable, results.size());
     }
-     public List<FriendInfoResponse> findFriendsByUserId(Long userId) {
+    public List<FriendInfoResponse> findFriendsByUserId(Long userId) {
         return queryFactory.select(Projections.constructor(
                         FriendInfoResponse.class,
                         Projections.constructor(
                                 CommonUserInfoResponse.class,
-                                u.id,
-                                u.name,
+                                u.id.as("userId"),
+                                u.name.as("realName"),
                                 u.rrn,
                                 u.statusMessage,
                                 u.profileImagePath,
@@ -132,7 +133,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                 f.isBlocked,
                                 f.isBestFriend
                         )
-        ))
+                ))
                 .from(f)
                 .join(u).on(u.id.eq(f.toUser.id))
                 .where (
@@ -147,5 +148,5 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                 .notExists()
                 )
                 .fetch();
-     }
+    }
 }
