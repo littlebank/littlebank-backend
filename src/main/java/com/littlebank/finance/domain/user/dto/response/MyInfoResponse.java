@@ -23,6 +23,7 @@ public class MyInfoResponse {
     private String bankCode;
     private String bankAccount;
     private String profileImagePath;
+    private Integer point;
     private UserRole role;
     private Authority authority;
     private boolean isSubscribe;
@@ -40,6 +41,7 @@ public class MyInfoResponse {
                 .bankCode(user.getBankCode())
                 .bankAccount(user.getBankAccount())
                 .profileImagePath(user.getProfileImagePath())
+                .point(user.getPoint())
                 .role(user.getRole())
                 .authority(user.getAuthority())
                 .isSubscribe(user.getIsSubscribe())
