@@ -21,6 +21,8 @@ public class UserInfoUpdateRequest {
     private String bankAccount;
     @Schema(description = "은행 교유 번호", example = "011")
     private String bankCode;
+    @Schema(description = "계좌 pin번호 6자리", example = "123456")
+    private String accountPin;
 
     public User toEntity() {
         return User.builder()
@@ -29,6 +31,7 @@ public class UserInfoUpdateRequest {
                 .bankName(bankName)
                 .bankAccount(bankAccount)
                 .bankCode(bankCode)
+                .accountPin(accountPin)
                 .build();
     }
 }

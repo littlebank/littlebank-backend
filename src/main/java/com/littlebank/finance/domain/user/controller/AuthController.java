@@ -1,10 +1,8 @@
 package com.littlebank.finance.domain.user.controller;
 
-import com.littlebank.finance.domain.user.dto.request.AccountHolderVerifyRequest;
-import com.littlebank.finance.domain.user.dto.request.LoginRequest;
-import com.littlebank.finance.domain.user.dto.request.ReissueRequest;
-import com.littlebank.finance.domain.user.dto.request.SocialLoginRequest;
+import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.AccountHolderVerifyResponse;
+import com.littlebank.finance.domain.user.dto.response.AccountPinVerifyResponse;
 import com.littlebank.finance.domain.user.dto.response.LoginResponse;
 import com.littlebank.finance.domain.user.dto.response.ReissueResponse;
 import com.littlebank.finance.domain.user.service.AuthService;
@@ -94,5 +92,15 @@ public class AuthController {
     ) {
         AccountHolderVerifyResponse holder = authService.verifyAccountHolder(request);
         return ResponseEntity.ok(holder);
+    }
+
+    @Operation(summary = "계좌 pin번호 검증 API")
+    @PostMapping("/account/pin/verify")
+    public ResponseEntity<AccountPinVerifyResponse> verifyAccountPin(
+            @RequestBody @Valid AccountPinVerifyRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        AccountPinVerifyResponse response = authService.verifyAccountPin(customUserDetails.getId(), request);
+        return ResponseEntity.ok(response);
     }
 }

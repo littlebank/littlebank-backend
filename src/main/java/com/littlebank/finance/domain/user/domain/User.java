@@ -42,6 +42,8 @@ public class User extends BaseEntity {
     private String bankCode;
     @Column(length = 20, unique = true)
     private String bankAccount;
+    @Column(length = 6)
+    private String accountPin;
     @Column(length = 150)
     private String profileImagePath;
     private Integer point;
@@ -67,8 +69,8 @@ public class User extends BaseEntity {
 
     @Builder
     public User(
-            String email, String password, String name, String statusMessage, String phone, String rrn,
-            String bankName, String bankCode, String bankAccount, String profileImagePath, Integer point, UserRole role,
+            String email, String password, String name, String statusMessage, String phone, String rrn, String bankName,
+            String bankCode, String bankAccount, String accountPin, String profileImagePath, Integer point, UserRole role,
             Authority authority, Boolean isSubscribe, String fcmToken, LocalDateTime lastLoginAt, Boolean isDeleted
     ) {
         this.email = email;
@@ -80,6 +82,7 @@ public class User extends BaseEntity {
         this.bankName = bankName;
         this.bankCode = bankCode;
         this.bankAccount = bankAccount;
+        this.accountPin = accountPin;
         this.profileImagePath = profileImagePath;
         this.point = point == null ? 0 : point;
         this.role = role;
@@ -104,6 +107,7 @@ public class User extends BaseEntity {
         this.bankName = updateInfo.getBankName();
         this.bankAccount = updateInfo.getBankAccount();
         this.bankCode = updateInfo.getBankCode();
+        this.accountPin = updateInfo.getAccountPin();
     }
 
     public void updateRequiredInfo(User updateInfo) {
