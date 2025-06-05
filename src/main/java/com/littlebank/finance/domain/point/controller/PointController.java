@@ -72,7 +72,7 @@ public class PointController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "보낸 포인트 내역 조회 API")
+    @Operation(summary = "나간 포인트 내역 조회 API")
     @GetMapping("/transfer/sent/history")
     public ResponseEntity<CustomPageResponse<SendPointHistoryResponse>> getSentPointHistory(
             @Parameter(description = "페이지 번호, 0부터 시작")

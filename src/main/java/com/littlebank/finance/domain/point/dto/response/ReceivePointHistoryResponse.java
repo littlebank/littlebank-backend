@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ReceivePointHistoryResponse {
     private Long historyId;
+    private String type; // "RECEIVE" or "REFUND"
     private Integer pointAmount;
     private String message;
     private Integer remainingPoint;

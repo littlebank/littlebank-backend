@@ -6,8 +6,10 @@ import com.littlebank.finance.domain.point.dto.response.SendPointHistoryResponse
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface CustomTransactionHistoryRepository {
-    Page<ReceivePointHistoryResponse> findReceivedPointHistoryByUserId(Long userId, Pageable pageable);
-    Page<SendPointHistoryResponse> findSentPointHistoryByUserId(Long userId, Pageable pageable);
     Page<LatestSentAccountResponse> findLatestSentAccountByUserId(Long userId, Pageable pageable);
+    List<ReceivePointHistoryResponse> findReceivedPointHistoryByUserId(Long userId);
+    List<SendPointHistoryResponse> findSentPointHistoryByUserId(Long userId);
 }

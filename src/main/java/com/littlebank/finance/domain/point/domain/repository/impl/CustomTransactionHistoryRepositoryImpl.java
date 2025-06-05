@@ -7,6 +7,7 @@ import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryRespo
 import com.littlebank.finance.domain.point.dto.response.SendPointHistoryResponse;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,54 +25,6 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
     private QTransactionHistory th = transactionHistory;
     private QUser sender = new QUser("sender");
     private QUser receiver = new QUser("receiver");
-
-    @Override
-    public Page<ReceivePointHistoryResponse> findReceivedPointHistoryByUserId(Long userId, Pageable pageable) {
-        List<ReceivePointHistoryResponse> results = queryFactory
-                .select(Projections.constructor(
-                        ReceivePointHistoryResponse.class,
-                        th.id,
-                        th.pointAmount,
-                        th.message,
-                        th.receiverRemainingPoint,
-                        sender.id,
-                        sender.name,
-                        th.createdDate
-                ))
-                .from(th)
-                .join(th.sender, sender)
-                .where(th.receiver.id.eq(userId))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(th.createdDate.desc())
-                .fetch();
-
-        return new PageImpl<>(results, pageable, results.size());
-    }
-
-    @Override
-    public Page<SendPointHistoryResponse> findSentPointHistoryByUserId(Long userId, Pageable pageable) {
-        List<SendPointHistoryResponse> results = queryFactory
-                .select(Projections.constructor(
-                        SendPointHistoryResponse.class,
-                        th.id,
-                        th.pointAmount,
-                        th.message,
-                        th.senderRemainingPoint,
-                        receiver.id,
-                        receiver.name,
-                        th.createdDate
-                ))
-                .from(th)
-                .join(th.receiver, receiver)
-                .where(th.sender.id.eq(userId))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(th.createdDate.desc())
-                .fetch();
-
-        return new PageImpl<>(results, pageable, results.size());
-    }
 
     @Override
     public Page<LatestSentAccountResponse> findLatestSentAccountByUserId(Long userId, Pageable pageable) {
@@ -94,5 +47,57 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                 .fetch();
 
         return new PageImpl<>(results, pageable, results.size());
+    }
+
+    @Override
+    public List<ReceivePointHistoryResponse> findReceivedPointHistoryByUserId(Long userId) {
+        List<ReceivePointHistoryResponse> results = queryFactory
+                .select(Projections.constructor(
+                        ReceivePointHistoryResponse.class,
+                        th.id,
+                        Expressions.constant("RECEIVE"),
+                        th.pointAmount,
+                        Expressions.stringTemplate(
+                                "COALESCE(NULLIF({0}, ''), {1})",
+                                th.message,
+                                Expressions.stringTemplate("CONCAT({0}, '의 ', {1}, '포인트 선물')", sender.name, th.pointAmount)
+                        ),
+                        th.receiverRemainingPoint,
+                        sender.id,
+                        sender.name,
+                        th.createdDate
+                ))
+                .from(th)
+                .join(th.sender, sender)
+                .where(th.receiver.id.eq(userId))
+                .fetch();
+
+        return results;
+    }
+
+    @Override
+    public List<SendPointHistoryResponse> findSentPointHistoryByUserId(Long userId) {
+        List<SendPointHistoryResponse> results = queryFactory
+                .select(Projections.constructor(
+                        SendPointHistoryResponse.class,
+                        th.id,
+                        Expressions.constant("SEND"),
+                        th.pointAmount,
+                        Expressions.stringTemplate(
+                                "COALESCE(NULLIF({0}, ''), {1})",
+                                th.message,
+                                Expressions.stringTemplate("CONCAT({0}, '에게 ', {1}, '포인트 선물')", receiver.name, th.pointAmount)
+                        ),
+                        th.senderRemainingPoint,
+                        receiver.id,
+                        receiver.name,
+                        th.createdDate
+                ))
+                .from(th)
+                .join(th.receiver, receiver)
+                .where(th.sender.id.eq(userId))
+                .fetch();
+
+        return results;
     }
 }
