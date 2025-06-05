@@ -3,12 +3,11 @@ package com.littlebank.finance.domain.point.controller.admin;
 import com.littlebank.finance.domain.point.dto.response.admin.RefundHistoryResponse;
 import com.littlebank.finance.domain.point.service.AdminPointService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,5 +23,15 @@ public class AdminPointController {
     public ResponseEntity<List<RefundHistoryResponse>> getUsersRefundHistory() {
         List<RefundHistoryResponse> response = adminPointService.getUsersRefundHistory();
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "포인트 환전 처리 완료 상태로 업데이트 API")
+    @PatchMapping("/refund/sent-money/{refundId}")
+    public ResponseEntity<String> updateProcessedStatus(
+            @Parameter(description = "환전 내역 데이터 식별 id")
+            @PathVariable(name = "refundId") Long refundId
+    ) {
+        adminPointService.updateProcessedStatus(refundId);
+        return ResponseEntity.ok("환전 처리 완료");
     }
 }
