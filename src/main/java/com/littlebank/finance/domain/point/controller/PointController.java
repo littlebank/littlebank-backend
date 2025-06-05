@@ -122,9 +122,10 @@ public class PointController {
     @DeleteMapping("/refund/cancel/{refundId}")
     public ResponseEntity<Void> cancelRefund(
             @Parameter(description = "포인트 환전 내역 식별 id")
-            @PathVariable(name = "refundId") Long refundId
+            @PathVariable(name = "refundId") Long refundId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        pointService.cancelRefund(refundId);
+        pointService.cancelRefund(customUserDetails.getId(), refundId);
         return ResponseEntity.noContent().build();
     }
 }
