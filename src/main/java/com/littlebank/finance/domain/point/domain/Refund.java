@@ -40,4 +40,8 @@ public class Refund extends BaseEntity {
         this.exchangedAt = exchangedAt;
         this.user = user;
     }
+
+    public void sentMoney() {
+        this.status = RefundStatus.PROCESSED;
+    }
 }
