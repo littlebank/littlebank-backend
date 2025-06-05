@@ -7,7 +7,6 @@ import lombok.Getter;
 
 @Getter
 public class EmailSendRequest {
-
     @Email
     @NotBlank
     @Schema(description = "확인용 메일을 보낼 이메일", example = "example@gmail.com")

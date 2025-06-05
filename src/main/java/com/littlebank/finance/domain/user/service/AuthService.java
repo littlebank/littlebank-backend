@@ -4,9 +4,11 @@ import com.littlebank.finance.domain.user.domain.Authority;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.dto.request.AccountHolderVerifyRequest;
+import com.littlebank.finance.domain.user.dto.request.AccountPinVerifyRequest;
 import com.littlebank.finance.domain.user.dto.request.LoginRequest;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginRequest;
 import com.littlebank.finance.domain.user.dto.response.AccountHolderVerifyResponse;
+import com.littlebank.finance.domain.user.dto.response.AccountPinVerifyResponse;
 import com.littlebank.finance.domain.user.dto.response.ReissueResponse;
 import com.littlebank.finance.domain.user.exception.AuthException;
 import com.littlebank.finance.domain.user.exception.UserException;
@@ -197,5 +199,17 @@ public class AuthService {
         }
 
         return AccountHolderVerifyResponse.of(accountHolderDto.getBankHolder());
+    }
+
+    @Transactional(readOnly = true)
+    public AccountPinVerifyResponse verifyAccountPin(Long userId, AccountPinVerifyRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        if (!user.getAccountPin().equals(request.getPin())) {
+            throw new UserException(ErrorCode.PIN_NOT_MATCHED);
+        }
+
+        return AccountPinVerifyResponse.of(user);
     }
 }
