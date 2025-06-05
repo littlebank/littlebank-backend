@@ -146,7 +146,8 @@ public class MissionService {
         return friends.stream().map(friend -> {
                     Long friendUserId = friend.getUserInfo().getUserId();
                     Long friendId = friend.getFriendInfo().getFriendId();
-                    String friendName = friend.getFriendInfo().getCustomName();
+//                    String friendName = friend.getFriendInfo().getCustomName();
+            String friendName = friend.getUserInfo().getRealName();
                     boolean isBestFriend = friend.getFriendInfo().getIsBestFriend();
 
                     List<MissionStatDto> userStats = grouped.getOrDefault(friendUserId, List.of());
