@@ -117,4 +117,14 @@ public class PointController {
         CustomPageResponse<WaitStatusRefundResponse> response = pointService.getRefundWaitStatus(customUserDetails.getId(), pageable);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "포인트 꺼내기 취소 API")
+    @DeleteMapping("/refund/cancel/{refundId}")
+    public ResponseEntity<Void> cancelRefund(
+            @Parameter(description = "포인트 환전 내역 식별 id")
+            @PathVariable(name = "refundId") Long refundId
+    ) {
+        pointService.cancelRefund(refundId);
+        return ResponseEntity.noContent().build();
+    }
 }

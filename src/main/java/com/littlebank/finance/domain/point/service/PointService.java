@@ -176,4 +176,11 @@ public class PointService {
     public CustomPageResponse<WaitStatusRefundResponse> getRefundWaitStatus(Long userId, Pageable pageable) {
         return CustomPageResponse.of(refundRepository.findRefundHistoryByUserId(userId, pageable));
     }
+
+    public void cancelRefund(Long refundId) {
+        Refund refund = refundRepository.findById(refundId)
+                .orElseThrow(() -> new PointException(ErrorCode.REFUND_NOT_FOUND));
+
+        refundRepository.deleteById(refund.getId());
+    }
 }

@@ -47,6 +47,7 @@ public enum ErrorCode {
     PAYMENT_STATUS_NOT_PAID(400, "P002", "결제 된 상태가 아닙니다"),
     PAYMENT_ALREADY_EXISTS(409, "P003", "결제 정보가 이미 존재합니다"),
     INSUFFICIENT_POINT_BALANCE(400, "P004", "포인트가 부족합니다"),
+    REFUND_NOT_FOUND(404, "P005", "환전 내역 데이터가 존재하지 않습니다"),
 
     // Auth
     PASSWORD_NOT_MATCHED(401, "A001", "비밀번호가 일치하지 않습니다"),
