@@ -7,6 +7,7 @@ import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryRespo
 import com.littlebank.finance.domain.point.dto.response.SendPointHistoryResponse;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -50,11 +51,12 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
     }
 
     @Override
-    public Page<SendPointHistoryResponse> findSentPointHistoryByUserId(Long userId, Pageable pageable) {
+    public List<SendPointHistoryResponse> findSentPointHistoryByUserId(Long userId) {
         List<SendPointHistoryResponse> results = queryFactory
                 .select(Projections.constructor(
                         SendPointHistoryResponse.class,
                         th.id,
+                        Expressions.constant("SEND"),
                         th.pointAmount,
                         th.message,
                         th.senderRemainingPoint,
@@ -65,12 +67,9 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                 .from(th)
                 .join(th.receiver, receiver)
                 .where(th.sender.id.eq(userId))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(th.createdDate.desc())
                 .fetch();
 
-        return new PageImpl<>(results, pageable, results.size());
+        return results;
     }
 
     @Override

@@ -19,11 +19,14 @@ import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.portone.PortoneService;
 import com.littlebank.finance.global.portone.dto.PortonePaymentDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -107,7 +110,20 @@ public class PointService {
 
     @Transactional(readOnly = true)
     public CustomPageResponse<SendPointHistoryResponse> getSentPointHistory(Long userId, Pageable pageable) {
-        return CustomPageResponse.of(transactionHistoryRepository.findSentPointHistoryByUserId(userId, pageable));
+        List<SendPointHistoryResponse> sendResults = transactionHistoryRepository.findSentPointHistoryByUserId(userId);
+        List<SendPointHistoryResponse> refundResults = refundRepository.findRefundHistoryByUserId(userId);
+
+        List<SendPointHistoryResponse> merged = new ArrayList<>();
+        merged.addAll(sendResults);
+        merged.addAll(refundResults);
+
+        merged.sort((a, b) -> b.getSentAt().compareTo(a.getSentAt()));
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), merged.size());
+        List<SendPointHistoryResponse> pageContent = merged.subList(start, end);
+
+        return CustomPageResponse.of(new PageImpl<>(pageContent, pageable, merged.size()));
     }
 
     @Transactional(readOnly = true)
