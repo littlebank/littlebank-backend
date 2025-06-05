@@ -105,7 +105,20 @@ public class PointService {
 
     @Transactional(readOnly = true)
     public CustomPageResponse<ReceivePointHistoryResponse> getReceivedPointHistory(Long userId, Pageable pageable) {
-        return CustomPageResponse.of(transactionHistoryRepository.findReceivedPointHistoryByUserId(userId, pageable));
+        List<ReceivePointHistoryResponse> sendResults = transactionHistoryRepository.findReceivedPointHistoryByUserId(userId);
+        List<ReceivePointHistoryResponse> paymentResults = paymentRepository.findPaymentHistoryByUserId(userId);
+
+        List<ReceivePointHistoryResponse> merged = new ArrayList<>();
+        merged.addAll(sendResults);
+        merged.addAll(paymentResults);
+
+        merged.sort((a, b) -> b.getReceivedAt().compareTo(a.getReceivedAt()));
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), merged.size());
+        List<ReceivePointHistoryResponse> pageContent = merged.subList(start, end);
+
+        return CustomPageResponse.of(new PageImpl<>(pageContent, pageable, merged.size()));
     }
 
     @Transactional(readOnly = true)

@@ -27,11 +27,35 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
     private QUser receiver = new QUser("receiver");
 
     @Override
-    public Page<ReceivePointHistoryResponse> findReceivedPointHistoryByUserId(Long userId, Pageable pageable) {
+    public Page<LatestSentAccountResponse> findLatestSentAccountByUserId(Long userId, Pageable pageable) {
+        List<LatestSentAccountResponse> results = queryFactory
+                .select(Projections.constructor(
+                        LatestSentAccountResponse.class,
+                        receiver.id,
+                        receiver.name,
+                        receiver.bankName,
+                        receiver.bankCode,
+                        receiver.bankAccount,
+                        th.createdDate
+                ))
+                .from(th)
+                .join(th.receiver, receiver)
+                .where(th.sender.id.eq(userId))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(th.createdDate.desc())
+                .fetch();
+
+        return new PageImpl<>(results, pageable, results.size());
+    }
+
+    @Override
+    public List<ReceivePointHistoryResponse> findReceivedPointHistoryByUserId(Long userId) {
         List<ReceivePointHistoryResponse> results = queryFactory
                 .select(Projections.constructor(
                         ReceivePointHistoryResponse.class,
                         th.id,
+                        Expressions.constant("RECEIVE"),
                         th.pointAmount,
                         th.message,
                         th.receiverRemainingPoint,
@@ -42,12 +66,9 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                 .from(th)
                 .join(th.sender, sender)
                 .where(th.receiver.id.eq(userId))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(th.createdDate.desc())
                 .fetch();
 
-        return new PageImpl<>(results, pageable, results.size());
+        return results;
     }
 
     @Override
@@ -70,28 +91,5 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                 .fetch();
 
         return results;
-    }
-
-    @Override
-    public Page<LatestSentAccountResponse> findLatestSentAccountByUserId(Long userId, Pageable pageable) {
-        List<LatestSentAccountResponse> results = queryFactory
-                .select(Projections.constructor(
-                        LatestSentAccountResponse.class,
-                        receiver.id,
-                        receiver.name,
-                        receiver.bankName,
-                        receiver.bankCode,
-                        receiver.bankAccount,
-                        th.createdDate
-                ))
-                .from(th)
-                .join(th.receiver, receiver)
-                .where(th.sender.id.eq(userId))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(th.createdDate.desc())
-                .fetch();
-
-        return new PageImpl<>(results, pageable, results.size());
     }
 }
