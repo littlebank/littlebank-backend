@@ -4,10 +4,14 @@ import com.littlebank.finance.domain.point.domain.QRefund;
 import com.littlebank.finance.domain.point.domain.RefundStatus;
 import com.littlebank.finance.domain.point.domain.repository.CustomRefundRepository;
 import com.littlebank.finance.domain.point.dto.response.SendPointHistoryResponse;
+import com.littlebank.finance.domain.point.dto.response.WaitStatusRefundResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -17,6 +21,29 @@ import static com.littlebank.finance.domain.point.domain.QRefund.refund;
 public class CustomRefundRepositoryImpl implements CustomRefundRepository {
     private final JPAQueryFactory queryFactory;
     private QRefund r = refund;
+
+    @Override
+    public Page<WaitStatusRefundResponse> findRefundHistoryByUserId(Long userId, Pageable pageable) {
+        List<WaitStatusRefundResponse> results =
+                queryFactory.select(Projections.constructor(
+                                WaitStatusRefundResponse.class,
+                        r.id,
+                        r.requestedAmount,
+                        r.processedAmount,
+                        r.status,
+                        r.createdDate
+                ))
+                        .from(r)
+                .where(r.user.id.eq(userId)
+                        .and(r.status.eq(RefundStatus.WAIT))
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(r.createdDate.desc())
+                .fetch();
+
+        return new PageImpl<>(results, pageable, results.size());
+    }
 
     @Override
     public List<SendPointHistoryResponse> findRefundHistoryByUserId(Long userId) {

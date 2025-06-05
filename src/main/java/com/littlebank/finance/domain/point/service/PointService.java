@@ -171,4 +171,9 @@ public class PointService {
 
         return PointRefundResponse.of(refund);
     }
+
+    @Transactional(readOnly = true)
+    public CustomPageResponse<WaitStatusRefundResponse> getRefundWaitStatus(Long userId, Pageable pageable) {
+        return CustomPageResponse.of(refundRepository.findRefundHistoryByUserId(userId, pageable));
+    }
 }

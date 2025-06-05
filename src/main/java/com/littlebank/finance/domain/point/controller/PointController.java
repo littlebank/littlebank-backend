@@ -105,4 +105,16 @@ public class PointController {
         PointRefundResponse response = pointService.refundPoint(customUserDetails.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @Operation(summary = "포인트 환전 대기 목록 조회 API")
+    @GetMapping("/refund/status-wait")
+    public ResponseEntity<CustomPageResponse<WaitStatusRefundResponse>> getRefundWaitStatus(
+            @Parameter(description = "페이지 번호, 0부터 시작")
+            @RequestParam(name = "pageNumber") Integer pageNumber,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.GENERAL_PAGE_SIZE);
+        CustomPageResponse<WaitStatusRefundResponse> response = pointService.getRefundWaitStatus(customUserDetails.getId(), pageable);
+        return ResponseEntity.ok(response);
+    }
 }
