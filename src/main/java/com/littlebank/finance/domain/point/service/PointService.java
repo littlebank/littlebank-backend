@@ -177,9 +177,13 @@ public class PointService {
         return CustomPageResponse.of(refundRepository.findRefundHistoryByUserId(userId, pageable));
     }
 
-    public void cancelRefund(Long refundId) {
+    public void cancelRefund(Long userId, Long refundId) {
+        User user = userRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         Refund refund = refundRepository.findById(refundId)
                 .orElseThrow(() -> new PointException(ErrorCode.REFUND_NOT_FOUND));
+
+        user.cancelRefund(refund.getRequestedAmount());
 
         refundRepository.deleteById(refund.getId());
     }
