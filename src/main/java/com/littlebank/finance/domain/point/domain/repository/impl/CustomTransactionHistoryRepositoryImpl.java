@@ -57,7 +57,11 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                         th.id,
                         Expressions.constant("RECEIVE"),
                         th.pointAmount,
-                        th.message,
+                        Expressions.stringTemplate(
+                                "COALESCE(NULLIF({0}, ''), {1})",
+                                th.message,
+                                Expressions.stringTemplate("CONCAT({0}, '의 ', {1}, '포인트 선물')", sender.name, th.pointAmount)
+                        ),
                         th.receiverRemainingPoint,
                         sender.id,
                         sender.name,
@@ -79,7 +83,11 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                         th.id,
                         Expressions.constant("SEND"),
                         th.pointAmount,
-                        th.message,
+                        Expressions.stringTemplate(
+                                "COALESCE(NULLIF({0}, ''), {1})",
+                                th.message,
+                                Expressions.stringTemplate("CONCAT({0}, '에게 ', {1}, '포인트 선물')", receiver.name, th.pointAmount)
+                        ),
                         th.senderRemainingPoint,
                         receiver.id,
                         receiver.name,
