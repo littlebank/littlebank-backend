@@ -104,6 +104,8 @@ public class MissionService {
             throw new MissionException(ErrorCode.MISSION_END_DATE_EXPIRED);
         }
         mission.acceptProposal();
+
+        // 알림
         try {
             log.info("미션 ID: " + mission.getId());
             Notification notification = notificationRepository.save(Notification.builder()

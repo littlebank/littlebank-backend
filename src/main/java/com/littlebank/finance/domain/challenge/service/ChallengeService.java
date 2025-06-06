@@ -7,7 +7,9 @@ import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeParticipationRepository;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeRepository;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeRepositoryCustom;
+import com.littlebank.finance.domain.challenge.dto.request.ChallengeFinishScoreRequestDto;
 import com.littlebank.finance.domain.challenge.dto.request.ChallengeUserRequestDto;
+import com.littlebank.finance.domain.challenge.dto.response.ChallengeFinishScoreResponseDto;
 import com.littlebank.finance.domain.challenge.dto.response.admin.ChallengeAdminResponseDto;
 import com.littlebank.finance.domain.challenge.dto.response.ChallengeUserResponseDto;
 import com.littlebank.finance.domain.challenge.exception.ChallengeException;
@@ -238,6 +240,8 @@ public class ChallengeService {
         participation.setParent(parentMember);
         challenge.setCurrentParticipants(challenge.getCurrentParticipants() + 1);
         challengeRepository.save(challenge);
+
+        // 알림
         try {
             Notification notification = notificationRepository.save(Notification.builder()
                             .receiver(participation.getUser())
@@ -252,6 +256,7 @@ public class ChallengeService {
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
+
         return ChallengeUserResponseDto.of(participation);
     }
 
@@ -265,5 +270,16 @@ public class ChallengeService {
             throw new ChallengeException(ErrorCode.NOT_REQUESTED_CHALLENGE);
         }
         return ChallengeUserResponseDto.of(participation);
+    }
+
+    public ChallengeFinishScoreResponseDto applyChallengeScore(Long participationId, ChallengeFinishScoreRequestDto request) {
+        ChallengeParticipation participation = participationRepository.findById(participationId)
+                .orElseThrow(() -> new ChallengeException(ErrorCode.NOT_FOUND_PARTICIPATION));
+        if (!participation.getChallengeStatus().equals(ChallengeStatus.ACHIEVEMENT)) {
+            throw new ChallengeException(ErrorCode.CHALLENGE_NOT_FINISH);
+        }
+        participation.storeScore(request.getScore());
+        participationRepository.save(participation);
+        return ChallengeFinishScoreResponseDto.of(participation, request.getScore());
     }
 }
