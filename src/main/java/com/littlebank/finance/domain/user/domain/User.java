@@ -143,7 +143,12 @@ public class User extends BaseEntity {
     public void exchangePointToMoney(Integer point) {
         this.point -= point;
     }
+
     public void cancelRefund(Integer point) {
         this.point += point;
+    }
+
+    public void resetPin(String pin) {
+        this.accountPin = pin;
     }
 }
