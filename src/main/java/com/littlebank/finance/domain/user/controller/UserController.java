@@ -132,4 +132,13 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "계좌 pin 번호 재설정 API")
+    @PatchMapping("/account/pin/reset")
+    public ResponseEntity<AccountPinResetResponse> resetAccountPin(
+            @RequestBody @Valid AccountPinResetRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        AccountPinResetResponse response = userService.resetAccountPin(customUserDetails.getId(), request);
+        return ResponseEntity.ok(response);
+    }
 }

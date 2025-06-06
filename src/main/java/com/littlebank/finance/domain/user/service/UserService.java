@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.user.service;
 
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
+import com.littlebank.finance.domain.user.dto.request.AccountPinResetRequest;
 import com.littlebank.finance.domain.user.dto.request.SocialLoginAdditionalInfoRequest;
 import com.littlebank.finance.domain.user.dto.request.UpdateStatusMessageRequest;
 import com.littlebank.finance.domain.user.dto.request.UserInfoUpdateRequest;
@@ -105,6 +106,15 @@ public class UserService {
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
         return CommonUserInfoResponse.of(target);
+    }
+
+    public AccountPinResetResponse resetAccountPin(Long userId, AccountPinResetRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.resetPin(request.getPin());
+
+        return AccountPinResetResponse.of(user);
     }
 
     private void verifyDuplicatedEmail(String email) {
