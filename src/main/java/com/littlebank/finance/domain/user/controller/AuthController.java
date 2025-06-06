@@ -1,10 +1,7 @@
 package com.littlebank.finance.domain.user.controller;
 
 import com.littlebank.finance.domain.user.dto.request.*;
-import com.littlebank.finance.domain.user.dto.response.AccountHolderVerifyResponse;
-import com.littlebank.finance.domain.user.dto.response.AccountPinVerifyResponse;
-import com.littlebank.finance.domain.user.dto.response.LoginResponse;
-import com.littlebank.finance.domain.user.dto.response.ReissueResponse;
+import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.service.AuthService;
 import com.littlebank.finance.global.jwt.dto.TokenDto;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -101,6 +98,16 @@ public class AuthController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         AccountPinVerifyResponse response = authService.verifyAccountPin(customUserDetails.getId(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "패스워드 일치 검증 API")
+    @PostMapping("/password/verify")
+    public ResponseEntity<PasswordMatchResponse> verifyAccountPin(
+            @RequestBody @Valid PasswordMatchRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        PasswordMatchResponse response = authService.verifyPassword(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
 }

@@ -50,7 +50,7 @@ public enum ErrorCode {
     REFUND_NOT_FOUND(404, "P005", "환전 내역 데이터가 존재하지 않습니다"),
 
     // Auth
-    PASSWORD_NOT_MATCHED(401, "A001", "비밀번호가 일치하지 않습니다"),
+    PASSWORD_NOT_MATCHED(401, "A001", "패스워드가 일치하지 않습니다"),
     INVALID_REFRESH_TOKEN(401, "A002", "리프레쉬 토큰이 유효하지 않습니다"),
     PIN_NOT_MATCHED(401, "A003", "pin번호가 일치하지 않습니다"),
 
