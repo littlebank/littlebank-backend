@@ -4,6 +4,7 @@ package com.littlebank.finance.domain.mission.service;
 import com.littlebank.finance.domain.family.domain.FamilyMember;
 import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.family.domain.repository.FamilyMemberRepository;
+import com.littlebank.finance.domain.family.exception.FamilyException;
 import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
 import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
 import com.littlebank.finance.domain.mission.domain.*;
@@ -58,16 +59,19 @@ public class MissionService {
         for (User child : request.getChilds()) {
             Mission mission = missionRepository.save(request.toEntity(user, child));
             responses.add(CommonMissionResponseDto.of(mission));
-
+            FamilyMember parentMember = familyMemberRepository.findByUserIdAndStatusWithUser(userId, Status.JOINED)
+                    .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
             // 알림 생성
             try {
+                log.info("알림 생성 시작. 알림 대상: " + child.getId() + ", 미션 ID: " + mission.getId());
                 Notification notification = notificationRepository.save(Notification.builder()
                         .receiver(child)
-                        .message("우리 부모님이 미션 신청을 했습니다!")
+                        .message("우리 부모님(" + parentMember.getNickname() + ")이 미션 신청을 했습니다!")
                         .type(NotificationType.MISSION_PROPOSAL)
                         .targetId(mission.getId())
                         .isRead(false)
                         .build());
+                log.info("알림 저장 성공: " + notification.getId());
                 firebaseService.sendNotification(notification);
             } catch (DataIntegrityViolationException e) {
                 log.warn("이미 동일한 알림이 존재합니다.");
@@ -94,10 +98,26 @@ public class MissionService {
     public CommonMissionResponseDto acceptMission(Long missionId) {
         Mission mission = missionRepository.findById(missionId)
                 .orElseThrow(() -> new UserException(ErrorCode.MISSION_NOT_FOUND));
+        FamilyMember childMember = familyMemberRepository.findByUserIdAndStatusWithUser(mission.getChild().getId(), Status.JOINED)
+                .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
         if (mission.getEndDate().isBefore(LocalDateTime.now())) {
             throw new MissionException(ErrorCode.MISSION_END_DATE_EXPIRED);
         }
         mission.acceptProposal();
+        try {
+            log.info("미션 ID: " + mission.getId());
+            Notification notification = notificationRepository.save(Notification.builder()
+                    .receiver(mission.getCreatedBy())
+                    .message("우리" + childMember.getNickname() + "가 미션을 승낙했어요!")
+                    .type(NotificationType.MISSION_ACCEPT)
+                    .targetId(mission.getCreatedBy().getId())
+                    .isRead(false)
+                    .build());
+            firebaseService.sendNotification(notification);
+            log.info("알림 저장 성공: " + notification.getId());
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
         return CommonMissionResponseDto.of(mission);
     }
 

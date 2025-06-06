@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.challenge.domain;
 
+import com.littlebank.finance.domain.family.domain.FamilyMember;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
@@ -44,9 +45,10 @@ public class ChallengeParticipation extends BaseEntity {
     private Boolean isAccepted = false;
     @Column(nullable = false)
     private Boolean isDeleted = false;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    private FamilyMember parent;
     @Builder
-    public ChallengeParticipation(Challenge challenge, User user, ChallengeStatus challengeStatus, LocalDateTime startDate, LocalDateTime endDate, String title, String subject, LocalDateTime startTime, Integer totalStudyTime, Integer reward) {
+    public ChallengeParticipation(Challenge challenge, User user, ChallengeStatus challengeStatus, LocalDateTime startDate, LocalDateTime endDate, String title, String subject, LocalDateTime startTime, Integer totalStudyTime, Integer reward, FamilyMember parent) {
         this.challenge = challenge;
         this.user = user;
         this.challengeStatus = challengeStatus;
@@ -57,5 +59,6 @@ public class ChallengeParticipation extends BaseEntity {
         this.startTime = startTime;
         this.totalStudyTime = totalStudyTime;
         this.reward = reward;
+        this.parent = parent;
     }
 }
