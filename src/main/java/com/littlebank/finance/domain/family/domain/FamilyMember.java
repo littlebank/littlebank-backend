@@ -36,7 +36,6 @@ public class FamilyMember extends BaseEntity {
     private Status status;
     @Column(nullable = false)
     private Boolean isDeleted;
-
     @Builder
     public FamilyMember(String nickname, Family family, User user, User invitedBy, Status status, Boolean isDeleted) {
         this.nickname = nickname;

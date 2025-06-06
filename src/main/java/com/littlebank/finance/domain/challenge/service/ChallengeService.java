@@ -221,9 +221,11 @@ public class ChallengeService {
         return CustomPageResponse.of(responsePage);
     }
 
-    public ChallengeUserResponseDto acceptApplyChallenge(Long participationId) {
+    public ChallengeUserResponseDto acceptApplyChallenge(Long participationId, Long parentId) {
         ChallengeParticipation participation = participationRepository.findById(participationId)
                 .orElseThrow(() -> new ChallengeException(ErrorCode.NOT_FOUND_PARTICIPATION));
+        FamilyMember parentMember = familyMemberRepository.findByUserIdAndStatusWithUser(parentId, Status.JOINED)
+                .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
 
         Challenge challenge = participation.getChallenge();
         if(participation.getEndDate().isBefore(LocalDateTime.now())) {
@@ -233,9 +235,23 @@ public class ChallengeService {
         else throw new ChallengeException(ErrorCode.ALREADY_CHALLENGE_ACCEPT);
 
         participation.setChallengeStatus(ChallengeStatus.ACCEPT);
+        participation.setParent(parentMember);
         challenge.setCurrentParticipants(challenge.getCurrentParticipants() + 1);
         challengeRepository.save(challenge);
-
+        try {
+            Notification notification = notificationRepository.save(Notification.builder()
+                            .receiver(participation.getUser())
+                            .message("우리 부모님(" + parentMember.getNickname() + ")이 챌린지를 승낙했습니다!")
+                            .type(NotificationType.CHALLENGE_ACCEPT)
+                            .targetId(participation.getId())
+                            .isRead(false)
+                    .build());
+            log.info("알림 저장 성공: " + notification.getId());
+            log.info("알림 내용: " + notification);
+            firebaseService.sendNotification(notification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
         return ChallengeUserResponseDto.of(participation);
     }
 

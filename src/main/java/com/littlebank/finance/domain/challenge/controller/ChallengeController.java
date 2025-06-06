@@ -81,9 +81,10 @@ public class ChallengeController {
     @PatchMapping("/parent/apply/accept/{participationId}")
     public ResponseEntity<ChallengeUserResponseDto> acceptApplyChallenge (
             @Parameter(description = "신청을 수락할 챌린지참여 식별 id")
-            @PathVariable("participationId") Long participationId
+            @PathVariable("participationId") Long participationId,
+            @AuthenticationPrincipal CustomUserDetails parent
     ) {
-        ChallengeUserResponseDto response = challengeService.acceptApplyChallenge(participationId);
+        ChallengeUserResponseDto response = challengeService.acceptApplyChallenge(participationId, parent.getId());
         return ResponseEntity.ok(response);
     }
 }

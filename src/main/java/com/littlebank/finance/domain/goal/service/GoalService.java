@@ -133,7 +133,18 @@ public class GoalService {
         }
 
         goal.acceptProposal();
-
+        try {
+            Notification notification = notificationRepository.save(Notification.builder()
+                            .receiver(goal.getCreatedBy())
+                        .message("우리 부모님(" + ")이 목표를 승낙했습니다!") //부모 중 누구인지 추가하기
+                            .type(NotificationType.GOAL_ACCEPT)
+                            .targetId(targetGoalId)
+                            .isRead(false)
+                            .build());
+            firebaseService.sendNotification(notification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
         return CommonGoalResponse.of(goal);
     }
 
