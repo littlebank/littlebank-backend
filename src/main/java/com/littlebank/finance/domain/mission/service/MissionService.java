@@ -1,6 +1,8 @@
 package com.littlebank.finance.domain.mission.service;
 
 
+import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
+import com.littlebank.finance.domain.challenge.exception.ChallengeException;
 import com.littlebank.finance.domain.family.domain.FamilyMember;
 import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.family.domain.repository.FamilyMemberRepository;
@@ -10,6 +12,7 @@ import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
 import com.littlebank.finance.domain.mission.domain.*;
 import com.littlebank.finance.domain.mission.domain.repository.MissionRepository;
 import com.littlebank.finance.domain.mission.dto.request.CreateMissionRequestDto;
+import com.littlebank.finance.domain.mission.dto.request.MissionFinishScoreRequestDto;
 import com.littlebank.finance.domain.mission.dto.response.*;
 
 import com.littlebank.finance.domain.mission.dto.request.MissionRecentRewardRequestDto;
@@ -168,7 +171,6 @@ public class MissionService {
         return friends.stream().map(friend -> {
                     Long friendUserId = friend.getUserInfo().getUserId();
                     Long friendId = friend.getFriendInfo().getFriendId();
-//                    String friendName = friend.getFriendInfo().getCustomName();
             String friendName = friend.getUserInfo().getRealName();
                     boolean isBestFriend = friend.getFriendInfo().getIsBestFriend();
 
@@ -223,5 +225,19 @@ public class MissionService {
 
                 }).sorted(Comparator.comparingDouble(MissionRankingResponseDto::getCompletionRate).reversed())
                 .toList();
+    }
+
+    public MissionFinishScoreResponseDto applyMissionScore(Long missionId, MissionFinishScoreRequestDto request) {
+        Mission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new UserException(ErrorCode.MISSION_NOT_FOUND));
+        if (!mission.getStatus().equals(MissionStatus.ACHIEVEMENT)) {
+            throw new MissionException(ErrorCode.MiSSION_NOT_FINISH);
+        }
+        if (request.getScore() < 0 || request.getScore() > 100) {
+            throw new MissionException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+        mission.storeScore(request.getScore());
+        missionRepository.save(mission);
+        return MissionFinishScoreResponseDto.of(mission, request.getScore());
     }
 }

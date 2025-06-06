@@ -278,6 +278,7 @@ public class ChallengeService {
         if (!participation.getChallengeStatus().equals(ChallengeStatus.ACHIEVEMENT)) {
             throw new ChallengeException(ErrorCode.CHALLENGE_NOT_FINISH);
         }
+
         participation.storeScore(request.getScore());
         participationRepository.save(participation);
         return ChallengeFinishScoreResponseDto.of(participation, request.getScore());

@@ -59,11 +59,14 @@ public class Mission extends BaseEntity {
     @JoinColumn(name = "child_id", nullable = false)
     private User child;
 
+    @Column(name = "finish_score")
+    private Integer finsihScore;
+
     @Column(nullable = false)
     private Boolean isDeleted;
 
     @Builder
-    public Mission(String title, MissionType type, MissionCategory category, MissionSubject subject, MissionStatus status, Integer reward, LocalDateTime startDate, LocalDateTime endDate, User createdBy, User child, Boolean isDeleted) {
+    public Mission(String title, MissionType type, MissionCategory category, MissionSubject subject, MissionStatus status, Integer reward, LocalDateTime startDate, LocalDateTime endDate, User createdBy, User child, Boolean isDeleted, Integer finsihScore) {
         this.title = title;
         this.type = type;
         this.category = category;
@@ -74,10 +77,15 @@ public class Mission extends BaseEntity {
         this.endDate = endDate;
         this.createdBy = createdBy;
         this.child = child;
+        this.finsihScore = finsihScore;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 
     public void acceptProposal() {
         this.status = MissionStatus.ACCEPT;
+    }
+
+    public void storeScore(Integer score) {
+        this.finsihScore = score;
     }
 }
