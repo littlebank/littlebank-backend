@@ -50,7 +50,7 @@ public class PointController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "포인트 이체 API")
+    @Operation(summary = "포인트 보내기 API")
     @PostMapping("/transfer")
     public ResponseEntity<CommonPointTransferResponse> transferPoint(
             @RequestBody @Valid PointTransferRequest request,

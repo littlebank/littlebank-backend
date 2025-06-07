@@ -47,6 +47,7 @@ public class User extends BaseEntity {
     @Column(length = 150)
     private String profileImagePath;
     private Integer point;
+    private Integer accumulatedPoint;
     @Enumerated(EnumType.STRING)
     private UserRole role;
     @Enumerated(EnumType.STRING)
@@ -70,8 +71,8 @@ public class User extends BaseEntity {
     @Builder
     public User(
             String email, String password, String name, String statusMessage, String phone, String rrn, String bankName,
-            String bankCode, String bankAccount, String accountPin, String profileImagePath, Integer point, UserRole role,
-            Authority authority, Boolean isSubscribe, String fcmToken, LocalDateTime lastLoginAt, Boolean isDeleted
+            String bankCode, String bankAccount, String accountPin, String profileImagePath, Integer point, Integer accumulatedPoint,
+            UserRole role, Authority authority, Boolean isSubscribe, String fcmToken, LocalDateTime lastLoginAt, Boolean isDeleted
     ) {
         this.email = email;
         this.password = password;
@@ -85,6 +86,7 @@ public class User extends BaseEntity {
         this.accountPin = accountPin;
         this.profileImagePath = profileImagePath;
         this.point = point == null ? 0 : point;
+        this.accumulatedPoint = accumulatedPoint == null ? 0 : accumulatedPoint;
         this.role = role;
         this.authority = authority;
         this.isSubscribe = isSubscribe == null ? false : isSubscribe;
@@ -122,6 +124,7 @@ public class User extends BaseEntity {
 
     public void addPoint(Integer amount) {
         this.point += amount;
+        this.accumulatedPoint += amount;
     }
 
     public void login(String fcmToken) {
@@ -138,6 +141,7 @@ public class User extends BaseEntity {
 
     public void receivePoint(Integer point) {
         this.point += point;
+        this.accumulatedPoint += point;
     }
 
     public void exchangePointToMoney(Integer point) {
