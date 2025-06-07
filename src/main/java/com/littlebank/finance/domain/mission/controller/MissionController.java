@@ -6,8 +6,10 @@ import com.littlebank.finance.domain.mission.domain.MissionSubject;
 import com.littlebank.finance.domain.mission.domain.MissionType;
 import com.littlebank.finance.domain.mission.domain.RankingRange;
 import com.littlebank.finance.domain.mission.dto.request.CreateMissionRequestDto;
+import com.littlebank.finance.domain.mission.dto.request.MissionFinishScoreRequestDto;
 import com.littlebank.finance.domain.mission.dto.request.MissionRecentRewardRequestDto;
 import com.littlebank.finance.domain.mission.dto.response.CommonMissionResponseDto;
+import com.littlebank.finance.domain.mission.dto.response.MissionFinishScoreResponseDto;
 import com.littlebank.finance.domain.mission.dto.response.MissionRankingResponseDto;
 import com.littlebank.finance.domain.mission.dto.response.MissionRecentRewardResponseDto;
 import com.littlebank.finance.domain.mission.service.MissionService;
@@ -98,4 +100,13 @@ public class MissionController {
         return ResponseEntity.ok(Map.of(range.name(), response));
     }
 
+    @Operation(summary = "(부모) 미션 기간 이후 부모 평가 점수 입력하기 API")
+    @PostMapping("/parent/finish/score/{missionId}")
+    public ResponseEntity<MissionFinishScoreResponseDto> ApplyMissionScore (
+            @RequestBody MissionFinishScoreRequestDto request,
+            @PathVariable("missionId") Long missionId
+            ) {
+        MissionFinishScoreResponseDto response = missionService.applyMissionScore(missionId, request);
+        return ResponseEntity.ok(response);
+    }
 }

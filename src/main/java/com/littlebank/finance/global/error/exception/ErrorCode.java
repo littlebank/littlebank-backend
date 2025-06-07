@@ -86,7 +86,7 @@ public enum ErrorCode {
     ALREADY_CHALLENGE_ACCEPT(409, "CH009", "이미 아이의 챌리지 신청을 승낙했습니다"),
     UNVALID_MY_PARTICIPATION_TYPE( 422, "CH010", "타입은 진행중, 완료한 두 개만 존재합니다"),
     NOT_REQUESTED_CHALLENGE(400, "CH011", "이미 챌린지를 승낙했습니다"),
-
+    CHALLENGE_NOT_FINISH(409, "CH012", "아직 보상할 타이밍이 아닙니다"),
     // GAME
     GAME_NOT_FOUND( 404, "G001", "게임을 찾을 수 없습니다"),
     ALREADY_VOTED(400, "G002", "이미 투표했습니다"),
@@ -94,7 +94,7 @@ public enum ErrorCode {
     // MISSION
     MISSION_NOT_FOUND(404, "MS001", "미션을 찾을 수 없습니다"),
     MISSION_END_DATE_EXPIRED(410, "MS002", "설정한 미션 진행 기간이 지났습니다"),
-
+    MiSSION_NOT_FINISH(409, "MS003", "아직 보상할 타이밍이 아닙니다"),
     // SURVEY
     SURVEY_NOT_FOUND( 404, "Q001", "퀴즈를 찾을 수 없습니다");
 

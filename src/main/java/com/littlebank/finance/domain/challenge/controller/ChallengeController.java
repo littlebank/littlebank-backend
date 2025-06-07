@@ -1,7 +1,9 @@
 package com.littlebank.finance.domain.challenge.controller;
 
 import com.littlebank.finance.domain.challenge.domain.ChallengeCategory;
+import com.littlebank.finance.domain.challenge.dto.request.ChallengeFinishScoreRequestDto;
 import com.littlebank.finance.domain.challenge.dto.request.ChallengeUserRequestDto;
+import com.littlebank.finance.domain.challenge.dto.response.ChallengeFinishScoreResponseDto;
 import com.littlebank.finance.domain.challenge.dto.response.admin.ChallengeAdminResponseDto;
 import com.littlebank.finance.domain.challenge.dto.response.ChallengeUserResponseDto;
 import com.littlebank.finance.domain.challenge.service.ChallengeService;
@@ -85,6 +87,16 @@ public class ChallengeController {
             @AuthenticationPrincipal CustomUserDetails parent
     ) {
         ChallengeUserResponseDto response = challengeService.acceptApplyChallenge(participationId, parent.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "(부모) 챌린지 기간 이후 부모 평가 점수 입력하기 API")
+    @PostMapping("/parent/finish/score/{participationId}")
+    public ResponseEntity<ChallengeFinishScoreResponseDto> ApplyChallengeScore (
+            @RequestBody ChallengeFinishScoreRequestDto request,
+            @PathVariable("participationId") Long participationId
+    ) {
+        ChallengeFinishScoreResponseDto response = challengeService.applyChallengeScore(participationId, request);
         return ResponseEntity.ok(response);
     }
 }
