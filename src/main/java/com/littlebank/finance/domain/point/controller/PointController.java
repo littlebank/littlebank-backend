@@ -1,7 +1,8 @@
 package com.littlebank.finance.domain.point.controller;
 
+import com.littlebank.finance.domain.point.dto.request.ChildPointRefundRequest;
 import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
-import com.littlebank.finance.domain.point.dto.request.PointRefundRequest;
+import com.littlebank.finance.domain.point.dto.request.ParentPointRefundRequest;
 import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
 import com.littlebank.finance.domain.point.dto.response.*;
 import com.littlebank.finance.domain.point.service.PointService;
@@ -96,13 +97,23 @@ public class PointController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "포인트 꺼내기 API")
-    @PostMapping("/refund")
-    public ResponseEntity<PointRefundResponse> refundPoint(
-            @RequestBody @Valid PointRefundRequest request,
+    @Operation(summary = "(부모)포인트 꺼내기 API")
+    @PostMapping("/parent/refund")
+    public ResponseEntity<PointRefundResponse> refundPointByParent(
+            @RequestBody @Valid ParentPointRefundRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        PointRefundResponse response = pointService.refundPoint(customUserDetails.getId(), request);
+        PointRefundResponse response = pointService.refundPointByParent(customUserDetails.getId(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "(아이)포인트 꺼내기 API")
+    @PostMapping("/child/refund")
+    public ResponseEntity<PointRefundResponse> refundPointByChild(
+            @RequestBody @Valid ChildPointRefundRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        PointRefundResponse response = pointService.refundPointByChild(customUserDetails.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

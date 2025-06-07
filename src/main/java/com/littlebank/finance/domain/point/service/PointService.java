@@ -4,8 +4,9 @@ import com.littlebank.finance.domain.point.domain.*;
 import com.littlebank.finance.domain.point.domain.repository.PaymentRepository;
 import com.littlebank.finance.domain.point.domain.repository.RefundRepository;
 import com.littlebank.finance.domain.point.domain.repository.TransactionHistoryRepository;
+import com.littlebank.finance.domain.point.dto.request.ChildPointRefundRequest;
 import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
-import com.littlebank.finance.domain.point.dto.request.PointRefundRequest;
+import com.littlebank.finance.domain.point.dto.request.ParentPointRefundRequest;
 import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
 import com.littlebank.finance.domain.point.dto.response.*;
 import com.littlebank.finance.domain.point.exception.PointException;
@@ -144,18 +145,51 @@ public class PointService {
         return CustomPageResponse.of(transactionHistoryRepository.findLatestSentAccountByUserId(userId, pageable));
     }
 
-    public PointRefundResponse refundPoint(Long userId, PointRefundRequest request) {
+    public PointRefundResponse refundPointByParent(Long userId, ParentPointRefundRequest request) {
         User user = userRepository.findByIdWithLock(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         if (user.getPoint() < request.getExchangeAmount()) {
             throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
         }
+        if (user.getRole() != UserRole.PARENT) {
+            throw new UserException(ErrorCode.FORBIDDEN_PARENT_ONLY);
+        }
 
         user.exchangePointToMoney(request.getExchangeAmount());
 
         int processedAmount = request.getExchangeAmount();
-        if (user.getRole() == UserRole.CHILD &&
-                request.getExchangeAmount() < PointPolicy.EXCHANGE_FEE_EXEMPTION_AMOUNT) {
+
+        Refund refund = refundRepository.save(
+                Refund.builder()
+                        .requestedAmount(request.getExchangeAmount())
+                        .processedAmount(processedAmount)
+                        .remainingPoint(user.getPoint())
+                        .status(RefundStatus.WAIT)
+                        .user(user)
+                        .depositTargetUser(user)
+                        .build()
+        );
+
+        return PointRefundResponse.of(refund);
+    }
+
+    public PointRefundResponse refundPointByChild(Long userId, ChildPointRefundRequest request) {
+        User user = userRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        if (user.getPoint() < request.getExchangeAmount()) {
+            throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
+        }
+        if (user.getRole() != UserRole.CHILD) {
+            throw new UserException(ErrorCode.FORBIDDEN_CHILD_ONLY);
+        }
+
+        User depositTargetUser = userRepository.findById(request.getDepositTargetUserId())
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.exchangePointToMoney(request.getExchangeAmount());
+
+        int processedAmount = request.getExchangeAmount();
+        if (request.getExchangeAmount() < PointPolicy.EXCHANGE_FEE_EXEMPTION_AMOUNT) {
             processedAmount -= PointPolicy.CHILD_COMMISSION;
         }
 
@@ -166,6 +200,7 @@ public class PointService {
                         .remainingPoint(user.getPoint())
                         .status(RefundStatus.WAIT)
                         .user(user)
+                        .depositTargetUser(depositTargetUser)
                         .build()
         );
 
