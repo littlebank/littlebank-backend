@@ -14,4 +14,5 @@ public class WaitStatusRefundResponse {
     private Integer processedAmount;
     private RefundStatus status;
     private LocalDateTime requestedAt;
+    private Long depositTargetUserId;
 }

@@ -18,13 +18,15 @@ public class RefundHistoryResponse {
     private Integer processedAmount;
     private RefundStatus status;
     private LocalDateTime requestedAt;
-    private Long userId;
-    private String email;
-    private String userName;
-    private String phone;
-    private String bankName;
-    private String bankAccount;
-    private UserRole role;
+    private Long applicationUserId;
+    private String applicationUserEmail;
+    private String applicationUserName;
+    private String applicationUserPhone;
+    private UserRole applicationUserRole;
+    private Long depositTargetUserId;
+    private String depositTargetUserName;
+    private String depositTargetBankName;
+    private String depositTargetBankAccount;
     private Boolean isSubscribe;
 
     public static RefundHistoryResponse of(Refund refund) {
@@ -34,13 +36,15 @@ public class RefundHistoryResponse {
                 .processedAmount(refund.getProcessedAmount())
                 .status(refund.getStatus())
                 .requestedAt(refund.getCreatedDate())
-                .userId(refund.getUser().getId())
-                .email(refund.getUser().getEmail())
-                .userName(refund.getUser().getName())
-                .phone(refund.getUser().getPhone())
-                .bankName(refund.getUser().getBankName())
-                .bankAccount(refund.getUser().getBankAccount())
-                .role(refund.getUser().getRole())
+                .applicationUserId(refund.getUser().getId())
+                .applicationUserEmail(refund.getUser().getEmail())
+                .applicationUserName(refund.getUser().getName())
+                .applicationUserPhone(refund.getUser().getPhone())
+                .depositTargetUserId(refund.getDepositTargetUser().getId())
+                .depositTargetUserName(refund.getDepositTargetUser().getName())
+                .depositTargetBankName(refund.getDepositTargetUser().getBankName())
+                .depositTargetBankAccount(refund.getDepositTargetUser().getBankAccount())
+                .applicationUserRole(refund.getUser().getRole())
                 .isSubscribe(refund.getUser().getIsSubscribe())
                 .build();
     }

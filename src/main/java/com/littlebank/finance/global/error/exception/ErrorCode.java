@@ -20,6 +20,8 @@ public enum ErrorCode {
     EMAIL_DUPLICATED(409, "U002", "중복된 이메일이 존재합니다"),
     PHONE_DUPLICATED(409, "U003", "전화번호가 중복되었습니다"),
     FORBIDDEN_PARENT_ONLY(403, "U004", "부모 역할만 권한이 있습니다"),
+    FORBIDDEN_CHILD_ONLY(403, "U005", "아이 역할만 권한이 있습니다"),
+    EXCHANGE_ACCOUNT_NOT_REGISTERED(400, "U006", "환전 가능한 계좌가 등록되어 있지 않습니다"),
 
     // Friend
     FRIEND_NOT_FOUND(404, "F001", "친구가 존재하지 않습니다"),

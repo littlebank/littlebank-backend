@@ -29,6 +29,7 @@ public class MyInfoResponse {
     private Authority authority;
     private boolean isSubscribe;
     private LocalDateTime lastLoginAt;
+    private LocalDateTime registeredAt;
 
     public static MyInfoResponse of(User user) {
         return MyInfoResponse.builder()
@@ -48,6 +49,7 @@ public class MyInfoResponse {
                 .authority(user.getAuthority())
                 .isSubscribe(user.getIsSubscribe())
                 .lastLoginAt(user.getLastLoginAt())
+                .registeredAt(user.getCreatedDate())
                 .build();
     }
 }

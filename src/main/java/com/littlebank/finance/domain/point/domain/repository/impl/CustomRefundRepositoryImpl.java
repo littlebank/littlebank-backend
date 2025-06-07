@@ -3,8 +3,10 @@ package com.littlebank.finance.domain.point.domain.repository.impl;
 import com.littlebank.finance.domain.point.domain.QRefund;
 import com.littlebank.finance.domain.point.domain.RefundStatus;
 import com.littlebank.finance.domain.point.domain.repository.CustomRefundRepository;
+import com.littlebank.finance.domain.point.dto.response.LatestRefundDepositTargetResponse;
 import com.littlebank.finance.domain.point.dto.response.SendPointHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.WaitStatusRefundResponse;
+import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,11 +18,14 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import static com.littlebank.finance.domain.point.domain.QRefund.refund;
+import static com.littlebank.finance.domain.user.domain.QUser.user;
 
 @RequiredArgsConstructor
 public class CustomRefundRepositoryImpl implements CustomRefundRepository {
     private final JPAQueryFactory queryFactory;
     private QRefund r = refund;
+    private QUser u = user;
+    private final static int LATEST_REFUND_DEPOSIT_TARGET_ROW = 3;
 
     @Override
     public Page<WaitStatusRefundResponse> findRefundHistoryByUserId(Long userId, Pageable pageable) {
@@ -62,6 +67,28 @@ public class CustomRefundRepositoryImpl implements CustomRefundRepository {
                 .from(r)
                 .where(r.user.id.eq(userId)
                         .and(r.status.eq(RefundStatus.PROCESSED)))
+                .fetch();
+
+        return results;
+    }
+
+    @Override
+    public List<LatestRefundDepositTargetResponse> findRefundDepositTargetByUserId(Long userId) {
+        List<LatestRefundDepositTargetResponse> results = queryFactory
+                .select(Projections.constructor(
+                        LatestRefundDepositTargetResponse.class,
+                        r.id,
+                        u.id,
+                        u.name,
+                        u.bankName,
+                        u.bankAccount,
+                        r.createdDate
+                ))
+                .from(r)
+                .join(r.depositTargetUser, u)
+                .where(r.user.id.eq(userId))
+                .orderBy(r.createdDate.desc())
+                .limit(LATEST_REFUND_DEPOSIT_TARGET_ROW)
                 .fetch();
 
         return results;

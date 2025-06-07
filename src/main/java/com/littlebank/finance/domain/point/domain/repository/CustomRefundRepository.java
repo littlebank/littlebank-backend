@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.point.domain.repository;
 
+import com.littlebank.finance.domain.point.dto.response.LatestRefundDepositTargetResponse;
 import com.littlebank.finance.domain.point.dto.response.SendPointHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.WaitStatusRefundResponse;
 import org.springframework.data.domain.Page;
@@ -10,4 +11,5 @@ import java.util.List;
 public interface CustomRefundRepository {
     Page<WaitStatusRefundResponse> findRefundHistoryByUserId(Long userId, Pageable pageable);
     List<SendPointHistoryResponse> findRefundHistoryByUserId(Long userId);
+    List<LatestRefundDepositTargetResponse> findRefundDepositTargetByUserId(Long userId);
 }

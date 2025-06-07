@@ -15,6 +15,7 @@ public class PointRefundResponse {
     private Integer processedAmount;
     private Integer remainingPoint;
     private RefundStatus status;
+    private Long depositTargetUserId;
 
     public static PointRefundResponse of(Refund refund) {
         return PointRefundResponse.builder()
@@ -23,6 +24,7 @@ public class PointRefundResponse {
                 .processedAmount(refund.getProcessedAmount())
                 .remainingPoint(refund.getRemainingPoint())
                 .status(refund.getStatus())
+                .depositTargetUserId(refund.getDepositTargetUser().getId())
                 .build();
     }
 }

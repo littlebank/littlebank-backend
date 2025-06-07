@@ -30,15 +30,19 @@ public class Refund extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deposit_target_user_id", nullable = false)
+    private User depositTargetUser;
 
     @Builder
-    public Refund(Integer requestedAmount, Integer processedAmount, Integer remainingPoint, RefundStatus status, LocalDateTime exchangedAt, User user) {
+    public Refund(Integer requestedAmount, Integer processedAmount, Integer remainingPoint, RefundStatus status, LocalDateTime exchangedAt, User user, User depositTargetUser) {
         this.requestedAmount = requestedAmount;
         this.processedAmount = processedAmount;
         this.remainingPoint = remainingPoint;
         this.status = status;
         this.exchangedAt = exchangedAt;
         this.user = user;
+        this.depositTargetUser = depositTargetUser;
     }
 
     public void sentMoney() {
