@@ -148,12 +148,16 @@ public class PointService {
     public PointRefundResponse refundPointByParent(Long userId, ParentPointRefundRequest request) {
         User user = userRepository.findByIdWithLock(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-        if (user.getPoint() < request.getExchangeAmount()) {
-            throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
-        }
         if (user.getRole() != UserRole.PARENT) {
             throw new UserException(ErrorCode.FORBIDDEN_PARENT_ONLY);
         }
+        if (user.getBankName() == null || user.getBankAccount() == null) {
+            throw new UserException(ErrorCode.EXCHANGE_ACCOUNT_NOT_REGISTERED);
+        }
+        if (user.getPoint() < request.getExchangeAmount()) {
+            throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
+        }
+
 
         user.exchangePointToMoney(request.getExchangeAmount());
 
@@ -176,15 +180,19 @@ public class PointService {
     public PointRefundResponse refundPointByChild(Long userId, ChildPointRefundRequest request) {
         User user = userRepository.findByIdWithLock(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-        if (user.getPoint() < request.getExchangeAmount()) {
-            throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
-        }
         if (user.getRole() != UserRole.CHILD) {
             throw new UserException(ErrorCode.FORBIDDEN_CHILD_ONLY);
         }
 
         User depositTargetUser = userRepository.findById(request.getDepositTargetUserId())
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        if (depositTargetUser.getBankName() == null || depositTargetUser.getBankAccount() == null) {
+            throw new UserException(ErrorCode.EXCHANGE_ACCOUNT_NOT_REGISTERED);
+        }
+
+        if (user.getPoint() < request.getExchangeAmount()) {
+            throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
+        }
 
         user.exchangePointToMoney(request.getExchangeAmount());
 
@@ -205,6 +213,11 @@ public class PointService {
         );
 
         return PointRefundResponse.of(refund);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LatestRefundDepositTargetResponse> getRefundLatestDepositTarget(Long userId) {
+        return refundRepository.findRefundDepositTargetByUserId(userId);
     }
 
     @Transactional(readOnly = true)

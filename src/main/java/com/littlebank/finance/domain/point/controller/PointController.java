@@ -22,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api-user/point")
 @RequiredArgsConstructor
@@ -85,7 +87,7 @@ public class PointController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "최근 포인트를 보낸 계좌 조회 API")
+    @Operation(summary = "최근 포인트를 보낸 대상 조회 API")
     @GetMapping("/transfer/latest/account")
     public ResponseEntity<CustomPageResponse<LatestSentAccountResponse>> getLatestSentAccount(
             @Parameter(description = "페이지 번호, 0부터 시작")
@@ -115,6 +117,15 @@ public class PointController {
     ) {
         PointRefundResponse response = pointService.refundPointByChild(customUserDetails.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "최근 포인트를 꺼낸 대상 조회 API")
+    @GetMapping("/refund/latest/deposit-target")
+    public ResponseEntity<List<LatestRefundDepositTargetResponse>> getRefundLatestDepositTarget(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        List<LatestRefundDepositTargetResponse> response = pointService.getRefundLatestDepositTarget(customUserDetails.getId());
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "포인트 환전 대기 목록 조회 API")
