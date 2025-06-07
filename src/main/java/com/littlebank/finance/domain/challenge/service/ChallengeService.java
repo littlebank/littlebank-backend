@@ -203,7 +203,7 @@ public class ChallengeService {
     }
 
     public CustomPageResponse<ChallengeUserResponseDto> getChildChallenges(Long familyId, Long childId, Long userId, int page) {
-        FamilyMember familyMember = familyMemberRepository.findByUserId(userId)
+        FamilyMember familyMember = familyMemberRepository.findByUserIdAndStatusWithUser(userId, Status.JOINED)
                 .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
         Long myFamilyId = familyMember.getFamily().getId();
         if (!myFamilyId.equals(familyId)) {
