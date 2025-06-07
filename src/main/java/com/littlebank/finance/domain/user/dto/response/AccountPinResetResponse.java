@@ -9,10 +9,12 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class AccountPinResetResponse {
+    private Long userId;
     private String pin;
 
     public static AccountPinResetResponse of(User user) {
         return AccountPinResetResponse.builder()
+                .userId(user.getId())
                 .pin(user.getAccountPin())
                 .build();
     }
