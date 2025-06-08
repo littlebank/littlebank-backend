@@ -47,6 +47,22 @@ public class FriendService {
                 .customName(toUser.getName())
                 .build()
         );
+
+        // 알림 생성
+        try {
+            Notification notification = notificationRepository.save(Notification.builder()
+                    .receiver(toUser)
+                    .message(fromUser.getName() + "님이 친구 요청을 보냈어요!")
+                    .subMessage("친구를 맺고 함께 소통을 시작해보세요")
+                    .type(NotificationType.ADD_FRIEND)
+                    .targetId(friend.getId())
+                    .isRead(false)
+                    .build());
+            log.info("알림 저장 성공: " + notification.getId());
+            firebaseService.sendNotification(notification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
         return FriendAddResponse.of(friend);
     }
 
