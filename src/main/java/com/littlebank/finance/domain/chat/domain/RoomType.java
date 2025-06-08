@@ -1,5 +1,5 @@
 package com.littlebank.finance.domain.chat.domain;
 
-public enum MessageType {
-    ENTER, TALK, LEAVE
+public enum RoomType {
+    FAMILY, FRIEND
 }
