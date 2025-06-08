@@ -61,7 +61,7 @@ public class GoalService {
                     .forEach(p -> {
                         Notification notification = notificationRepository.save(Notification.builder()
                                 .receiver(p.getUser())
-                                .message("우리 예쁜 " + family.getMembers().get(0).getNickname() + "(이)가 목표를 신청했어요!")
+                                .message(family.getMembers().get(0).getNickname() + "(이)가 목표 승인을 요청했어요!")
                                 .type(NotificationType.GOAL_PROPOSAL)
                                 .targetId(goal.getId())
                                 .isRead(false)

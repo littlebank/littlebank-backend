@@ -129,7 +129,7 @@ public class ChallengeService {
                     Notification notification = notificationRepository.save(
                             Notification.builder()
                                     .receiver(parent.getUser())
-                                    .message("우리 예쁜 "+ family.getMembers().get(0).getNickname() + "(이)가 목표를 신청했어요!")
+                                    .message(family.getMembers().get(0).getNickname() + "(이)가 챌린지 승인을 요청했어요!")
                                     .type(NotificationType.CHALLENGE_JOIN)
                                     .targetId(challenge.getId())
                                     .isRead(false)

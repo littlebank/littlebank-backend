@@ -79,8 +79,8 @@ public class FixPushNotificationService {
                                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
                         Notification notification = notificationRepository.save(Notification.builder()
                                 .receiver(parent)
-                                .message(r.getChildNickname() + "의 미션 '" + r.getMissionTitle() + "'이(가) 종료되었어요!")
-                                .subMessage("앱에서 아이에게 약속한 보상을 주세요~!")
+                                .message(r.getChildNickname() + "(이)가 미션 '" + r.getMissionTitle() + "'을 완료했어요!🎉")
+                                .subMessage("우리 아이를 칭찬하러 가볼까요?")
                                 .type(NotificationType.MISSION_ACHIEVEMENT)
                                 .targetId(r.getMissionId())
                                 .isRead(false)
@@ -101,8 +101,8 @@ public class FixPushNotificationService {
                                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
                         Notification notification = notificationRepository.save(Notification.builder()
                                 .receiver(parent)
-                                .message(r.getChildNickname() + "의 미션 '" + r.getChallengeTitle() + "'이(가) 종료되었어요!")
-                                .subMessage("앱에서 아이에게 약속한 보상을 주세요~!")
+                                .message(r.getChildNickname() + "가 챌린지 '" + r.getChallengeTitle() + "'을 완료했어요!🎉")
+                                .subMessage("우리 아이를 칭찬하러 가볼까요?")
                                 .type(NotificationType.CHALLENGE_ACHIEVEMENT)
                                 .targetId(r.getChallengeId())
                                 .isRead(false)

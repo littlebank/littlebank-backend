@@ -101,7 +101,8 @@ public class FamilyService {
         try {
             Notification notification = notificationRepository.save(Notification.builder()
                     .receiver(user)
-                    .message("우리 가족(" + user.getName() + ")가 나를 가족으로 추가했어요!")
+                    .message(user.getName() + "님이 가족 멤버로 초대했어요!")
+                    .subMessage("수락하면 함께 활동할 수 있어요")
                     .type(NotificationType.ADD_FAMILY)
                     .targetId(targetMember.getId())
                     .isRead(false)
