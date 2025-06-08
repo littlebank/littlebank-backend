@@ -136,7 +136,7 @@ public class GoalService {
         try {
             Notification notification = notificationRepository.save(Notification.builder()
                             .receiver(goal.getCreatedBy())
-                        .message("우리 부모님(" + ")이 목표를 승낙했습니다!") //부모 중 누구인지 추가하기
+                            .message("우리 부모님(" + ")이 목표를 승낙했습니다!") //부모 중 누구인지 추가하기
                             .type(NotificationType.GOAL_ACCEPT)
                             .targetId(targetGoalId)
                             .isRead(false)
@@ -177,8 +177,9 @@ public class GoalService {
         try {
             Notification notification = notificationRepository.save(Notification.builder()
                     .receiver(goal.getCreatedBy())
-                    .message("우리 부모님(" + ")이 목표를 승낙했습니다!") //부모 중 누구인지 추가하기
-                    .type(NotificationType.GOAL_STAMP)
+                    .message("우리 부모님(" + ")이 목표 도장을 찍어줬어요!") //부모 중 누구인지 추가하기
+                    .subMessage("오늘 목표치도 화이팅!")
+                    .type(NotificationType.PERMIT_GOAL)
                     .targetId(goal.getId())
                     .isRead(false)
                     .build());
