@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.point.dto.response;
 
 import com.littlebank.finance.domain.point.domain.RefundStatus;
+import com.littlebank.finance.domain.user.domain.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,4 +16,7 @@ public class RefundHistoryResponse {
     private RefundStatus status;
     private LocalDateTime requestedAt;
     private Long depositTargetUserId;
+    private String depositTargetUserName;
+    private String depositTargetBankName;
+    private String depositTargetBankAccount;
 }

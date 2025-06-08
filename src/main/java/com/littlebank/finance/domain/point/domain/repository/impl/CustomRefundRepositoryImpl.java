@@ -37,9 +37,13 @@ public class CustomRefundRepositoryImpl implements CustomRefundRepository {
                                 r.processedAmount,
                                 r.status,
                                 r.createdDate,
-                                r.depositTargetUser.id
+                                u.id,
+                                u.name,
+                                u.bankName,
+                                u.bankAccount
                         ))
                         .from(r)
+                        .join(r.depositTargetUser, u)
                         .where(r.user.id.eq(userId))
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())
