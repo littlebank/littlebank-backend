@@ -19,6 +19,7 @@ import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.family.domain.repository.FamilyMemberRepository;
 import com.littlebank.finance.domain.family.domain.repository.FamilyRepository;
 import com.littlebank.finance.domain.family.exception.FamilyException;
+import com.littlebank.finance.domain.mission.exception.MissionException;
 import com.littlebank.finance.domain.notification.domain.Notification;
 import com.littlebank.finance.domain.notification.domain.NotificationType;
 import com.littlebank.finance.domain.notification.domain.repository.NotificationRepository;
@@ -278,7 +279,9 @@ public class ChallengeService {
         if (!participation.getChallengeStatus().equals(ChallengeStatus.ACHIEVEMENT)) {
             throw new ChallengeException(ErrorCode.CHALLENGE_NOT_FINISH);
         }
-
+        if (request.getScore() < 0 || request.getScore() > 100) {
+            throw new ChallengeException(ErrorCode.INVALID_INPUT_VALUE);
+        }
         participation.storeScore(request.getScore());
         participationRepository.save(participation);
         return ChallengeFinishScoreResponseDto.of(participation, request.getScore());
