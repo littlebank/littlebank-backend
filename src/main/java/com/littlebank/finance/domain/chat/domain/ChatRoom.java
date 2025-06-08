@@ -1,27 +1,43 @@
 package com.littlebank.finance.domain.chat.domain;
 
+import com.littlebank.finance.domain.family.domain.Status;
+import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.common.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
-@Table(name="chat_room")
 @Getter
+@SQLDelete(sql = "UPDATE chat_room SET is_deleted = true WHERE chat_room_id = ?")
+@Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoom extends BaseEntity {
     @Id
-    @Column(length=100)
-    private String id;
-
-    @Column(name="room_name",nullable = false,length = 50)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "chat_room_id")
+    private Long id;
+    @Column(nullable = false, length = 50)
     private String name;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "room_type", nullable = false)
+    private RoomType type;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "room_range", nullable = false)
+    private RoomRange range;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
+    @Column(nullable = false)
+    private Boolean isDeleted;
 
     @Builder
-    public ChatRoom(String id, String name) {
-        this.id = id;
+    public ChatRoom(String name, RoomType type, RoomRange range, User createdBy, Boolean isDeleted) {
         this.name = name;
+        this.type = type;
+        this.range = range;
+        this.createdBy = createdBy;
+        this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 }

@@ -63,8 +63,8 @@ public enum ErrorCode {
     MAIL_SEND_ERROR(500, "M001", "메일 전송 과정에서 오류가 발생했습니다"),
 
     // Chat
-    CHAT_ROOM_NOT_FOUND(404,"C001","채팅방이 존재하지 않습니다"),
-    FORBIDDEN_CHAT_DELETE(403,"C002","채팅방을 삭제할 수 없습니다"),
+    CHAT_ROOM_NOT_FOUND(404,"C001","채팅방 데이터가 존재하지 않습니다"),
+    CHAT_ROOM_TOO_FEW_PARTICIPANTS(422,"C002","채팅방에는 최소 2명 이상의 인원이 참여해야 합니다."),
 
     // Feed
     FEED_NOT_FOUND(404, "F001","피드를 찾을 수 없습니다" ),

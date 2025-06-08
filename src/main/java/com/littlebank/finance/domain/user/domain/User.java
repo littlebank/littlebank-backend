@@ -1,6 +1,5 @@
 package com.littlebank.finance.domain.user.domain;
 
-import com.littlebank.finance.domain.chat.domain.ChatMessage;
 import com.littlebank.finance.domain.feed.domain.Feed;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
@@ -59,10 +58,6 @@ public class User extends BaseEntity {
     private String fcmToken;
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatMessage> senderMessages = new ArrayList<>();
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatMessage> receiverMessages = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Feed> feeds = new ArrayList<>();
     @Column(nullable = false)

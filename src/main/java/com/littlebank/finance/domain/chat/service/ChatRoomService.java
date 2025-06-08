@@ -1,76 +1,65 @@
 package com.littlebank.finance.domain.chat.service;
 
-import com.littlebank.finance.domain.chat.dto.request.ChatRoomRequest;
 import com.littlebank.finance.domain.chat.domain.ChatRoom;
-import com.littlebank.finance.domain.chat.domain.ChatRoomParticipant;
-import com.littlebank.finance.domain.chat.domain.repository.ChatRoomParticipantRepository;
+import com.littlebank.finance.domain.chat.domain.RoomRange;
+import com.littlebank.finance.domain.chat.domain.UserChatRoom;
+import com.littlebank.finance.domain.chat.domain.repository.UserChatRoomRepository;
+import com.littlebank.finance.domain.chat.dto.request.ChatRoomCreateRequest;
 import com.littlebank.finance.domain.chat.domain.repository.ChatRoomRepository;
+import com.littlebank.finance.domain.chat.dto.response.ChatRoomCreateResponse;
 import com.littlebank.finance.domain.chat.exception.ChatException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
-import com.littlebank.finance.global.error.exception.ErrorCode;
 
+import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ChatRoomService {
-
-    private final ChatRoomRepository chatRoomRepository;
-    private final ChatRoomParticipantRepository participantRepository;
+    private final static int CHAT_ROOM_MIN_PARTICIPANT_COUNT = 2;
     private final UserRepository userRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final UserChatRoomRepository userChatRoomRepository;
 
-    public ChatRoom createRoom(ChatRoomRequest request, Long currentUserId) {
-        Set<Long> participantIds=new HashSet<>(request.getParticipantIds());
-        participantIds.add(currentUserId);
+    public ChatRoomCreateResponse createRoom(Long userId, ChatRoomCreateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        //기존 채팅방 존재 여부 확인
-        if (participantIds.size() == 2) {
-            List<String> existingRoomIds = participantRepository.findRoomIdsByUserIds(participantIds);
-            for (String roomId : existingRoomIds) {
-                Long count = participantRepository.countParticipantsInRoom(roomId);
-                if (count == 2) {
-                    return chatRoomRepository.findById(roomId)
-                            .orElseThrow(() -> new ChatException(ErrorCode.CHAT_ROOM_NOT_FOUND));
-                }
-            }
+        ChatRoom chatRoom = chatRoomRepository.save(
+                ChatRoom.builder()
+                        .name(request.getName())
+                        .range(request.getRoomRange())
+                        .type(request.getRoomType())
+                        .createdBy(user)
+                        .build()
+        );
+
+        long resultCount = request.getParticipantIds().stream()
+                .map(userRepository::findById)
+                .flatMap(Optional::stream)
+                .map(u -> userChatRoomRepository.save(
+                                UserChatRoom.builder()
+                                        .room(chatRoom)
+                                        .user(u)
+                                        .build()
+                        )
+                )
+                .count();
+
+        if (resultCount < CHAT_ROOM_MIN_PARTICIPANT_COUNT) {
+            throw new ChatException(ErrorCode.CHAT_ROOM_TOO_FEW_PARTICIPANTS);
         }
 
-        //새로운 채팅방 생성
-        String roomId=UUID.randomUUID().toString();
-        ChatRoom chatRoom=ChatRoom.builder().id(roomId).name(request.getName()).build();
-        chatRoomRepository.save(chatRoom);
-
-        //참여자 등록
-        List<User> users= userRepository.findAllById(participantIds);
-        for (User user:users) {
-            participantRepository.save(ChatRoomParticipant.builder().chatRoom(chatRoom).user(user).build());
-        }
-        return chatRoom;
-    }
-    public List<ChatRoom> getAllRooms(Long userId) {
-        return participantRepository.findRoomIdsByUserIds(Set.of(userId)).stream()
-                .map(roomId->chatRoomRepository.findById(roomId)
-                        .orElseThrow(()->new ChatException(ErrorCode.CHAT_ROOM_NOT_FOUND)))
-                .toList();
-    }
-
-    public boolean isParticipant(String roomId, Long userId) {
-        return participantRepository.existsByRoomIdAndUserId(roomId, userId);
-    }
-
-    @Transactional
-    public void deleteRoom(String roomId, Long userId) {
-        boolean isParticipant = participantRepository.existsByRoomIdAndUserId(roomId, userId);
-        if (!isParticipant) {
-            throw new ChatException(ErrorCode.FORBIDDEN_CHAT_DELETE);
-        }
-        participantRepository.deleteAllByChatRoomId(roomId);
-        chatRoomRepository.deleteById(roomId);
+        return ChatRoomCreateResponse.of(chatRoom);
     }
 }
