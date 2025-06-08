@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class WaitStatusRefundResponse {
+public class RefundHistoryResponse {
     private Long refundId;
     private Integer requestedAmount;
     private Integer processedAmount;

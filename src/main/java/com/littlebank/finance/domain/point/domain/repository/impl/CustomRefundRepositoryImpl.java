@@ -5,7 +5,7 @@ import com.littlebank.finance.domain.point.domain.RefundStatus;
 import com.littlebank.finance.domain.point.domain.repository.CustomRefundRepository;
 import com.littlebank.finance.domain.point.dto.response.LatestRefundDepositTargetResponse;
 import com.littlebank.finance.domain.point.dto.response.SendPointHistoryResponse;
-import com.littlebank.finance.domain.point.dto.response.WaitStatusRefundResponse;
+import com.littlebank.finance.domain.point.dto.response.RefundHistoryResponse;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -28,24 +28,23 @@ public class CustomRefundRepositoryImpl implements CustomRefundRepository {
     private final static int LATEST_REFUND_DEPOSIT_TARGET_ROW = 3;
 
     @Override
-    public Page<WaitStatusRefundResponse> findRefundHistoryByUserId(Long userId, Pageable pageable) {
-        List<WaitStatusRefundResponse> results =
+    public Page<RefundHistoryResponse> findRefundHistoryByUserId(Long userId, Pageable pageable) {
+        List<RefundHistoryResponse> results =
                 queryFactory.select(Projections.constructor(
-                                WaitStatusRefundResponse.class,
-                        r.id,
-                        r.requestedAmount,
-                        r.processedAmount,
-                        r.status,
-                        r.createdDate
-                ))
+                                RefundHistoryResponse.class,
+                                r.id,
+                                r.requestedAmount,
+                                r.processedAmount,
+                                r.status,
+                                r.createdDate,
+                                r.depositTargetUser.id
+                        ))
                         .from(r)
-                .where(r.user.id.eq(userId)
-                        .and(r.status.eq(RefundStatus.WAIT))
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(r.createdDate.desc())
-                .fetch();
+                        .where(r.user.id.eq(userId))
+                        .offset(pageable.getOffset())
+                        .limit(pageable.getPageSize())
+                        .orderBy(r.createdDate.desc())
+                        .fetch();
 
         return new PageImpl<>(results, pageable, results.size());
     }
