@@ -10,12 +10,18 @@ import com.littlebank.finance.domain.family.dto.request.MyFamilyNicknameUpdateRe
 import com.littlebank.finance.domain.family.dto.response.*;
 import com.littlebank.finance.domain.family.exception.FamilyException;
 import com.littlebank.finance.domain.friend.dto.response.FamilyInvitationAcceptResponse;
+import com.littlebank.finance.domain.notification.domain.Notification;
+import com.littlebank.finance.domain.notification.domain.NotificationType;
+import com.littlebank.finance.domain.notification.domain.repository.NotificationRepository;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.UserRole;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
+import com.littlebank.finance.global.firebase.FirebaseService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -30,7 +37,8 @@ public class FamilyService {
     private final UserRepository userRepository;
     private final FamilyRepository familyRepository;
     private final FamilyMemberRepository familyMemberRepository;
-
+    private final FirebaseService firebaseService;
+    private final NotificationRepository notificationRepository;
     public FamilyMemberAddResponse addFamilyMember(Long userId, FamilyMemberAddRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -89,6 +97,21 @@ public class FamilyService {
                     .build());
         }
 
+        // 알림 생성
+        try {
+            Notification notification = notificationRepository.save(Notification.builder()
+                    .receiver(user)
+                    .message(user.getName() + "님이 가족 멤버로 초대했어요!")
+                    .subMessage("수락하면 함께 활동할 수 있어요")
+                    .type(NotificationType.ADD_FAMILY)
+                    .targetId(targetMember.getId())
+                    .isRead(false)
+                    .build());
+            log.info("알림 저장 성공: " + notification.getId());
+            firebaseService.sendNotification(notification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
         return FamilyMemberAddResponse.of(targetMember);
     }
 
@@ -137,6 +160,24 @@ public class FamilyService {
         }
 
         member.accept();
+
+        // 알림 생성
+        try {
+            member.getFamily().getMembers().stream()
+                    .filter(m -> !m.getUser().getId().equals(userId) && m.getStatus() == Status.JOINED)
+                    .forEach(m -> {
+                        Notification notification = notificationRepository.save(Notification.builder()
+                                .receiver(m.getUser())
+                                .message(member.getNickname() + "님이 우리 가족이 되었어요!")
+                                .type(NotificationType.ACCEPT_FAMILY)
+                                .targetId(member.getId())
+                                .isRead(false)
+                                .build());
+                        firebaseService.sendNotification(notification);
+                    });
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
 
         return FamilyInvitationAcceptResponse.of(member);
     }

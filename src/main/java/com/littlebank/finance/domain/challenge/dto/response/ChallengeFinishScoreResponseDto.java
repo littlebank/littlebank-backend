@@ -11,13 +11,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ChallengeFinishScoreResponseDto {
     private Long participationId;
-    private FamilyMember parent;
     private Integer score;
 
     public static ChallengeFinishScoreResponseDto of(ChallengeParticipation participation, Integer score) {
         return ChallengeFinishScoreResponseDto.builder()
                 .participationId(participation.getId())
-                .parent(participation.getParent())
                 .score(score)
                 .build();
     }

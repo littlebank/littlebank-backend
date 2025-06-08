@@ -69,7 +69,7 @@ public class MissionService {
                 log.info("알림 생성 시작. 알림 대상: " + child.getId() + ", 미션 ID: " + mission.getId());
                 Notification notification = notificationRepository.save(Notification.builder()
                         .receiver(child)
-                        .message("우리 부모님(" + parentMember.getNickname() + ")이 미션 신청을 했습니다!")
+                        .message("우리 부모님(" + parentMember.getNickname() + ")이 미션 승인을 요청했어요!")
                         .type(NotificationType.MISSION_PROPOSAL)
                         .targetId(mission.getId())
                         .isRead(false)

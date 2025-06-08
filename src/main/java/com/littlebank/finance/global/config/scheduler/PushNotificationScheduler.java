@@ -24,4 +24,14 @@ public class PushNotificationScheduler {
     public void notifyParentOfChildGoalAchievements() {
         fixPushNotificationService.sendWeeklyGoalAchievementAlertToParents();
     }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    public void updateStatusAtMidnight() {
+        fixPushNotificationService.updateExpiredMissionsAndChallengesStatus();
+    }
+
+    @Scheduled(cron = "0 0 7 * * *")
+    public void notifyParentsOfExpiredTasks() {
+        fixPushNotificationService.notifyParentsOfCompletedMissionsAndChallenges();
+    }
 }

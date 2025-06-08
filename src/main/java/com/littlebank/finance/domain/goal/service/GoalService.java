@@ -61,7 +61,7 @@ public class GoalService {
                     .forEach(p -> {
                         Notification notification = notificationRepository.save(Notification.builder()
                                 .receiver(p.getUser())
-                                .message("우리 예쁜 " + family.getMembers().get(0).getNickname() + "(이)가 목표를 신청했어요!")
+                                .message(family.getMembers().get(0).getNickname() + "(이)가 목표 승인을 요청했어요!")
                                 .type(NotificationType.GOAL_PROPOSAL)
                                 .targetId(goal.getId())
                                 .isRead(false)
@@ -136,7 +136,7 @@ public class GoalService {
         try {
             Notification notification = notificationRepository.save(Notification.builder()
                             .receiver(goal.getCreatedBy())
-                        .message("우리 부모님(" + ")이 목표를 승낙했습니다!") //부모 중 누구인지 추가하기
+                            .message("우리 부모님(" + ")이 목표를 승낙했습니다!") //부모 중 누구인지 추가하기
                             .type(NotificationType.GOAL_ACCEPT)
                             .targetId(targetGoalId)
                             .isRead(false)
@@ -173,6 +173,20 @@ public class GoalService {
             goal.achieve();
         }
 
+        // 알림
+        try {
+            Notification notification = notificationRepository.save(Notification.builder()
+                    .receiver(goal.getCreatedBy())
+                    .message("우리 부모님(" + ")이 목표 도장을 찍어줬어요!") //부모 중 누구인지 추가하기
+                    .subMessage("오늘 목표치도 화이팅!")
+                    .type(NotificationType.PERMIT_GOAL)
+                    .targetId(goal.getId())
+                    .isRead(false)
+                    .build());
+            firebaseService.sendNotification(notification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
         return CommonGoalResponse.of(goal);
     }
 

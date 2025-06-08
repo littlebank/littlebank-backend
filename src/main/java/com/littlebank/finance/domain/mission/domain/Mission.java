@@ -88,4 +88,8 @@ public class Mission extends BaseEntity {
     public void storeScore(Integer score) {
         this.finsihScore = score;
     }
+
+    public void setStatus(MissionStatus missionStatus) {
+        this.status = MissionStatus.ACHIEVEMENT;
+    }
 }

@@ -19,6 +19,7 @@ import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.family.domain.repository.FamilyMemberRepository;
 import com.littlebank.finance.domain.family.domain.repository.FamilyRepository;
 import com.littlebank.finance.domain.family.exception.FamilyException;
+import com.littlebank.finance.domain.mission.exception.MissionException;
 import com.littlebank.finance.domain.notification.domain.Notification;
 import com.littlebank.finance.domain.notification.domain.NotificationType;
 import com.littlebank.finance.domain.notification.domain.repository.NotificationRepository;
@@ -128,7 +129,7 @@ public class ChallengeService {
                     Notification notification = notificationRepository.save(
                             Notification.builder()
                                     .receiver(parent.getUser())
-                                    .message("우리 예쁜 "+ family.getMembers().get(0).getNickname() + "(이)가 목표를 신청했어요!")
+                                    .message(family.getMembers().get(0).getNickname() + "(이)가 챌린지 승인을 요청했어요!")
                                     .type(NotificationType.CHALLENGE_JOIN)
                                     .targetId(challenge.getId())
                                     .isRead(false)
@@ -278,7 +279,9 @@ public class ChallengeService {
         if (!participation.getChallengeStatus().equals(ChallengeStatus.ACHIEVEMENT)) {
             throw new ChallengeException(ErrorCode.CHALLENGE_NOT_FINISH);
         }
-
+        if (request.getScore() < 0 || request.getScore() > 100) {
+            throw new ChallengeException(ErrorCode.INVALID_INPUT_VALUE);
+        }
         participation.storeScore(request.getScore());
         participationRepository.save(participation);
         return ChallengeFinishScoreResponseDto.of(participation, request.getScore());

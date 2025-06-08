@@ -1,16 +1,17 @@
 package com.littlebank.finance.domain.mission.domain.repository;
 
+import com.littlebank.finance.domain.family.domain.QFamilyMember;
 import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.mission.domain.QMission;
 import com.littlebank.finance.domain.mission.dto.response.MissionStatDto;
+import com.littlebank.finance.domain.notification.dto.response.MissionAchievementNotificationDto;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.littlebank.finance.domain.mission.domain.*;
-import com.littlebank.finance.domain.mission.dto.response.MissionRecentRewardResponseDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
-import com.querydsl.core.types.Projections;
+import java.time.LocalDate;
 import java.util.List;
 import java.time.LocalDateTime;
 
@@ -19,6 +20,7 @@ public class CustomMissionRepositoryImpl implements CustomMissionRepository{
     private QFriend f = QFriend.friend;
     private QMission m = QMission.mission;
     private QUser u = QUser.user;
+    private QFamilyMember fm = QFamilyMember.familyMember;
     private final JPAQueryFactory queryFactory;
 
 
@@ -53,5 +55,38 @@ public class CustomMissionRepositoryImpl implements CustomMissionRepository{
                 )
                 .groupBy(m.child.id, m.category, m.subject, m.status)
                 .fetch();
+    }
+
+    @Override
+    public List<Mission> updateExpiredMissionsToAchievement() {
+        List<Mission> expired = queryFactory.selectFrom(m)
+                .where(
+                        m.endDate.before(LocalDateTime.now()),
+                        m.status.eq(MissionStatus.ACCEPT),
+                        m.isDeleted.isFalse()
+                ).fetch();
+        expired.forEach(m -> m.setStatus(MissionStatus.ACHIEVEMENT));
+        return expired;
+    }
+
+    @Override
+     public List<MissionAchievementNotificationDto> findMissionAchievementNotificationDto() {
+        LocalDateTime yesterdayStart = LocalDate.now().minusDays(1).atStartOfDay();
+        LocalDateTime yesterdayEnd = LocalDate.now().minusDays(1).atTime(23, 59, 59);
+        List<MissionAchievementNotificationDto> results = queryFactory
+                .select(Projections.constructor(MissionAchievementNotificationDto.class,
+                        m.createdBy.user.id,
+                        fm.nickname,
+                        m.title,
+                        m.id))
+                .from(m)
+                .join(fm).on(fm.user.id.eq(m.child.user.id))
+                .where(
+                        m.status.eq(MissionStatus.ACHIEVEMENT),
+                        m.endDate.between(yesterdayStart, yesterdayEnd),
+                        m.isDeleted.isFalse()
+                )
+                .fetch();
+        return results;
     }
 }
