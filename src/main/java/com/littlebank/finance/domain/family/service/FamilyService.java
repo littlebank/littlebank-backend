@@ -219,5 +219,23 @@ public class FamilyService {
         FamilyMember familyMember = familyMemberRepository.findById(familyMemberId)
                 .orElseThrow(() -> new FamilyException(ErrorCode.FAMILY_MEMBER_NOT_FOUND));
         familyMemberRepository.deleteById(familyMember.getId());
+
+        // 알림 생성
+        try {
+            familyMember.getFamily().getMembers().stream()
+                    .filter(m -> !m.getId().equals(familyMember.getId()) && m.getStatus() == Status.JOINED)
+                    .forEach(m -> {
+                        Notification notification = notificationRepository.save(Notification.builder()
+                                .receiver(m.getUser())
+                                .message(familyMember.getNickname() + "님이 우리 가족 그룹을 나갔어요!")
+                                .type(NotificationType.LEAVE_FAMILY)
+                                .targetId(familyMember.getId())
+                                .isRead(false)
+                                .build());
+                        firebaseService.sendNotification(notification);
+                    });
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
     }
 }
