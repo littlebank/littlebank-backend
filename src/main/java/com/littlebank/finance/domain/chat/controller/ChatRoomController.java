@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.chat.controller;
 
 import com.littlebank.finance.domain.chat.dto.request.ChatRoomCreateRequest;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomCreateResponse;
+import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
 import com.littlebank.finance.domain.chat.service.ChatRoomService;
 
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api-user/chat")
 @RequiredArgsConstructor
@@ -22,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
-    @Operation(summary = "채팅방 생성")
+    @Operation(summary = "채팅방 생성 API")
     @PostMapping("/room")
     public ResponseEntity<ChatRoomCreateResponse> createRoom(
             @RequestBody @Valid ChatRoomCreateRequest request,
@@ -30,5 +33,14 @@ public class ChatRoomController {
     ) {
         ChatRoomCreateResponse createdRoom = chatRoomService.createRoom(customUserDetails.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRoom);
+    }
+
+    @Operation(summary = "친구 채팅방 목록 조회 API")
+    @GetMapping("/room")
+    public ResponseEntity<List<ChatRoomSummaryResponse>> getRoomList(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        List<ChatRoomSummaryResponse> createdRoom = chatRoomService.getRoomList(customUserDetails.getId());
+        return ResponseEntity.ok(createdRoom);
     }
 }

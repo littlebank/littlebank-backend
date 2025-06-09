@@ -1,16 +1,15 @@
 package com.littlebank.finance.domain.chat.service;
 
 import com.littlebank.finance.domain.chat.domain.ChatRoom;
-import com.littlebank.finance.domain.chat.domain.RoomRange;
 import com.littlebank.finance.domain.chat.domain.UserChatRoom;
+import com.littlebank.finance.domain.chat.domain.repository.ChatRoomRepository;
 import com.littlebank.finance.domain.chat.domain.repository.UserChatRoomRepository;
 import com.littlebank.finance.domain.chat.dto.request.ChatRoomCreateRequest;
-import com.littlebank.finance.domain.chat.domain.repository.ChatRoomRepository;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomCreateResponse;
+import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
 import com.littlebank.finance.domain.chat.exception.ChatException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
-
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -61,5 +59,10 @@ public class ChatRoomService {
         }
 
         return ChatRoomCreateResponse.of(chatRoom);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatRoomSummaryResponse> getRoomList(Long userId) {
+        return userChatRoomRepository.findChatRoomSummaryList(userId);
     }
 }
