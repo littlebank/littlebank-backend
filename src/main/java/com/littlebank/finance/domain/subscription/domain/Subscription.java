@@ -44,4 +44,9 @@ public class Subscription extends BaseEntity {
         this.startDate = startDate;
         this.endDate = endDate;
     }
+
+    public void addInviteCode(InviteCode inviteCode) {
+        this.inviteCodes.add(inviteCode);
+        inviteCode.setSubscription(this);
+    }
 }

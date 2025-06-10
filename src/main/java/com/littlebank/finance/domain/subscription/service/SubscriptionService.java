@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -49,7 +50,13 @@ public class SubscriptionService {
                     .subscription(subscription)
                     .build();
             inviteCodeRepository.save(inviteCode);
+            subscription.addInviteCode(inviteCode);
         }
+
         return SubscriptionResponseDto.of(subscription);
     }
+
+//    public SubscriptionResponseDto getMySubscription(Long userId) {
+//
+//    }
 }

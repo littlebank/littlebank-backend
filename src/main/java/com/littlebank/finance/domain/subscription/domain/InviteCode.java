@@ -32,4 +32,8 @@ public class InviteCode extends BaseEntity {
         this.used = used;
         this.subscription = subscription;
     }
+
+    public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
+    }
 }

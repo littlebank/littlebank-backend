@@ -21,8 +21,8 @@ public class SubscriptionResponseDto {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private List<UserEmailDto> members;
-    private List<InviteCode> inviteCodes;
-
+    private List<String> inviteCodes;
+    private Integer left;
     public static SubscriptionResponseDto of(Subscription subscription) {
         return SubscriptionResponseDto.builder()
                 .subscriptionId(subscription.getId())
@@ -33,7 +33,12 @@ public class SubscriptionResponseDto {
                 .members(subscription.getMembers().stream()
                         .map(user -> new UserEmailDto(user.getId(), user.getEmail()))
                         .toList())
-                .inviteCodes(subscription.getInviteCodes())
+                .inviteCodes(subscription.getInviteCodes().stream()
+                        .map(InviteCode::getCode)
+                        .toList())
+                .left(subscription.getSeat() -1 -(int) subscription.getInviteCodes().stream()
+                        .filter(InviteCode::isUsed)
+                        .count())
                 .build();
     }
 }
