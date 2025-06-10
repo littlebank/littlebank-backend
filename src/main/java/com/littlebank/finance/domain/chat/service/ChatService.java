@@ -23,7 +23,7 @@ import java.util.Optional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ChatRoomService {
+public class ChatService {
     private final static int CHAT_ROOM_MIN_PARTICIPANT_COUNT = 2;
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;

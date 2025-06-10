@@ -1,6 +1,6 @@
 package com.littlebank.finance.global.config;
 
-import com.littlebank.finance.global.interceptor.websocket.StompChannelInterceptor;
+import com.littlebank.finance.global.socket.StompChannelInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         log.info("✅ registerStompEndpoints 실행");
-        registry.addEndpoint("/ws-chat");
+        registry.addEndpoint("/ws")
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     @Override

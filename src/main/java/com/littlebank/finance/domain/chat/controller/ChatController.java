@@ -3,7 +3,7 @@ package com.littlebank.finance.domain.chat.controller;
 import com.littlebank.finance.domain.chat.dto.request.ChatRoomCreateRequest;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomCreateResponse;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
-import com.littlebank.finance.domain.chat.service.ChatRoomService;
+import com.littlebank.finance.domain.chat.service.ChatService;
 
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,8 +22,8 @@ import java.util.List;
 @RequestMapping("/api-user/chat")
 @RequiredArgsConstructor
 @Tag(name = "Chat")
-public class ChatRoomController {
-    private final ChatRoomService chatRoomService;
+public class ChatController {
+    private final ChatService chatService;
 
     @Operation(summary = "채팅방 생성 API")
     @PostMapping("/room")
@@ -31,7 +31,7 @@ public class ChatRoomController {
             @RequestBody @Valid ChatRoomCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        ChatRoomCreateResponse createdRoom = chatRoomService.createRoom(customUserDetails.getId(), request);
+        ChatRoomCreateResponse createdRoom = chatService.createRoom(customUserDetails.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRoom);
     }
 
@@ -40,7 +40,7 @@ public class ChatRoomController {
     public ResponseEntity<List<ChatRoomSummaryResponse>> getRoomList(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        List<ChatRoomSummaryResponse> createdRoom = chatRoomService.getRoomList(customUserDetails.getId());
+        List<ChatRoomSummaryResponse> createdRoom = chatService.getRoomList(customUserDetails.getId());
         return ResponseEntity.ok(createdRoom);
     }
 }
