@@ -1,0 +1,36 @@
+package com.littlebank.finance.domain.chat.dto.response;
+
+import com.littlebank.finance.domain.chat.domain.ChatMessage;
+import com.littlebank.finance.domain.chat.domain.MessageType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.time.LocalDateTime;
+
+@Getter
+@AllArgsConstructor
+@Builder
+public class ChatMessageResponse {
+    private Long messageId;
+    private Long roomId;
+    private String content;
+    private MessageType messageType;
+    private Long senderUserId;
+    private String senderName;
+    private String senderProfileImageUrl;
+    private LocalDateTime timestamp;
+
+    public static ChatMessageResponse of(ChatMessage message) {
+        return ChatMessageResponse.builder()
+                .messageId(message.getId())
+                .roomId(message.getRoom().getId())
+                .content(message.getContent())
+                .messageType(message.getMessageType())
+                .senderUserId(message.getSender().getId())
+                .senderName(message.getSender().getName())
+                .senderProfileImageUrl(message.getSender().getProfileImagePath())
+                .timestamp(message.getTimestamp())
+                .build();
+    }
+}
