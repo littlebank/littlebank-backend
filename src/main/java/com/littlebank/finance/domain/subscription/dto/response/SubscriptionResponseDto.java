@@ -20,7 +20,7 @@ public class SubscriptionResponseDto {
     private Integer seat;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private List<UserEmailDto> members;
+    private List<Long> members;
     private List<String> inviteCodes;
     private Integer left;
     public static SubscriptionResponseDto of(Subscription subscription) {
@@ -30,9 +30,12 @@ public class SubscriptionResponseDto {
                 .seat(subscription.getSeat())
                 .startDate(subscription.getStartDate())
                 .endDate(subscription.getEndDate())
+//                .members(subscription.getMembers().stream()
+//                        .map(user -> new UserEmailDto(user.getId(), user.getEmail()))
+//                        .toList())
                 .members(subscription.getMembers().stream()
-                        .map(user -> new UserEmailDto(user.getId(), user.getEmail()))
-                        .toList())
+                        .map(user -> user.getId())
+                                .toList())
                 .inviteCodes(subscription.getInviteCodes().stream()
                         .map(InviteCode::getCode)
                         .toList())
