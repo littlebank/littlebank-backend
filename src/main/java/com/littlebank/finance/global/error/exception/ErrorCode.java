@@ -98,7 +98,10 @@ public enum ErrorCode {
     MISSION_END_DATE_EXPIRED(410, "MS002", "설정한 미션 진행 기간이 지났습니다"),
     MiSSION_NOT_FINISH(409, "MS003", "아직 보상할 타이밍이 아닙니다"),
     // SURVEY
-    SURVEY_NOT_FOUND( 404, "Q001", "퀴즈를 찾을 수 없습니다");
+    SURVEY_NOT_FOUND( 404, "Q001", "퀴즈를 찾을 수 없습니다"),
+    // SUBSCRIPTION
+    INVITECODE_NOT_FOUND(404, "SS001", "구독을 찾을 수 없습니다"),
+    ALREADY_SUBSCRIBED(400, "SS002", "이미 구독 중입니다");
 
     private final String code;
     private final String message;

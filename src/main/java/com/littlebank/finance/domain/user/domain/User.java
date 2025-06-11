@@ -155,4 +155,6 @@ public class User extends BaseEntity {
     public void resetPin(String pin) {
         this.accountPin = pin;
     }
+
+    public void setSubscription(Subscription subscription) {this.subscription = subscription;}
 }

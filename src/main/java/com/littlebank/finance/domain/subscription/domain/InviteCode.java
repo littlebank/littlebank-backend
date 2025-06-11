@@ -36,4 +36,15 @@ public class InviteCode extends BaseEntity {
     public void setSubscription(Subscription subscription) {
         this.subscription = subscription;
     }
+
+    public void setIsUsed() {
+        this.used = true;
+    }
+
+    public void setRedeemedBy(User user) {
+        this.redeemedBy = user;
+    }
+    public boolean isUsed() {
+        return this.used;
+    }
 }

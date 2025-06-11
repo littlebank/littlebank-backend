@@ -2,14 +2,15 @@ package com.littlebank.finance.domain.subscription.dto.response;
 
 import com.littlebank.finance.domain.subscription.domain.InviteCode;
 import com.littlebank.finance.domain.subscription.domain.Subscription;
-import com.littlebank.finance.domain.user.domain.User;
-import com.littlebank.finance.domain.user.dto.response.UserEmailDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -21,24 +22,25 @@ public class SubscriptionResponseDto {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private List<Long> members;
-    private List<String> inviteCodes;
+    private Map<String, Long> inviteCodes;
     private Integer left;
     public static SubscriptionResponseDto of(Subscription subscription) {
+        Map<String, Long> inviteCodes = new HashMap<>();
+        for (InviteCode invite : subscription.getInviteCodes()) {
+            inviteCodes.put(invite.getCode(),
+                    invite.getRedeemedBy() != null ? invite.getRedeemedBy().getId() : null);
+        }
+
         return SubscriptionResponseDto.builder()
                 .subscriptionId(subscription.getId())
                 .ownerId(subscription.getOwner().getId())
                 .seat(subscription.getSeat())
                 .startDate(subscription.getStartDate())
                 .endDate(subscription.getEndDate())
-//                .members(subscription.getMembers().stream()
-//                        .map(user -> new UserEmailDto(user.getId(), user.getEmail()))
-//                        .toList())
                 .members(subscription.getMembers().stream()
                         .map(user -> user.getId())
                                 .toList())
-                .inviteCodes(subscription.getInviteCodes().stream()
-                        .map(InviteCode::getCode)
-                        .toList())
+                .inviteCodes(inviteCodes)
                 .left(subscription.getSeat() -1 -(int) subscription.getInviteCodes().stream()
                         .filter(InviteCode::isUsed)
                         .count())

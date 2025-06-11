@@ -41,4 +41,14 @@ public class SubscriptionController {
         List<SubscriptionResponseDto> response = subscriptionService.getMySubscription(user.getId());
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "구독 코드 등록")
+    @PostMapping("/redeem")
+    public ResponseEntity<SubscriptionResponseDto> redeemSubscription(
+            @RequestParam String code,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        SubscriptionResponseDto response = subscriptionService.redeemSubscription(user.getId(), code);
+        return ResponseEntity.ok(response);
+    }
 }
