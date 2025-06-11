@@ -13,6 +13,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api-user/subscription")
 @RequiredArgsConstructor
@@ -31,12 +33,12 @@ public class SubscriptionController {
         return ResponseEntity.ok(response);
     }
 
-//    @Operation(summary = "나의 구독 정보 조회")
-//    @GetMapping("/my")
-//    public ResponseEntity<SubscriptionResponseDto> getMySubscription(
-//            @AuthenticationPrincipal CustomUserDetails user
-//    ) {
-//        SubscriptionResponseDto response = subscriptionService.getMySubscription(user.getId());
-//        return ResponseEntity.ok(response);
-//    }
+    @Operation(summary = "나의 구독 정보 조회")
+    @GetMapping("/my")
+    public ResponseEntity<List<SubscriptionResponseDto>> getMySubscription(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        List<SubscriptionResponseDto> response = subscriptionService.getMySubscription(user.getId());
+        return ResponseEntity.ok(response);
+    }
 }

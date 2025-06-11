@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -55,8 +56,14 @@ public class SubscriptionService {
 
         return SubscriptionResponseDto.of(subscription);
     }
-//
-//    public SubscriptionResponseDto getMySubscription(Long userId) {
-//
-//    }
+
+    public List<SubscriptionResponseDto> getMySubscription(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        List<Subscription> subscriptions = subscriptionRepository.findByOwner(user);
+
+        return subscriptions.stream()
+                .map(s -> SubscriptionResponseDto.of(s))
+                .collect(Collectors.toList());
+    }
 }
