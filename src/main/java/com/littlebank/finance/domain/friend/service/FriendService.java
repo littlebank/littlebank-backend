@@ -144,6 +144,10 @@ public class FriendService {
         return FriendRenameResponse.of(friend);
     }
 
+    public Friend findFriend(Long fromUserId, Long toUserId) {
+        return friendRepository.findByFromUserIdAndToUserId(fromUserId, toUserId).orElse(null);
+    }
+
     private void verifyExistsFriend(Long fromUserId, Long toUserId) {
         if (friendRepository.existsByFromUserIdAndToUserId(fromUserId, toUserId)) {
             throw new FriendException(ErrorCode.ALREADY_FRIEND_EXISTS);
