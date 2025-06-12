@@ -11,12 +11,12 @@ import java.util.Optional;
 
 public interface FriendRepository extends JpaRepository<Friend, Long>, CustomFriendRepository {
     boolean existsByFromUserIdAndToUserId(Long fromUserId, Long toUserId);
+
+    Optional<Friend> findByFromUserIdAndToUserId(Long fromUserId, Long toUserId);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select f from Friend f where f.id = :id")
     Optional<Friend> findByIdWithLock(@Param("id") Long friendId);
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select f from Friend f where f.fromUser.id = :fromUserId and f.toUser.id = :toUserId")
     Optional<Friend> findByFromUserIdAndToUserIdWithLock(@Param("fromUserId") Long fromUserId, @Param("toUserId") Long toUserId);
-
-
 }
