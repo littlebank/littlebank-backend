@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.user.domain;
 
 import com.littlebank.finance.domain.feed.domain.Feed;
+import com.littlebank.finance.domain.subscription.domain.Subscription;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,6 +18,7 @@ import java.util.List;
 @SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE user_id = ?")
 @Where(clause = "is_deleted = false")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     @Id
@@ -62,6 +64,9 @@ public class User extends BaseEntity {
     private List<Feed> feeds = new ArrayList<>();
     @Column(nullable = false)
     private Boolean isDeleted;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscription_id")
+    private Subscription subscription;
 
     @Builder
     public User(
@@ -150,4 +155,6 @@ public class User extends BaseEntity {
     public void resetPin(String pin) {
         this.accountPin = pin;
     }
+
+    public void setSubscription(Subscription subscription) {this.subscription = subscription;}
 }
