@@ -42,7 +42,7 @@ public class ChatMessageController {
 
             Friend friend = friendService.findFriend(receiverId, customUserDetails.getId());
 
-            ChatMessageResponse response = ChatMessageResponse.of(savedMessage, friend);
+            ChatMessageResponse response = ChatMessageResponse.of(participant, savedMessage, friend);
 
             messagingTemplate.convertAndSend(
                     CHAT_SUBSCRIBE_BASE_URL + request.getRoomId() + "/" + receiverId,

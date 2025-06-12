@@ -54,7 +54,6 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
      */
     @Override
     public List<ChatRoomSummaryResponse> findChatRoomSummaryList(Long userId) {
-        System.out.println("userId : " + userId);
         List<Tuple> myRooms = queryFactory
                 .select(ucr.id, ch.id, ch.name, ch.type, ch.range, ucr.displayIdx)
                 .from(ucr)
@@ -72,9 +71,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
             RoomType roomType = tuple.get(ch.type);
             RoomRange roomRange = tuple.get(ch.range);
             LocalDateTime displayIdx = tuple.get(ucr.displayIdx);
-            System.out.println("확인 : " + userChatRoomId);
 
-            // 참여자 이름 목록 (본인 제외 + 친구면 customName)
             List<String> participantNames = queryFactory
                     .select(
                             new CaseBuilder()
