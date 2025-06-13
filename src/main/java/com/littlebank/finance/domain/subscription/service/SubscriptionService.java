@@ -90,7 +90,6 @@ public class SubscriptionService {
         user.setSubscription(subscription);
         inviteCode.setIsUsed();
         inviteCode.setRedeemedBy(user);
-        userRepository.save(user);
         inviteCodeRepository.save(inviteCode);
         subscriptionRepository.save(subscription);
 
