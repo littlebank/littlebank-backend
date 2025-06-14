@@ -13,7 +13,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class ChatRoomSummaryResponse {
-    private Long userChatRoomId;
     private Long roomId;
     private String roomName;
     private RoomType roomType;

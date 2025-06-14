@@ -106,7 +106,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public List<ChatRoomSummaryResponse> findChatRoomSummaryList(Long userId) {
         List<Tuple> myRooms = queryFactory
-                .select(ucr.id, cr.id, cr.name, cr.type, cr.range, ucr.displayIdx)
+                .select(cr.id, cr.name, cr.type, cr.range, ucr.displayIdx)
                 .from(ucr)
                 .join(ucr.room, cr)
                 .where(
@@ -125,7 +125,6 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                 .fetch();
 
         return myRooms.stream().map(tuple -> {
-            Long userChatRoomId = tuple.get(ucr.id);
             Long roomId = tuple.get(cr.id);
             String roomName = tuple.get(cr.name);
             RoomType roomType = tuple.get(cr.type);
@@ -151,7 +150,6 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
             if (roomRange == RoomRange.PRIVATE) roomName = participantNames.get(0);
 
             return ChatRoomSummaryResponse.builder()
-                    .userChatRoomId(userChatRoomId)
                     .roomId(roomId)
                     .roomName(roomName)
                     .roomType(roomType)
