@@ -26,11 +26,25 @@ import static com.littlebank.finance.domain.user.domain.QUser.user;
 public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepository {
     private final JPAQueryFactory queryFactory;
     private QUser u = user;
-    private QChatRoom ch = chatRoom;
+    private QChatRoom cr = chatRoom;
     private QUserChatRoom ucr = userChatRoom;
     private QChatMessage cm = chatMessage;
     private QFriend f = friend;
 
+    /**
+     * UserChatRoom 엔티티를 ChatRoom 엔티티를 페치조인 하여 조회
+     *
+     * @param roomId 채팅방 식별 id
+     * @return
+     */
+    @Override
+    public List<UserChatRoom> findAllWithFetchByRoomId(Long roomId) {
+        return queryFactory
+                .selectFrom(ucr)
+                .join(ucr.room, cr).fetchJoin()
+                .where(ucr.room.id.eq(roomId))
+                .fetch();
+    }
 
     /**
      * 참여 중인 친구 채팅방 목록을 조회
@@ -38,7 +52,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
      * 각 채팅방에 대해 다음 정보를 제공
      * - userChatRoomId: 사용자-채팅방 매핑 ID
      * - roomId: 채팅방 ID
-     * - roomName: 채팅방 이름
+     * - roomName: 채팅방 이름 (1:1 채팅인 경우 user 이름으로 설정, 친구 추가해 놨다면 설정한 친구 이름으로 설정)
      * - roomType: 채팅방 타입 (FRIEND로 한정)
      * - roomRange: 채팅방 공개 범위
      * - displayIdx: 사용자의 채팅방 정렬 기준 시간
@@ -56,19 +70,19 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public List<ChatRoomSummaryResponse> findChatRoomSummaryList(Long userId) {
         List<Tuple> myRooms = queryFactory
-                .select(ucr.id, ch.id, ch.name, ch.type, ch.range, ucr.displayIdx)
+                .select(ucr.id, cr.id, cr.name, cr.type, cr.range, ucr.displayIdx)
                 .from(ucr)
-                .join(ucr.room, ch)
+                .join(ucr.room, cr)
                 .where(
                         ucr.user.id.eq(userId),
-                        ch.type.eq(RoomType.FRIEND),
+                        cr.type.eq(RoomType.FRIEND),
                         new BooleanBuilder()
-                                .or(ch.createdBy.id.eq(userId))
+                                .or(cr.createdBy.id.eq(userId))
                                 .or(
                                         JPAExpressions
                                                 .selectOne()
                                                 .from(cm)
-                                                .where(cm.room.id.eq(ch.id))
+                                                .where(cm.room.id.eq(cr.id))
                                                 .exists()
                                 )
                 )
@@ -76,27 +90,29 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
 
         return myRooms.stream().map(tuple -> {
             Long userChatRoomId = tuple.get(ucr.id);
-            Long roomId = tuple.get(ch.id);
-            String roomName = tuple.get(ch.name);
-            RoomType roomType = tuple.get(ch.type);
-            RoomRange roomRange = tuple.get(ch.range);
+            Long roomId = tuple.get(cr.id);
+            String roomName = tuple.get(cr.name);
+            RoomType roomType = tuple.get(cr.type);
+            RoomRange roomRange = tuple.get(cr.range);
             LocalDateTime displayIdx = tuple.get(ucr.displayIdx);
 
             List<String> participantNames = queryFactory
                     .select(
                             new CaseBuilder()
-                                    .when(friend.id.isNotNull())
-                                    .then(friend.customName)
+                                    .when(f.id.isNotNull())
+                                    .then(f.customName)
                                     .otherwise(u.name)
                     )
                     .from(ucr)
                     .join(ucr.user, u)
-                    .leftJoin(friend)
-                    .on(friend.fromUser.id.eq(userId)
-                            .and(friend.toUser.id.eq(u.id)))
+                    .leftJoin(f)
+                    .on(f.fromUser.id.eq(userId)
+                            .and(f.toUser.id.eq(u.id)))
                     .where(ucr.room.id.eq(roomId)
                             .and(u.id.ne(userId)))
                     .fetch();
+
+            if (roomRange == RoomRange.PRIVATE) roomName = participantNames.get(0);
 
             return ChatRoomSummaryResponse.builder()
                     .userChatRoomId(userChatRoomId)

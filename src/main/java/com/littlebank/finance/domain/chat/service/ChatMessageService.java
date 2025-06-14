@@ -51,7 +51,7 @@ public class ChatMessageService {
 
     @Transactional(readOnly = true)
     public List<UserChatRoom> getChatRoomParticipants(Long roomId) {
-        return userChatRoomRepository.findAllByRoomId(roomId);
+        return userChatRoomRepository.findAllWithFetchByRoomId(roomId);
     }
 }
 
