@@ -7,7 +7,9 @@ import com.littlebank.finance.domain.chat.domain.repository.ChatMessageRepositor
 import com.littlebank.finance.domain.chat.domain.repository.ChatRoomRepository;
 import com.littlebank.finance.domain.chat.domain.repository.UserChatRoomRepository;
 import com.littlebank.finance.domain.chat.dto.request.ChatMessageRequest;
+import com.littlebank.finance.domain.chat.dto.request.ChatReadRequest;
 import com.littlebank.finance.domain.chat.exception.ChatException;
+import com.littlebank.finance.domain.chat.service.async.AsyncChatMessageService;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
@@ -17,26 +19,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
-
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ChatMessageService {
-
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final UserChatRoomRepository userChatRoomRepository;
+    private final AsyncChatMessageService asyncChatMessageService;
 
     public ChatMessage saveMessage(Long userId, ChatMessageRequest request) {
-        chatMessageRepository.updateDisplayIdxByRoomId(request.getRoomId());
+        userChatRoomRepository.updateDisplayIdxByRoomId(request.getRoomId());
 
         User sender = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         ChatRoom room = chatRoomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new ChatException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        int participantCount = userChatRoomRepository.countParticipantsExcludingUser(room.getId(), sender.getId());
 
         ChatMessage message = ChatMessage.builder()
                 .messageType(request.getMessageType())
@@ -44,6 +48,7 @@ public class ChatMessageService {
                 .sender(sender)
                 .content(request.getContent())
                 .timestamp(LocalDateTime.now())
+                .readCount(participantCount)
                 .build();
 
         return chatMessageRepository.save(message);
@@ -53,5 +58,15 @@ public class ChatMessageService {
     public List<UserChatRoom> getChatRoomParticipants(Long roomId) {
         return userChatRoomRepository.findAllWithFetchByRoomId(roomId);
     }
+
+    public void markMessagesAsRead(Long userId, ChatReadRequest request) {
+        asyncChatMessageService.decreaseReadCounts(request.getMessageIds());
+        asyncChatMessageService.updateLastReadMessageId(
+                userId,
+                request.getRoomId(),
+                Collections.max(request.getMessageIds())
+        );
+    }
+
 }
 

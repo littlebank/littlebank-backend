@@ -38,6 +38,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                         u.id,
                                         u.name,
                                         u.rrn,
+                                        u.phone,
                                         u.statusMessage,
                                         u.bankName,
                                         u.bankCode,
@@ -83,6 +84,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                         u.id,
                                         u.name,
                                         u.rrn,
+                                        u.phone,
                                         u.statusMessage,
                                         u.bankName,
                                         u.bankCode,
@@ -122,6 +124,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                 u.id.as("userId"),
                                 u.name.as("realName"),
                                 u.rrn,
+                                u.phone,
                                 u.statusMessage,
                                 u.profileImagePath,
                                 u.role

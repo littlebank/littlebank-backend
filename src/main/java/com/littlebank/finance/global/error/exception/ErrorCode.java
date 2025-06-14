@@ -64,7 +64,8 @@ public enum ErrorCode {
 
     // Chat
     CHAT_ROOM_NOT_FOUND(404,"C001","채팅방 데이터가 존재하지 않습니다"),
-    CHAT_ROOM_TOO_FEW_PARTICIPANTS(422,"C002","채팅방에는 최소 2명 이상의 인원이 참여해야 합니다."),
+    USER_CHAT_ROOM_NOT_FOUND(404,"C002","참여중인 채팅방이 아닙니다"),
+    CHAT_ROOM_TOO_FEW_PARTICIPANTS(422,"C003","채팅방에는 최소 2명 이상의 인원이 참여해야 합니다."),
 
     // Feed
     FEED_NOT_FOUND(404, "F001","피드를 찾을 수 없습니다" ),

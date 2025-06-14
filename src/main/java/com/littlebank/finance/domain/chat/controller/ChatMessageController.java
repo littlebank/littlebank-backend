@@ -4,7 +4,9 @@ import com.littlebank.finance.domain.chat.domain.ChatMessage;
 import com.littlebank.finance.domain.chat.domain.RoomRange;
 import com.littlebank.finance.domain.chat.domain.UserChatRoom;
 import com.littlebank.finance.domain.chat.dto.request.ChatMessageRequest;
+import com.littlebank.finance.domain.chat.dto.request.ChatReadRequest;
 import com.littlebank.finance.domain.chat.dto.response.ChatMessageResponse;
+import com.littlebank.finance.domain.chat.dto.response.ChatReadResponse;
 import com.littlebank.finance.domain.chat.service.ChatMessageService;
 import com.littlebank.finance.domain.friend.domain.Friend;
 import com.littlebank.finance.domain.friend.service.FriendService;
@@ -52,6 +54,20 @@ public class ChatMessageController {
                     response
             );
         }
+    }
+
+    @MessageMapping("/chat-read")
+    public void readMessages(@Payload ChatReadRequest request, Authentication authentication) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        chatMessageService.markMessagesAsRead(customUserDetails.getId(), request);
+
+        ChatReadResponse response = ChatReadResponse.of(request.getMessageIds());
+
+        messagingTemplate.convertAndSend(
+                CHAT_SUBSCRIBE_BASE_URL + "read/" + request.getRoomId(),
+                response
+        );
     }
 
 }
