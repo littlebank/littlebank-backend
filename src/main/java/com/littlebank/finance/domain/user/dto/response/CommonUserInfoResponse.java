@@ -13,6 +13,7 @@ public class CommonUserInfoResponse {
     private Long userId;
     private String realName;
     private String rrn;
+    private String phone;
     private String statusMessage;
     private String backName;
     private String backCode;
@@ -25,6 +26,7 @@ public class CommonUserInfoResponse {
                 .userId(user.getId())
                 .realName(user.getName())
                 .rrn(user.getRrn())
+                .phone(user.getPhone())
                 .statusMessage(user.getStatusMessage())
                 .backName(user.getBankName())
                 .backCode(user.getBankCode())
@@ -32,17 +34,5 @@ public class CommonUserInfoResponse {
                 .profileImagePath(user.getProfileImagePath())
                 .role(user.getRole())
                 .build();
-    }
-
-    public CommonUserInfoResponse(Long userId, String realName, String rrn, String statusMessage, String profileImagePath, UserRole role) {
-        this.userId = userId;
-        this.realName = realName;
-        this.rrn = rrn;
-        this.statusMessage = statusMessage;
-        this.profileImagePath = profileImagePath;
-        this.role = role;
-        this.backName = null;
-        this.backCode = null;
-        this.backAccount = null;
     }
 }
