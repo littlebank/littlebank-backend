@@ -32,6 +32,42 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     private QFriend f = friend;
 
     /**
+     * 메시지 전송 시 displayIdx를 현재 시간으로 update, 벌크 연산 수행
+     *
+     * @param roomId 업데이트할 채팅방 식별 id
+     */
+    @Override
+    public void updateDisplayIdxByRoomId(Long roomId) {
+        queryFactory
+                .update(ucr)
+                .set(ucr.displayIdx, LocalDateTime.now())
+                .where(ucr.room.id.eq(roomId))
+                .execute();
+    }
+
+    /**
+     * 특정 채팅방의 참여자 수를 조회하되, 지정된 사용자는 제외하고 계산
+     * 메시지의 초기 readCount 값을 설정할 때 사용
+     *
+     * @param roomId           채팅방 식별 id
+     * @param excludedUserId   제외할 사용자 식별 id (메시지 전송자)
+     * @return                 제외된 사용자를 제외한 채팅방 참여자 수
+     */
+    @Override
+    public int countParticipantsExcludingUser(Long roomId, Long excludedUserId) {
+        Long count = queryFactory
+                .select(ucr.count())
+                .from(ucr)
+                .where(
+                        ucr.room.id.eq(roomId),
+                        ucr.user.id.ne(excludedUserId)
+                )
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
+    }
+
+    /**
      * UserChatRoom 엔티티를 ChatRoom 엔티티를 페치조인 하여 조회
      *
      * @param roomId 채팅방 식별 id

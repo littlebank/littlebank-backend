@@ -30,19 +30,28 @@ public class ChatMessage {
     @JoinColumn(name = "sender", nullable = false)
     private User sender;
     @Column(nullable = false)
-    private String content;  // 텍스트 내용 or 이미지 URL
+    private String content;
     @Column(nullable = false)
-    private LocalDateTime timestamp; // 메시지가 생성된 시점
+    private LocalDateTime timestamp;
     @Column(nullable = false)
     private Boolean isDeleted;
+    @Column(nullable = false)
+    private int readCount;
+    @Version
+    private Long version;
 
     @Builder
-    public ChatMessage(MessageType messageType, ChatRoom room, User sender, String content, LocalDateTime timestamp, Boolean isDeleted) {
+    public ChatMessage(MessageType messageType, ChatRoom room, User sender, String content, LocalDateTime timestamp, Boolean isDeleted, int readCount) {
         this.messageType = messageType;
         this.room = room;
         this.sender = sender;
         this.content = content;
         this.timestamp = timestamp;
         this.isDeleted = isDeleted == null ? false : isDeleted;
+        this.readCount = readCount;
+    }
+
+    public void readMessage() {
+        this.readCount -= 1;
     }
 }

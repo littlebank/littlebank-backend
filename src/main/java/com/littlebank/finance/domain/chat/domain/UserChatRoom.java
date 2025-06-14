@@ -26,11 +26,23 @@ public class UserChatRoom extends BaseEntity {
     private User user;
     @Column(nullable = false)
     private LocalDateTime displayIdx;
+    @Column(nullable = false)
+    private Long lastReadMessageId;
+    @Version
+    private Long version;
 
     @Builder
-    public UserChatRoom(ChatRoom room, User user, LocalDateTime displayIdx) {
+    public UserChatRoom(ChatRoom room, User user, LocalDateTime displayIdx, Long lastReadMessageId) {
         this.room = room;
         this.user = user;
         this.displayIdx = displayIdx == null ? LocalDateTime.now() : displayIdx;
+        this.lastReadMessageId = lastReadMessageId == null ? 0L : lastReadMessageId;
     }
+
+    public void updateLastReadMessageId(Long messageId) {
+        if (this.lastReadMessageId < messageId) {
+            this.lastReadMessageId = messageId;
+        }
+    }
+
 }
