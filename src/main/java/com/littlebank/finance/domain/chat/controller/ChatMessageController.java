@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.chat.controller;
 
 import com.littlebank.finance.domain.chat.domain.ChatMessage;
+import com.littlebank.finance.domain.chat.domain.RoomRange;
 import com.littlebank.finance.domain.chat.domain.UserChatRoom;
 import com.littlebank.finance.domain.chat.dto.request.ChatMessageRequest;
 import com.littlebank.finance.domain.chat.dto.response.ChatMessageResponse;
@@ -34,13 +35,15 @@ public class ChatMessageController {
         ChatMessage savedMessage = chatMessageService.saveMessage(customUserDetails.getId(), request);
 
         List<UserChatRoom> participants = chatMessageService.getChatRoomParticipants(request.getRoomId());
-
         for (UserChatRoom participant : participants) {
             Long receiverId = participant.getUser().getId();
-
-            if (receiverId.equals(customUserDetails.getId())) continue;
+            if (receiverId.equals(customUserDetails.getId()))
+                continue;
 
             Friend friend = friendService.findFriend(receiverId, customUserDetails.getId());
+            if (participant.getRoom().getRange() == RoomRange.PRIVATE &&
+                    friend != null && friend.getIsBlocked())
+                continue;
 
             ChatMessageResponse response = ChatMessageResponse.of(participant, savedMessage, friend);
 

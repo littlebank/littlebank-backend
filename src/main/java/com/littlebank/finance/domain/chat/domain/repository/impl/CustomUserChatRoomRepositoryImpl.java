@@ -32,6 +32,21 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     private QFriend f = friend;
 
     /**
+     * UserChatRoom 엔티티를 ChatRoom 엔티티를 페치조인 하여 조회
+     *
+     * @param roomId 채팅방 식별 id
+     * @return
+     */
+    @Override
+    public List<UserChatRoom> findAllWithFetchByRoomId(Long roomId) {
+        return queryFactory
+                .selectFrom(ucr)
+                .join(ucr.room, cr).fetchJoin()
+                .where(ucr.room.id.eq(roomId))
+                .fetch();
+    }
+
+    /**
      * 참여 중인 친구 채팅방 목록을 조회
      *
      * 각 채팅방에 대해 다음 정보를 제공
