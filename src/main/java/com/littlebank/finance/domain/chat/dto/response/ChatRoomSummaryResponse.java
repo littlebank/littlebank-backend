@@ -19,4 +19,5 @@ public class ChatRoomSummaryResponse {
     private RoomRange roomRange;
     private List<String> participantNameList;
     private LocalDateTime displayIdx;
+    private Integer unreadMessageCount;
 }
