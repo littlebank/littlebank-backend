@@ -13,11 +13,11 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class ChatRoomSummaryResponse {
-    private Long userChatRoomId;
     private Long roomId;
     private String roomName;
     private RoomType roomType;
     private RoomRange roomRange;
     private List<String> participantNameList;
     private LocalDateTime displayIdx;
+    private Integer unreadMessageCount;
 }

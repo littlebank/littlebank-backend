@@ -24,6 +24,7 @@ import static com.littlebank.finance.domain.user.domain.QUser.user;
 
 @RequiredArgsConstructor
 public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepository {
+    private final static int MAX_UNREAD_MESSAGE_SHOW_COUNT = 300;
     private final JPAQueryFactory queryFactory;
     private QUser u = user;
     private QChatRoom cr = chatRoom;
@@ -86,12 +87,12 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
      * 참여 중인 친구 채팅방 목록을 조회
      *
      * 각 채팅방에 대해 다음 정보를 제공
-     * - userChatRoomId: 사용자-채팅방 매핑 ID
      * - roomId: 채팅방 ID
      * - roomName: 채팅방 이름 (1:1 채팅인 경우 user 이름으로 설정, 친구 추가해 놨다면 설정한 친구 이름으로 설정)
      * - roomType: 채팅방 타입 (FRIEND로 한정)
      * - roomRange: 채팅방 공개 범위
      * - displayIdx: 사용자의 채팅방 정렬 기준 시간
+     * - unreadMessageCount : 안 읽은 메시지 갯수 (300개 이상은 300개까지만 노출)
      * - participantNameList: 채팅방 참여자 이름 목록 (본인 제외)
      *      - 친구 관계가 있는 경우: Friend.customName 사용
      *      - 친구가 아닌 경우: User.name 사용
@@ -106,7 +107,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public List<ChatRoomSummaryResponse> findChatRoomSummaryList(Long userId) {
         List<Tuple> myRooms = queryFactory
-                .select(ucr.id, cr.id, cr.name, cr.type, cr.range, ucr.displayIdx)
+                .select(cr.id, cr.name, cr.type, cr.range, ucr.displayIdx)
                 .from(ucr)
                 .join(ucr.room, cr)
                 .where(
@@ -125,12 +126,33 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                 .fetch();
 
         return myRooms.stream().map(tuple -> {
-            Long userChatRoomId = tuple.get(ucr.id);
             Long roomId = tuple.get(cr.id);
             String roomName = tuple.get(cr.name);
             RoomType roomType = tuple.get(cr.type);
             RoomRange roomRange = tuple.get(cr.range);
             LocalDateTime displayIdx = tuple.get(ucr.displayIdx);
+
+            UserChatRoom userChatRoom = queryFactory
+                    .selectFrom(ucr)
+                    .where(ucr.user.id.eq(userId).and(ucr.room.id.eq(roomId)))
+                    .fetchOne();
+
+            Long lastReadMessageId = userChatRoom.getLastReadMessageId();
+            Long lastMessageId = userChatRoom.getRoom().getLastMessageId();
+
+            Long unreadMessageCount = queryFactory
+                    .select(cm.id.count())
+                    .from(cm)
+                    .where(
+                            cm.room.id.eq(roomId),
+                            cm.id.gt(lastReadMessageId),
+                            cm.id.loe(lastMessageId),
+                            cm.sender.id.ne(userId)
+                    )
+                    .limit(MAX_UNREAD_MESSAGE_SHOW_COUNT + 1)
+                    .fetchOne();
+
+            int finalUnreadCount = (int) Math.min(unreadMessageCount, MAX_UNREAD_MESSAGE_SHOW_COUNT);
 
             List<String> participantNames = queryFactory
                     .select(
@@ -151,13 +173,13 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
             if (roomRange == RoomRange.PRIVATE) roomName = participantNames.get(0);
 
             return ChatRoomSummaryResponse.builder()
-                    .userChatRoomId(userChatRoomId)
                     .roomId(roomId)
                     .roomName(roomName)
                     .roomType(roomType)
                     .roomRange(roomRange)
                     .participantNameList(participantNames)
                     .displayIdx(displayIdx)
+                    .unreadMessageCount(finalUnreadCount)
                     .build();
         }).collect(Collectors.toList());
     }

@@ -32,14 +32,24 @@ public class ChatRoom extends BaseEntity {
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
     @Column(nullable = false)
+    private Long lastMessageId;
+    @Column(nullable = false)
     private Boolean isDeleted;
 
     @Builder
-    public ChatRoom(String name, RoomType type, RoomRange range, User createdBy, Boolean isDeleted) {
+    public ChatRoom(String name, RoomType type, RoomRange range, User createdBy, Long lastMessageId, Boolean isDeleted) {
         this.name = name;
         this.type = type;
         this.range = range;
         this.createdBy = createdBy;
+        this.lastMessageId = lastMessageId == null ? 0L : lastMessageId;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
+
+    public void updateLastMessageId(ChatMessage message) {
+        if (this.lastMessageId < message.getId()) {
+            this.lastMessageId = message.getId();
+        }
+    }
+
 }
