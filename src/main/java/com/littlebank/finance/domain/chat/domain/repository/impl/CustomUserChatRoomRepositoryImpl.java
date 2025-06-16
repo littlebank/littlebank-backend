@@ -2,11 +2,13 @@ package com.littlebank.finance.domain.chat.domain.repository.impl;
 
 import com.littlebank.finance.domain.chat.domain.*;
 import com.littlebank.finance.domain.chat.domain.repository.CustomUserChatRoomRepository;
+import com.littlebank.finance.domain.chat.dto.response.ChatRoomDetailsResponse;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
 import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.littlebank.finance.domain.chat.domain.QChatMessage.chatMessage;
@@ -107,12 +110,11 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public List<ChatRoomSummaryResponse> findChatRoomSummaryList(Long userId) {
         List<Tuple> myRooms = queryFactory
-                .select(cr.id, cr.name, cr.type, cr.range, ucr.displayIdx)
+                .select(cr.id, cr.name, cr.range, ucr.displayIdx, cr.lastMessageId)
                 .from(ucr)
                 .join(ucr.room, cr)
                 .where(
                         ucr.user.id.eq(userId),
-                        cr.type.eq(RoomType.FRIEND),
                         new BooleanBuilder()
                                 .or(cr.createdBy.id.eq(userId))
                                 .or(
@@ -128,24 +130,21 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
         return myRooms.stream().map(tuple -> {
             Long roomId = tuple.get(cr.id);
             String roomName = tuple.get(cr.name);
-            RoomType roomType = tuple.get(cr.type);
             RoomRange roomRange = tuple.get(cr.range);
             LocalDateTime displayIdx = tuple.get(ucr.displayIdx);
+            Long lastMessageId = tuple.get(ucr.lastReadMessageId);
 
             UserChatRoom userChatRoom = queryFactory
                     .selectFrom(ucr)
                     .where(ucr.user.id.eq(userId).and(ucr.room.id.eq(roomId)))
                     .fetchOne();
 
-            Long lastReadMessageId = userChatRoom.getLastReadMessageId();
-            Long lastMessageId = userChatRoom.getRoom().getLastMessageId();
-
             Long unreadMessageCount = queryFactory
                     .select(cm.id.count())
                     .from(cm)
                     .where(
                             cm.room.id.eq(roomId),
-                            cm.id.gt(lastReadMessageId),
+                            cm.id.gt(userChatRoom.getLastReadMessageId()),
                             cm.id.loe(lastMessageId),
                             cm.sender.id.ne(userId)
                     )
@@ -175,13 +174,84 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
             return ChatRoomSummaryResponse.builder()
                     .roomId(roomId)
                     .roomName(roomName)
-                    .roomType(roomType)
                     .roomRange(roomRange)
                     .participantNameList(participantNames)
                     .displayIdx(displayIdx)
                     .unreadMessageCount(finalUnreadCount)
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 단일 채팅방의 상세 정보를 조회
+     *
+     * 조건:
+     * - 사용자가 참여 중인 채팅방이어야 함
+     *
+     * 응답:
+     * - roomId: 채팅방 id
+     * - roomName: 채팅방 이름 (PRIVATE 방일 경우 상대방 이름 혹은 customName)
+     * - roomRange: 채팅방 공개 범위
+     * - participants: 채팅방 참여자 정보 목록 (본인 포함)
+     *      - userId, name, profileImageUrl, isFriend, friendId, customName, isBestFriend, isBlocked
+     *
+     * @param userId 현재 로그인한 사용자 id
+     * @param roomId 조회할 채팅방 id
+     * @return ChatRoomDetailsResponse (없으면 Optional.empty())
+     */
+    @Override
+    public Optional<ChatRoomDetailsResponse> findChatRoomDetails(Long userId, Long roomId) {
+        Tuple roomInfo = queryFactory
+                .select(cr.id, cr.name, cr.range)
+                .from(ucr)
+                .join(ucr.room, cr)
+                .where(
+                        cr.id.eq(roomId),
+                        ucr.user.id.eq(userId)
+                )
+                .fetchOne();
+
+        if (roomInfo == null) return Optional.empty();
+
+        Long fetchedRoomId = roomInfo.get(cr.id);
+        String roomName = roomInfo.get(cr.name);
+        RoomRange roomRange = roomInfo.get(cr.range);
+
+        List<ChatRoomDetailsResponse.ParticipantInfo> participants = queryFactory
+                .select(Projections.constructor(ChatRoomDetailsResponse.ParticipantInfo.class,
+                        u.id,
+                        u.name,
+                        u.profileImagePath,
+                        f.id.isNotNull(),
+                        f.id,
+                        f.customName,
+                        f.isBestFriend,
+                        f.isBlocked
+                ))
+                .from(ucr)
+                .join(ucr.user, u)
+                .leftJoin(f).on(
+                        f.fromUser.id.eq(userId),
+                        f.toUser.id.eq(u.id)
+                )
+                .where(ucr.room.id.eq(roomId))
+                .fetch();
+
+        if (roomRange == RoomRange.PRIVATE) {
+            ChatRoomDetailsResponse.ParticipantInfo participantInfo = participants.stream()
+                    .filter(p -> !p.getUserId().equals(userId))
+                    .findFirst().get();
+
+            roomName = participantInfo.getIsFriend() ? participantInfo.getCustomName() : participantInfo.getName();
+
+        }
+
+        return Optional.of(new ChatRoomDetailsResponse(
+                fetchedRoomId,
+                roomName,
+                roomRange,
+                participants
+        ));
     }
 
 }
