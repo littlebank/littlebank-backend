@@ -13,6 +13,8 @@ public class ChatRoomDetailsResponse {
     private String roomName;
     private RoomRange roomRange;
     private List<ParticipantInfo> participants;
+    private Long lastReadMessageId;
+    private Long lastSendMessageId;
 
     @Getter
     @AllArgsConstructor

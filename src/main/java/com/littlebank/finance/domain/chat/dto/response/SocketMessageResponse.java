@@ -13,13 +13,14 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @Builder
-public class ChatMessageResponse {
+public class SocketMessageResponse {
     private Long roomId;
     private LocalDateTime displayIdx;
     private Long messageId;
     private String content;
     private MessageType messageType;
     private LocalDateTime timestamp;
+    private Integer readCount;
     private Long senderUserId;
     private String senderName;
     private String senderProfileImageUrl;
@@ -28,14 +29,15 @@ public class ChatMessageResponse {
     private Boolean isBestFriend;
     private Boolean isBlocked;
 
-    public static ChatMessageResponse of(UserChatRoom participant, ChatMessage message, Friend friend) {
-        return ChatMessageResponse.builder()
+    public static SocketMessageResponse of(UserChatRoom participant, ChatMessage message, Friend friend) {
+        return SocketMessageResponse.builder()
                 .roomId(participant.getRoom().getId())
                 .displayIdx(participant.getDisplayIdx())
                 .messageId(message.getId())
                 .content(message.getContent())
                 .messageType(message.getMessageType())
                 .timestamp(message.getTimestamp())
+                .readCount(message.getReadCount())
                 .senderUserId(message.getSender().getId())
                 .senderName(message.getSender().getName())
                 .senderProfileImageUrl(message.getSender().getProfileImagePath())

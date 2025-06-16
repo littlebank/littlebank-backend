@@ -132,7 +132,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
             String roomName = tuple.get(cr.name);
             RoomRange roomRange = tuple.get(cr.range);
             LocalDateTime displayIdx = tuple.get(ucr.displayIdx);
-            Long lastMessageId = tuple.get(ucr.lastReadMessageId);
+            Long lastMessageId = tuple.get(cr.lastMessageId);
 
             UserChatRoom userChatRoom = queryFactory
                     .selectFrom(ucr)
@@ -202,7 +202,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public Optional<ChatRoomDetailsResponse> findChatRoomDetails(Long userId, Long roomId) {
         Tuple roomInfo = queryFactory
-                .select(cr.id, cr.name, cr.range)
+                .select(cr.id, cr.name, cr.range, ucr.lastReadMessageId, cr.lastMessageId)
                 .from(ucr)
                 .join(ucr.room, cr)
                 .where(
@@ -216,6 +216,8 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
         Long fetchedRoomId = roomInfo.get(cr.id);
         String roomName = roomInfo.get(cr.name);
         RoomRange roomRange = roomInfo.get(cr.range);
+        Long lastReadMessageId = roomInfo.get(ucr.lastReadMessageId);
+        Long lastSendMessageId = roomInfo.get(ucr.lastReadMessageId);
 
         List<ChatRoomDetailsResponse.ParticipantInfo> participants = queryFactory
                 .select(Projections.constructor(ChatRoomDetailsResponse.ParticipantInfo.class,
@@ -250,7 +252,9 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                 fetchedRoomId,
                 roomName,
                 roomRange,
-                participants
+                participants,
+                lastReadMessageId,
+                lastSendMessageId
         ));
     }
 
