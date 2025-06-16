@@ -35,8 +35,8 @@ public class ChatController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRoom);
     }
 
-    @Operation(summary = "친구 채팅방 목록 조회 API")
-    @GetMapping("/room")
+    @Operation(summary = "채팅방 목록 조회 API")
+    @GetMapping("/room/list")
     public ResponseEntity<List<ChatRoomSummaryResponse>> getRoomList(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {

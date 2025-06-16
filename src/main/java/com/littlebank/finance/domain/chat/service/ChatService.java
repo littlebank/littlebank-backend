@@ -6,6 +6,7 @@ import com.littlebank.finance.domain.chat.domain.repository.ChatRoomRepository;
 import com.littlebank.finance.domain.chat.domain.repository.UserChatRoomRepository;
 import com.littlebank.finance.domain.chat.dto.request.ChatRoomCreateRequest;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomCreateResponse;
+import com.littlebank.finance.domain.chat.dto.response.ChatRoomDetailsResponse;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
 import com.littlebank.finance.domain.chat.exception.ChatException;
 import com.littlebank.finance.domain.user.domain.User;
@@ -37,7 +38,6 @@ public class ChatService {
                 ChatRoom.builder()
                         .name(request.getName())
                         .range(request.getRoomRange())
-                        .type(request.getRoomType())
                         .createdBy(user)
                         .build()
         );

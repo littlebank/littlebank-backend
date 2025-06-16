@@ -23,9 +23,6 @@ public class ChatRoom extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
     @Enumerated(EnumType.STRING)
-    @Column(name = "room_type", nullable = false)
-    private RoomType type;
-    @Enumerated(EnumType.STRING)
     @Column(name = "room_range", nullable = false)
     private RoomRange range;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,9 +34,8 @@ public class ChatRoom extends BaseEntity {
     private Boolean isDeleted;
 
     @Builder
-    public ChatRoom(String name, RoomType type, RoomRange range, User createdBy, Long lastMessageId, Boolean isDeleted) {
+    public ChatRoom(String name, RoomRange range, User createdBy, Long lastMessageId, Boolean isDeleted) {
         this.name = name;
-        this.type = type;
         this.range = range;
         this.createdBy = createdBy;
         this.lastMessageId = lastMessageId == null ? 0L : lastMessageId;

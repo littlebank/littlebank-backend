@@ -36,7 +36,7 @@ public class ChatMessage {
     @Column(nullable = false)
     private Boolean isDeleted;
     @Column(nullable = false)
-    private int readCount;
+    private Integer readCount;
     @Version
     private Long version;
 

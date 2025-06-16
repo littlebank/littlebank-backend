@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.chat.domain.repository.impl;
 
 import com.littlebank.finance.domain.chat.domain.*;
 import com.littlebank.finance.domain.chat.domain.repository.CustomUserChatRoomRepository;
+import com.littlebank.finance.domain.chat.dto.response.ChatRoomDetailsResponse;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
 import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.user.domain.QUser;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.littlebank.finance.domain.chat.domain.QChatMessage.chatMessage;
@@ -107,12 +109,11 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public List<ChatRoomSummaryResponse> findChatRoomSummaryList(Long userId) {
         List<Tuple> myRooms = queryFactory
-                .select(cr.id, cr.name, cr.type, cr.range, ucr.displayIdx)
+                .select(cr.id, cr.name, cr.range, ucr.displayIdx, cr.lastMessageId)
                 .from(ucr)
                 .join(ucr.room, cr)
                 .where(
                         ucr.user.id.eq(userId),
-                        cr.type.eq(RoomType.FRIEND),
                         new BooleanBuilder()
                                 .or(cr.createdBy.id.eq(userId))
                                 .or(
@@ -128,24 +129,21 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
         return myRooms.stream().map(tuple -> {
             Long roomId = tuple.get(cr.id);
             String roomName = tuple.get(cr.name);
-            RoomType roomType = tuple.get(cr.type);
             RoomRange roomRange = tuple.get(cr.range);
             LocalDateTime displayIdx = tuple.get(ucr.displayIdx);
+            Long lastMessageId = tuple.get(ucr.lastReadMessageId);
 
             UserChatRoom userChatRoom = queryFactory
                     .selectFrom(ucr)
                     .where(ucr.user.id.eq(userId).and(ucr.room.id.eq(roomId)))
                     .fetchOne();
 
-            Long lastReadMessageId = userChatRoom.getLastReadMessageId();
-            Long lastMessageId = userChatRoom.getRoom().getLastMessageId();
-
             Long unreadMessageCount = queryFactory
                     .select(cm.id.count())
                     .from(cm)
                     .where(
                             cm.room.id.eq(roomId),
-                            cm.id.gt(lastReadMessageId),
+                            cm.id.gt(userChatRoom.getLastReadMessageId()),
                             cm.id.loe(lastMessageId),
                             cm.sender.id.ne(userId)
                     )
@@ -175,7 +173,6 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
             return ChatRoomSummaryResponse.builder()
                     .roomId(roomId)
                     .roomName(roomName)
-                    .roomType(roomType)
                     .roomRange(roomRange)
                     .participantNameList(participantNames)
                     .displayIdx(displayIdx)
