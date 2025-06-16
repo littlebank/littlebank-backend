@@ -4,6 +4,7 @@ import com.littlebank.finance.domain.chat.domain.*;
 import com.littlebank.finance.domain.chat.domain.repository.CustomUserChatRoomRepository;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomDetailsResponse;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
+import com.littlebank.finance.domain.friend.domain.Friend;
 import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.core.BooleanBuilder;
@@ -103,6 +104,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
      * 조건:
      * - 채팅방 타입이 FRIEND인 경우만 조회
      * - 삭제되지 않은 채팅방(User, ChatRoom 엔티티의 @Where 조건 포함)이 기본적으로 필터링됨
+     * - 1:1 채팅에서 내가 상대방을 차단한 경우, unreadMessageCount는 0으로 처리
      *
      * @param userId 조회할 사용자의 ID
      * @return 채팅방 요약 정보 리스트
@@ -132,26 +134,39 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
             String roomName = tuple.get(cr.name);
             RoomRange roomRange = tuple.get(cr.range);
             LocalDateTime displayIdx = tuple.get(ucr.displayIdx);
-            Long lastMessageId = tuple.get(ucr.lastReadMessageId);
+            Long lastMessageId = tuple.get(cr.lastMessageId);
 
             UserChatRoom userChatRoom = queryFactory
                     .selectFrom(ucr)
                     .where(ucr.user.id.eq(userId).and(ucr.room.id.eq(roomId)))
                     .fetchOne();
 
-            Long unreadMessageCount = queryFactory
-                    .select(cm.id.count())
-                    .from(cm)
-                    .where(
-                            cm.room.id.eq(roomId),
-                            cm.id.gt(userChatRoom.getLastReadMessageId()),
-                            cm.id.loe(lastMessageId),
-                            cm.sender.id.ne(userId)
-                    )
-                    .limit(MAX_UNREAD_MESSAGE_SHOW_COUNT + 1)
-                    .fetchOne();
+            int finalUnreadCount;
 
-            int finalUnreadCount = (int) Math.min(unreadMessageCount, MAX_UNREAD_MESSAGE_SHOW_COUNT);
+            if (roomRange == RoomRange.PRIVATE) {
+                Long opponentId = queryFactory
+                        .select(u.id)
+                        .from(ucr)
+                        .join(ucr.user, u)
+                        .where(ucr.room.id.eq(roomId), u.id.ne(userId))
+                        .fetchFirst();
+
+                Friend friend = queryFactory
+                        .selectFrom(f)
+                        .where(f.fromUser.id.eq(userId), f.toUser.id.eq(opponentId))
+                        .fetchOne();
+
+                boolean isBlocked = friend != null && Boolean.TRUE.equals(friend.getIsBlocked());
+
+                if (!isBlocked) {
+                    finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId());
+                } else {
+                    finalUnreadCount = 0;
+                }
+
+            } else {
+                finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId());
+            }
 
             List<String> participantNames = queryFactory
                     .select(
@@ -169,7 +184,9 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                             .and(u.id.ne(userId)))
                     .fetch();
 
-            if (roomRange == RoomRange.PRIVATE) roomName = participantNames.get(0);
+            if (roomRange == RoomRange.PRIVATE && !participantNames.isEmpty()) {
+                roomName = participantNames.get(0);
+            }
 
             return ChatRoomSummaryResponse.builder()
                     .roomId(roomId)
@@ -180,6 +197,22 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                     .unreadMessageCount(finalUnreadCount)
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    private int fetchUnreadCount(Long userId, Long roomId, Long lastMessageId, Long lastReadMessageId) {
+        Long count = queryFactory
+                .select(cm.id.count())
+                .from(cm)
+                .where(
+                        cm.room.id.eq(roomId),
+                        cm.id.gt(lastReadMessageId),
+                        cm.id.loe(lastMessageId),
+                        cm.sender.id.ne(userId)
+                )
+                .limit(MAX_UNREAD_MESSAGE_SHOW_COUNT + 1)
+                .fetchOne();
+
+        return (int) Math.min(count, MAX_UNREAD_MESSAGE_SHOW_COUNT);
     }
 
     /**
@@ -202,7 +235,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public Optional<ChatRoomDetailsResponse> findChatRoomDetails(Long userId, Long roomId) {
         Tuple roomInfo = queryFactory
-                .select(cr.id, cr.name, cr.range)
+                .select(cr.id, cr.name, cr.range, ucr.lastReadMessageId, cr.lastMessageId)
                 .from(ucr)
                 .join(ucr.room, cr)
                 .where(
@@ -216,6 +249,8 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
         Long fetchedRoomId = roomInfo.get(cr.id);
         String roomName = roomInfo.get(cr.name);
         RoomRange roomRange = roomInfo.get(cr.range);
+        Long lastReadMessageId = roomInfo.get(ucr.lastReadMessageId);
+        Long lastSendMessageId = roomInfo.get(ucr.lastReadMessageId);
 
         List<ChatRoomDetailsResponse.ParticipantInfo> participants = queryFactory
                 .select(Projections.constructor(ChatRoomDetailsResponse.ParticipantInfo.class,
@@ -250,7 +285,9 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                 fetchedRoomId,
                 roomName,
                 roomRange,
-                participants
+                participants,
+                lastReadMessageId,
+                lastSendMessageId
         ));
     }
 

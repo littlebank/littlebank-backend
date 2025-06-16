@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -29,14 +31,16 @@ public class Friend extends BaseEntity {
     private Boolean isBlocked;
     @Column(nullable = false)
     private Boolean isBestFriend;
+    private LocalDateTime blockedDate;
 
     @Builder
-    public Friend(User fromUser, User toUser, String customName, Boolean isBlocked, Boolean isBestFriend) {
+    public Friend(User fromUser, User toUser, String customName, Boolean isBlocked, Boolean isBestFriend, LocalDateTime blockedDate) {
         this.fromUser = fromUser;
         this.toUser = toUser;
         this.customName = customName;
         this.isBlocked = isBlocked == null ? false : isBlocked;
         this.isBestFriend = isBestFriend == null ? false : isBestFriend;
+        this.blockedDate = blockedDate;
     }
 
     public void markBestFriend() {
@@ -49,10 +53,12 @@ public class Friend extends BaseEntity {
 
     public void blocking() {
         this.isBlocked = true;
+        this.blockedDate = LocalDateTime.now();
     }
 
     public void unblocking() {
         this.isBlocked = false;
+        this.blockedDate = null;
     }
 
     public void rename(String chaneName) {
