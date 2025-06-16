@@ -2,10 +2,12 @@ package com.littlebank.finance.domain.chat.controller;
 
 import com.littlebank.finance.domain.chat.dto.request.ChatRoomCreateRequest;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomCreateResponse;
+import com.littlebank.finance.domain.chat.dto.response.ChatRoomDetailsResponse;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
 import com.littlebank.finance.domain.chat.service.ChatService;
 
 import com.littlebank.finance.global.security.CustomUserDetails;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -41,6 +43,17 @@ public class ChatController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         List<ChatRoomSummaryResponse> createdRoom = chatService.getRoomList(customUserDetails.getId());
+        return ResponseEntity.ok(createdRoom);
+    }
+
+    @Operation(summary = "단일 채팅방 상세 조회 API")
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<ChatRoomDetailsResponse> getRoomDetails(
+            @Parameter(description = "채팅방 식별 id")
+            @PathVariable("roomId") Long roomId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        ChatRoomDetailsResponse createdRoom = chatService.getRoomDetails(customUserDetails.getId(), roomId);
         return ResponseEntity.ok(createdRoom);
     }
 }

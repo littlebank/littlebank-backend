@@ -65,4 +65,10 @@ public class ChatService {
     public List<ChatRoomSummaryResponse> getRoomList(Long userId) {
         return userChatRoomRepository.findChatRoomSummaryList(userId);
     }
+
+    @Transactional(readOnly = true)
+    public ChatRoomDetailsResponse getRoomDetails(Long userId, Long roomId) {
+        return userChatRoomRepository.findChatRoomDetails(userId, roomId)
+                .orElseThrow(() -> new ChatException(ErrorCode.USER_CHAT_ROOM_NOT_FOUND));
+    }
 }

@@ -8,6 +8,7 @@ import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -179,6 +180,78 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                     .unreadMessageCount(finalUnreadCount)
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 단일 채팅방의 상세 정보를 조회
+     *
+     * 조건:
+     * - 사용자가 참여 중인 채팅방이어야 함
+     *
+     * 응답:
+     * - roomId: 채팅방 id
+     * - roomName: 채팅방 이름 (PRIVATE 방일 경우 상대방 이름 혹은 customName)
+     * - roomRange: 채팅방 공개 범위
+     * - participants: 채팅방 참여자 정보 목록 (본인 포함)
+     *      - userId, name, profileImageUrl, isFriend, friendId, customName, isBestFriend, isBlocked
+     *
+     * @param userId 현재 로그인한 사용자 id
+     * @param roomId 조회할 채팅방 id
+     * @return ChatRoomDetailsResponse (없으면 Optional.empty())
+     */
+    @Override
+    public Optional<ChatRoomDetailsResponse> findChatRoomDetails(Long userId, Long roomId) {
+        Tuple roomInfo = queryFactory
+                .select(cr.id, cr.name, cr.range)
+                .from(ucr)
+                .join(ucr.room, cr)
+                .where(
+                        cr.id.eq(roomId),
+                        ucr.user.id.eq(userId)
+                )
+                .fetchOne();
+
+        if (roomInfo == null) return Optional.empty();
+
+        Long fetchedRoomId = roomInfo.get(cr.id);
+        String roomName = roomInfo.get(cr.name);
+        RoomRange roomRange = roomInfo.get(cr.range);
+
+        List<ChatRoomDetailsResponse.ParticipantInfo> participants = queryFactory
+                .select(Projections.constructor(ChatRoomDetailsResponse.ParticipantInfo.class,
+                        u.id,
+                        u.name,
+                        u.profileImagePath,
+                        f.id.isNotNull(),
+                        f.id,
+                        f.customName,
+                        f.isBestFriend,
+                        f.isBlocked
+                ))
+                .from(ucr)
+                .join(ucr.user, u)
+                .leftJoin(f).on(
+                        f.fromUser.id.eq(userId),
+                        f.toUser.id.eq(u.id)
+                )
+                .where(ucr.room.id.eq(roomId))
+                .fetch();
+
+        if (roomRange == RoomRange.PRIVATE) {
+            ChatRoomDetailsResponse.ParticipantInfo participantInfo = participants.stream()
+                    .filter(p -> !p.getUserId().equals(userId))
+                    .findFirst().get();
+
+            roomName = participantInfo.getIsFriend() ? participantInfo.getCustomName() : participantInfo.getName();
+
+        }
+
+        return Optional.of(new ChatRoomDetailsResponse(
+                fetchedRoomId,
+                roomName,
+                roomRange,
+                participants
+        ));
     }
 
 }
