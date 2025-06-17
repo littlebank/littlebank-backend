@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.chat.domain.repository.impl;
 
 import com.littlebank.finance.domain.chat.domain.QChatMessage;
 import com.littlebank.finance.domain.chat.domain.QChatRoom;
+import com.littlebank.finance.domain.chat.domain.QUserChatRoom;
 import com.littlebank.finance.domain.chat.domain.RoomRange;
 import com.littlebank.finance.domain.chat.domain.repository.CustomChatMessageRepository;
 import com.littlebank.finance.domain.chat.dto.response.APIMessageResponse;
@@ -18,12 +19,14 @@ import java.util.List;
 
 import static com.littlebank.finance.domain.chat.domain.QChatMessage.chatMessage;
 import static com.littlebank.finance.domain.chat.domain.QChatRoom.chatRoom;
+import static com.littlebank.finance.domain.chat.domain.QUserChatRoom.userChatRoom;
 import static com.littlebank.finance.domain.friend.domain.QFriend.friend;
 
 @RequiredArgsConstructor
 public class CustomChatMessageRepositoryImpl implements CustomChatMessageRepository {
     private final JPAQueryFactory queryFactory;
     private QChatRoom cr = chatRoom;
+    private QUserChatRoom ucr = userChatRoom;
     private QChatMessage cm = chatMessage;
     private QFriend f = friend;
 
@@ -67,13 +70,16 @@ public class CustomChatMessageRepositoryImpl implements CustomChatMessageReposit
                 ))
                 .from(cm)
                 .join(cm.room, cr)
+                .join(ucr)
+                .on(ucr.room.id.eq(cr.id))
                 .leftJoin(f)
                 .on(f.fromUser.id.eq(userId)
-                        .and(f.friend.id.eq(cm.sender.id)))
+                        .and(f.toUser.id.eq(cm.sender.id)))
                 .where(
                         cr.id.eq(roomId),
+                        blockedMessageCondition(userId, roomRange),
                         cm.id.lt(lastMessageId),
-                        blockedMessageCondition(userId, roomRange)
+                        cm.timestamp.goe(ucr.createdDate)
                 )
                 .orderBy(cm.id.desc())
                 .offset(pageable.getOffset())

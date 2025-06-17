@@ -88,7 +88,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     }
 
     /**
-     * 참여 중인 친구 채팅방 목록을 조회
+     * 참여 중인 채팅방 목록을 조회
      *
      * 각 채팅방에 대해 다음 정보를 제공
      * - roomId: 채팅방 ID
@@ -112,7 +112,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public List<ChatRoomSummaryResponse> findChatRoomSummaryList(Long userId) {
         List<Tuple> myRooms = queryFactory
-                .select(cr.id, cr.name, cr.range, ucr.displayIdx, cr.lastMessageId)
+                .select(cr.id, cr.name, cr.range, ucr.displayIdx, cr.lastMessageId, ucr.createdDate)
                 .from(ucr)
                 .join(ucr.room, cr)
                 .where(
@@ -123,7 +123,8 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                                         JPAExpressions
                                                 .selectOne()
                                                 .from(cm)
-                                                .where(cm.room.id.eq(cr.id))
+                                                .where(cm.room.id.eq(cr.id),
+                                                        cm.timestamp.goe(ucr.createdDate))
                                                 .exists()
                                 )
                 )
@@ -135,6 +136,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
             RoomRange roomRange = tuple.get(cr.range);
             LocalDateTime displayIdx = tuple.get(ucr.displayIdx);
             Long lastMessageId = tuple.get(cr.lastMessageId);
+            LocalDateTime ucrCreatedDate = tuple.get(ucr.createdDate);
 
             UserChatRoom userChatRoom = queryFactory
                     .selectFrom(ucr)
@@ -156,16 +158,16 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                         .where(f.fromUser.id.eq(userId), f.toUser.id.eq(opponentId))
                         .fetchOne();
 
-                boolean isBlocked = friend != null && Boolean.TRUE.equals(friend.getIsBlocked());
+                boolean isBlocked = friend != null && friend.getIsBlocked();
 
                 if (!isBlocked) {
-                    finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId());
+                    finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId(), ucrCreatedDate);
                 } else {
                     finalUnreadCount = 0;
                 }
 
             } else {
-                finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId());
+                finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId(), ucrCreatedDate);
             }
 
             List<String> participantNames = queryFactory
@@ -199,15 +201,16 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
         }).collect(Collectors.toList());
     }
 
-    private int fetchUnreadCount(Long userId, Long roomId, Long lastMessageId, Long lastReadMessageId) {
+    private int fetchUnreadCount(Long userId, Long roomId, Long lastMessageId, Long lastReadMessageId, LocalDateTime ucrCreatedDate) {
         Long count = queryFactory
                 .select(cm.id.count())
                 .from(cm)
                 .where(
                         cm.room.id.eq(roomId),
+                        cm.sender.id.ne(userId),
                         cm.id.gt(lastReadMessageId),
                         cm.id.loe(lastMessageId),
-                        cm.sender.id.ne(userId)
+                        cm.timestamp.goe(ucrCreatedDate)
                 )
                 .limit(MAX_UNREAD_MESSAGE_SHOW_COUNT + 1)
                 .fetchOne();
@@ -227,6 +230,8 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
      * - roomRange: 채팅방 공개 범위
      * - participants: 채팅방 참여자 정보 목록 (본인 포함)
      *      - userId, name, profileImageUrl, isFriend, friendId, customName, isBestFriend, isBlocked
+     * - lastReadMessageId : 내가 마지막으로 읽은 메시지의 식별 id
+     * - lastSendMessageId : 채팅방에서 마지막으로 올라온 메시지의 식별 id
      *
      * @param userId 현재 로그인한 사용자 id
      * @param roomId 조회할 채팅방 id
@@ -250,7 +255,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
         String roomName = roomInfo.get(cr.name);
         RoomRange roomRange = roomInfo.get(cr.range);
         Long lastReadMessageId = roomInfo.get(ucr.lastReadMessageId);
-        Long lastSendMessageId = roomInfo.get(ucr.lastReadMessageId);
+        Long lastSendMessageId = roomInfo.get(cr.lastMessageId);
 
         List<ChatRoomDetailsResponse.ParticipantInfo> participants = queryFactory
                 .select(Projections.constructor(ChatRoomDetailsResponse.ParticipantInfo.class,
@@ -278,7 +283,6 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                     .findFirst().get();
 
             roomName = participantInfo.getIsFriend() ? participantInfo.getCustomName() : participantInfo.getName();
-
         }
 
         return Optional.of(new ChatRoomDetailsResponse(
