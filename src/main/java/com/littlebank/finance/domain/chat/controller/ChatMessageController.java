@@ -34,9 +34,7 @@ public class ChatMessageController {
     public void sendMessage(@Payload ChatMessageRequest request, Authentication authentication) {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        System.out.println("확인5");
         ChatMessage savedMessage = chatMessageService.saveMessage(customUserDetails.getId(), request);
-        System.out.println("확인6");
 
         List<UserChatRoom> participants = chatMessageService.getChatRoomParticipants(request.getRoomId());
         for (UserChatRoom participant : participants) {
