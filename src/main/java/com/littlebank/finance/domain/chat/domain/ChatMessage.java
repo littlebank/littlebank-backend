@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.chat.domain;
 
+import com.littlebank.finance.domain.chat.domain.constant.MessageType;
 import com.littlebank.finance.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

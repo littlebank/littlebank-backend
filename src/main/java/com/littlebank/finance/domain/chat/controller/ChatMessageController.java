@@ -1,7 +1,7 @@
 package com.littlebank.finance.domain.chat.controller;
 
 import com.littlebank.finance.domain.chat.domain.ChatMessage;
-import com.littlebank.finance.domain.chat.domain.RoomRange;
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.UserChatRoom;
 import com.littlebank.finance.domain.chat.dto.request.ChatMessageRequest;
 import com.littlebank.finance.domain.chat.dto.request.ChatReadRequest;

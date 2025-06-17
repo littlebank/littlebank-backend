@@ -1,6 +1,6 @@
 package com.littlebank.finance.domain.chat.dto.request;
 
-import com.littlebank.finance.domain.chat.domain.RoomRange;
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

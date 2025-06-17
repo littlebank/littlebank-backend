@@ -3,7 +3,7 @@ package com.littlebank.finance.domain.chat.domain.repository.impl;
 import com.littlebank.finance.domain.chat.domain.QChatMessage;
 import com.littlebank.finance.domain.chat.domain.QChatRoom;
 import com.littlebank.finance.domain.chat.domain.QUserChatRoom;
-import com.littlebank.finance.domain.chat.domain.RoomRange;
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.repository.CustomChatMessageRepository;
 import com.littlebank.finance.domain.chat.dto.response.APIMessageResponse;
 import com.littlebank.finance.domain.friend.domain.QFriend;

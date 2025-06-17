@@ -1,6 +1,6 @@
 package com.littlebank.finance.domain.chat.dto.response;
 
-import com.littlebank.finance.domain.chat.domain.MessageType;
+import com.littlebank.finance.domain.chat.domain.constant.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.chat.domain.repository.impl;
 
 import com.littlebank.finance.domain.chat.domain.*;
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.repository.CustomUserChatRoomRepository;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomDetailsResponse;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
