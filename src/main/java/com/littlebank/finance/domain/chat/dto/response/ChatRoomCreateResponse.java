@@ -1,7 +1,7 @@
 package com.littlebank.finance.domain.chat.dto.response;
 
 import com.littlebank.finance.domain.chat.domain.ChatRoom;
-import com.littlebank.finance.domain.chat.domain.RoomRange;
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

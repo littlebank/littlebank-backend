@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.chat.domain;
 
+import com.littlebank.finance.domain.chat.domain.constant.MessageType;
 import com.littlebank.finance.domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "chat_message_id")
     private Long id;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.chat.domain;
 
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;

@@ -1,7 +1,7 @@
 package com.littlebank.finance.domain.chat.dto.response;
 
 import com.littlebank.finance.domain.chat.domain.ChatMessage;
-import com.littlebank.finance.domain.chat.domain.MessageType;
+import com.littlebank.finance.domain.chat.domain.constant.MessageType;
 import com.littlebank.finance.domain.chat.domain.UserChatRoom;
 import com.littlebank.finance.domain.friend.domain.Friend;
 import lombok.AllArgsConstructor;

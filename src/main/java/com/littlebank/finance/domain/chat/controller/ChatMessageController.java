@@ -1,7 +1,7 @@
 package com.littlebank.finance.domain.chat.controller;
 
 import com.littlebank.finance.domain.chat.domain.ChatMessage;
-import com.littlebank.finance.domain.chat.domain.RoomRange;
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.UserChatRoom;
 import com.littlebank.finance.domain.chat.dto.request.ChatMessageRequest;
 import com.littlebank.finance.domain.chat.dto.request.ChatReadRequest;
@@ -34,9 +34,7 @@ public class ChatMessageController {
     public void sendMessage(@Payload ChatMessageRequest request, Authentication authentication) {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        System.out.println("확인5");
         ChatMessage savedMessage = chatMessageService.saveMessage(customUserDetails.getId(), request);
-        System.out.println("확인6");
 
         List<UserChatRoom> participants = chatMessageService.getChatRoomParticipants(request.getRoomId());
         for (UserChatRoom participant : participants) {
