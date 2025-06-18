@@ -102,7 +102,8 @@ public enum ErrorCode {
     SURVEY_NOT_FOUND( 404, "Q001", "퀴즈를 찾을 수 없습니다"),
     // SUBSCRIPTION
     INVITECODE_NOT_FOUND(404, "SS001", "구독을 찾을 수 없습니다"),
-    ALREADY_SUBSCRIBED(400, "SS002", "이미 구독 중입니다");
+    ALREADY_SUBSCRIBED(400, "SS002", "이미 구독 중입니다"),
+    GOOGLE_PLAY_PUBLISHER_FAIL(404, "SS003", "초기화 실패");
 
     private final String code;
     private final String message;

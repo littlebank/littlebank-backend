@@ -1,8 +1,12 @@
 package com.littlebank.finance.domain.subscription.controller;
 
 import com.littlebank.finance.domain.subscription.domain.Subscription;
+import com.littlebank.finance.domain.subscription.dto.request.PurchaseVerifyGoogle;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionCreateRequestDto;
+import com.littlebank.finance.domain.subscription.dto.request.SubscriptionPurchaseRequestDto;
+import com.littlebank.finance.domain.subscription.dto.response.CommonResponse;
 import com.littlebank.finance.domain.subscription.dto.response.SubscriptionResponseDto;
+import com.littlebank.finance.domain.subscription.service.PurchaseService;
 import com.littlebank.finance.domain.subscription.service.SubscriptionService;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -13,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 
 @RestController
@@ -22,6 +28,7 @@ import java.util.List;
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
+    private final PurchaseService purchaseService;
 
     @Operation(summary = "구독 생성")
     @PostMapping("/create")
@@ -50,5 +57,14 @@ public class SubscriptionController {
     ) {
         SubscriptionResponseDto response = subscriptionService.redeemSubscription(user.getId(), code);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "구독권 결제")
+    @PostMapping("/purchase/inapp")
+    public ResponseEntity<?> verifyGooglePurchase (
+            @RequestBody PurchaseVerifyGoogle request
+    ) throws GeneralSecurityException, IOException {
+        var response = purchaseService.verifyReceiptForGoogle(request.purchaseToken());
+        return ResponseEntity.ok(CommonResponse.success(response));
     }
 }
