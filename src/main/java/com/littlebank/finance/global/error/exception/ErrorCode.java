@@ -102,7 +102,8 @@ public enum ErrorCode {
     SURVEY_NOT_FOUND( 404, "Q001", "퀴즈를 찾을 수 없습니다"),
     // SUBSCRIPTION
     INVITECODE_NOT_FOUND(404, "SS001", "구독을 찾을 수 없습니다"),
-    ALREADY_SUBSCRIBED(400, "SS002", "이미 구독 중입니다");
+    ALREADY_SUBSCRIBED(400, "SS002", "이미 구독 중입니다"),
+    EXCEEDED_SUBSCRIPTUIN_SEATS(409, "SS003", "초대할 있는 사람 수를 초과했습니다");
 
     private final String code;
     private final String message;
