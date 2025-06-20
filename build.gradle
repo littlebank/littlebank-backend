@@ -76,6 +76,10 @@ dependencies {
 	// Thymeleaf
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+
+	//google
+	implementation 'com.google.apis:google-api-services-androidpublisher:v3-rev20241003-2.0.0'
+
 }
 
 tasks.named('test') {

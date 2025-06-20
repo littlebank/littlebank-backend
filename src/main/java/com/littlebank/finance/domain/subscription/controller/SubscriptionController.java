@@ -1,10 +1,10 @@
 package com.littlebank.finance.domain.subscription.controller;
 
-import com.littlebank.finance.domain.subscription.domain.Subscription;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionCreateRequestDto;
+import com.littlebank.finance.domain.subscription.dto.request.SubscriptionPurchaseRequestDto;
 import com.littlebank.finance.domain.subscription.dto.response.SubscriptionResponseDto;
+import com.littlebank.finance.domain.subscription.service.PurchaseService;
 import com.littlebank.finance.domain.subscription.service.SubscriptionService;
-import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import java.util.List;
 
 @RestController
@@ -22,6 +21,7 @@ import java.util.List;
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
+    private final PurchaseService purchaseService;
 
     @Operation(summary = "구독 생성")
     @PostMapping("/create")
@@ -49,6 +49,15 @@ public class SubscriptionController {
             @AuthenticationPrincipal CustomUserDetails user
     ) {
         SubscriptionResponseDto response = subscriptionService.redeemSubscription(user.getId(), code);
+        return ResponseEntity.ok(response);
+    }
+    @Operation(summary = "구독권 결제")
+    @PostMapping("/purchase/inapp")
+    public ResponseEntity<?> verifyGooglePurchase (
+            @RequestBody SubscriptionPurchaseRequestDto request,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        boolean response = purchaseService.verifyReceiptForGoogle(user.getId(), request);
         return ResponseEntity.ok(response);
     }
 }
