@@ -19,6 +19,7 @@ public class FeedResponseDto {
     private TagCategory tagCategory;
     private SubjectCategory subjectCategory;
     private GradeCategory gradeCategory;
+    private Long writerId;
     private String writerName;
     private String writerProfileImageUrl;
     private int viewCount;
@@ -40,6 +41,7 @@ public class FeedResponseDto {
                 .tagCategory(feed.getTagCategory())
                 .subjectCategory(feed.getSubjectCategory())
                 .gradeCategory(feed.getGradeCategory())
+                .writerId(feed.getUser().getId())
                 .writerName(feed.getUser().getName())
                 .writerProfileImageUrl(feed.getUser().getProfileImagePath())
                 .viewCount(feed.getViewCount())

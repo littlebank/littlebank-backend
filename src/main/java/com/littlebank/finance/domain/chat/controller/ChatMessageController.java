@@ -1,11 +1,11 @@
 package com.littlebank.finance.domain.chat.controller;
 
 import com.littlebank.finance.domain.chat.domain.ChatMessage;
-import com.littlebank.finance.domain.chat.domain.RoomRange;
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.UserChatRoom;
 import com.littlebank.finance.domain.chat.dto.request.ChatMessageRequest;
 import com.littlebank.finance.domain.chat.dto.request.ChatReadRequest;
-import com.littlebank.finance.domain.chat.dto.response.ChatMessageResponse;
+import com.littlebank.finance.domain.chat.dto.response.SocketMessageResponse;
 import com.littlebank.finance.domain.chat.dto.response.ChatReadResponse;
 import com.littlebank.finance.domain.chat.service.ChatMessageService;
 import com.littlebank.finance.domain.friend.domain.Friend;
@@ -47,7 +47,7 @@ public class ChatMessageController {
                     friend != null && friend.getIsBlocked())
                 continue;
 
-            ChatMessageResponse response = ChatMessageResponse.of(participant, savedMessage, friend);
+            SocketMessageResponse response = SocketMessageResponse.of(participant, savedMessage, friend);
 
             messagingTemplate.convertAndSend(
                     CHAT_SUBSCRIBE_BASE_URL + request.getRoomId() + "/" + receiverId,

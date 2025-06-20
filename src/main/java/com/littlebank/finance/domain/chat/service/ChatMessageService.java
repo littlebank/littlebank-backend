@@ -33,7 +33,7 @@ public class ChatMessageService {
     private final AsyncChatMessageService asyncChatMessageService;
 
     public ChatMessage saveMessage(Long userId, ChatMessageRequest request) {
-        userChatRoomRepository.updateDisplayIdxByRoomId(request.getRoomId());
+        userChatRoomRepository.updateDisplayIdxByRoomId(request.getRoomId()); // 밑에 로직이 에러가 발생하지 않는다는 것을 가정 (개선 필요)
 
         User sender = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -42,16 +42,19 @@ public class ChatMessageService {
 
         int participantCount = userChatRoomRepository.countParticipantsExcludingUser(room.getId(), sender.getId());
 
-        ChatMessage message = ChatMessage.builder()
+
+        ChatMessage message = chatMessageRepository.save(ChatMessage.builder()
                 .messageType(request.getMessageType())
                 .room(room)
                 .sender(sender)
                 .content(request.getContent())
                 .timestamp(LocalDateTime.now())
                 .readCount(participantCount)
-                .build();
+                .build());
 
-        return chatMessageRepository.save(message);
+        room.updateLastMessageId(message);
+
+        return message;
     }
 
     @Transactional(readOnly = true)

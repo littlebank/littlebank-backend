@@ -1,12 +1,16 @@
 package com.littlebank.finance.domain.chat.domain.repository.impl;
 
 import com.littlebank.finance.domain.chat.domain.*;
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.repository.CustomUserChatRoomRepository;
+import com.littlebank.finance.domain.chat.dto.response.ChatRoomDetailsResponse;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
+import com.littlebank.finance.domain.friend.domain.Friend;
 import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -14,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.littlebank.finance.domain.chat.domain.QChatMessage.chatMessage;
@@ -24,6 +29,7 @@ import static com.littlebank.finance.domain.user.domain.QUser.user;
 
 @RequiredArgsConstructor
 public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepository {
+    private final static int MAX_UNREAD_MESSAGE_SHOW_COUNT = 300;
     private final JPAQueryFactory queryFactory;
     private QUser u = user;
     private QChatRoom cr = chatRoom;
@@ -83,15 +89,15 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     }
 
     /**
-     * 참여 중인 친구 채팅방 목록을 조회
+     * 참여 중인 채팅방 목록을 조회
      *
      * 각 채팅방에 대해 다음 정보를 제공
-     * - userChatRoomId: 사용자-채팅방 매핑 ID
      * - roomId: 채팅방 ID
      * - roomName: 채팅방 이름 (1:1 채팅인 경우 user 이름으로 설정, 친구 추가해 놨다면 설정한 친구 이름으로 설정)
      * - roomType: 채팅방 타입 (FRIEND로 한정)
      * - roomRange: 채팅방 공개 범위
      * - displayIdx: 사용자의 채팅방 정렬 기준 시간
+     * - unreadMessageCount : 안 읽은 메시지 갯수 (300개 이상은 300개까지만 노출)
      * - participantNameList: 채팅방 참여자 이름 목록 (본인 제외)
      *      - 친구 관계가 있는 경우: Friend.customName 사용
      *      - 친구가 아닌 경우: User.name 사용
@@ -99,6 +105,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
      * 조건:
      * - 채팅방 타입이 FRIEND인 경우만 조회
      * - 삭제되지 않은 채팅방(User, ChatRoom 엔티티의 @Where 조건 포함)이 기본적으로 필터링됨
+     * - 1:1 채팅에서 내가 상대방을 차단한 경우, unreadMessageCount는 0으로 처리
      *
      * @param userId 조회할 사용자의 ID
      * @return 채팅방 요약 정보 리스트
@@ -106,31 +113,63 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public List<ChatRoomSummaryResponse> findChatRoomSummaryList(Long userId) {
         List<Tuple> myRooms = queryFactory
-                .select(ucr.id, cr.id, cr.name, cr.type, cr.range, ucr.displayIdx)
+                .select(cr.id, cr.name, cr.range, ucr.displayIdx, cr.lastMessageId, ucr.createdDate)
                 .from(ucr)
                 .join(ucr.room, cr)
                 .where(
                         ucr.user.id.eq(userId),
-                        cr.type.eq(RoomType.FRIEND),
                         new BooleanBuilder()
                                 .or(cr.createdBy.id.eq(userId))
                                 .or(
                                         JPAExpressions
                                                 .selectOne()
                                                 .from(cm)
-                                                .where(cm.room.id.eq(cr.id))
+                                                .where(cm.room.id.eq(cr.id),
+                                                        cm.timestamp.goe(ucr.createdDate))
                                                 .exists()
                                 )
                 )
                 .fetch();
 
         return myRooms.stream().map(tuple -> {
-            Long userChatRoomId = tuple.get(ucr.id);
             Long roomId = tuple.get(cr.id);
             String roomName = tuple.get(cr.name);
-            RoomType roomType = tuple.get(cr.type);
             RoomRange roomRange = tuple.get(cr.range);
             LocalDateTime displayIdx = tuple.get(ucr.displayIdx);
+            Long lastMessageId = tuple.get(cr.lastMessageId);
+            LocalDateTime ucrCreatedDate = tuple.get(ucr.createdDate);
+
+            UserChatRoom userChatRoom = queryFactory
+                    .selectFrom(ucr)
+                    .where(ucr.user.id.eq(userId).and(ucr.room.id.eq(roomId)))
+                    .fetchOne();
+
+            int finalUnreadCount;
+
+            if (roomRange == RoomRange.PRIVATE) {
+                Long opponentId = queryFactory
+                        .select(u.id)
+                        .from(ucr)
+                        .join(ucr.user, u)
+                        .where(ucr.room.id.eq(roomId), u.id.ne(userId))
+                        .fetchFirst();
+
+                Friend friend = queryFactory
+                        .selectFrom(f)
+                        .where(f.fromUser.id.eq(userId), f.toUser.id.eq(opponentId))
+                        .fetchOne();
+
+                boolean isBlocked = friend != null && friend.getIsBlocked();
+
+                if (!isBlocked) {
+                    finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId(), ucrCreatedDate);
+                } else {
+                    finalUnreadCount = 0;
+                }
+
+            } else {
+                finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId(), ucrCreatedDate);
+            }
 
             List<String> participantNames = queryFactory
                     .select(
@@ -148,18 +187,113 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                             .and(u.id.ne(userId)))
                     .fetch();
 
-            if (roomRange == RoomRange.PRIVATE) roomName = participantNames.get(0);
+            if (roomRange == RoomRange.PRIVATE && !participantNames.isEmpty()) {
+                roomName = participantNames.get(0);
+            }
 
             return ChatRoomSummaryResponse.builder()
-                    .userChatRoomId(userChatRoomId)
                     .roomId(roomId)
                     .roomName(roomName)
-                    .roomType(roomType)
                     .roomRange(roomRange)
                     .participantNameList(participantNames)
                     .displayIdx(displayIdx)
+                    .unreadMessageCount(finalUnreadCount)
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    private int fetchUnreadCount(Long userId, Long roomId, Long lastMessageId, Long lastReadMessageId, LocalDateTime ucrCreatedDate) {
+        Long count = queryFactory
+                .select(cm.id.count())
+                .from(cm)
+                .where(
+                        cm.room.id.eq(roomId),
+                        cm.sender.id.ne(userId),
+                        cm.id.gt(lastReadMessageId),
+                        cm.id.loe(lastMessageId),
+                        cm.timestamp.goe(ucrCreatedDate)
+                )
+                .limit(MAX_UNREAD_MESSAGE_SHOW_COUNT + 1)
+                .fetchOne();
+
+        return (int) Math.min(count, MAX_UNREAD_MESSAGE_SHOW_COUNT);
+    }
+
+    /**
+     * 단일 채팅방의 상세 정보를 조회
+     *
+     * 조건:
+     * - 사용자가 참여 중인 채팅방이어야 함
+     *
+     * 응답:
+     * - roomId: 채팅방 id
+     * - roomName: 채팅방 이름 (PRIVATE 방일 경우 상대방 이름 혹은 customName)
+     * - roomRange: 채팅방 공개 범위
+     * - participants: 채팅방 참여자 정보 목록 (본인 포함)
+     *      - userId, name, profileImageUrl, isFriend, friendId, customName, isBestFriend, isBlocked
+     * - lastReadMessageId : 내가 마지막으로 읽은 메시지의 식별 id
+     * - lastSendMessageId : 채팅방에서 마지막으로 올라온 메시지의 식별 id
+     *
+     * @param userId 현재 로그인한 사용자 id
+     * @param roomId 조회할 채팅방 id
+     * @return ChatRoomDetailsResponse (없으면 Optional.empty())
+     */
+    @Override
+    public Optional<ChatRoomDetailsResponse> findChatRoomDetails(Long userId, Long roomId) {
+        Tuple roomInfo = queryFactory
+                .select(cr.id, cr.name, cr.range, ucr.lastReadMessageId, cr.lastMessageId)
+                .from(ucr)
+                .join(ucr.room, cr)
+                .where(
+                        cr.id.eq(roomId),
+                        ucr.user.id.eq(userId)
+                )
+                .fetchOne();
+
+        if (roomInfo == null) return Optional.empty();
+
+        Long fetchedRoomId = roomInfo.get(cr.id);
+        String roomName = roomInfo.get(cr.name);
+        RoomRange roomRange = roomInfo.get(cr.range);
+        Long lastReadMessageId = roomInfo.get(ucr.lastReadMessageId);
+        Long lastSendMessageId = roomInfo.get(cr.lastMessageId);
+
+        List<ChatRoomDetailsResponse.ParticipantInfo> participants = queryFactory
+                .select(Projections.constructor(ChatRoomDetailsResponse.ParticipantInfo.class,
+                        u.id,
+                        u.name,
+                        u.profileImagePath,
+                        f.id.isNotNull(),
+                        f.id,
+                        f.customName,
+                        f.isBestFriend,
+                        f.isBlocked
+                ))
+                .from(ucr)
+                .join(ucr.user, u)
+                .leftJoin(f).on(
+                        f.fromUser.id.eq(userId),
+                        f.toUser.id.eq(u.id)
+                )
+                .where(ucr.room.id.eq(roomId))
+                .fetch();
+
+        if (roomRange == RoomRange.PRIVATE) {
+            ChatRoomDetailsResponse.ParticipantInfo participantInfo = participants.stream()
+                    .filter(p -> !p.getUserId().equals(userId))
+                    .findFirst().get();
+
+            roomName = participantInfo.getIsFriend() ? participantInfo.getCustomName() : participantInfo.getName();
+        }
+
+        return Optional.of(new ChatRoomDetailsResponse(
+                fetchedRoomId,
+                roomName,
+                roomRange,
+                participants,
+                lastReadMessageId,
+                lastSendMessageId
+        ));
     }
 
 }

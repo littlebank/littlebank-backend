@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.chat.domain;
 
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
@@ -23,23 +24,29 @@ public class ChatRoom extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
     @Enumerated(EnumType.STRING)
-    @Column(name = "room_type", nullable = false)
-    private RoomType type;
-    @Enumerated(EnumType.STRING)
     @Column(name = "room_range", nullable = false)
     private RoomRange range;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
     @Column(nullable = false)
+    private Long lastMessageId;
+    @Column(nullable = false)
     private Boolean isDeleted;
 
     @Builder
-    public ChatRoom(String name, RoomType type, RoomRange range, User createdBy, Boolean isDeleted) {
+    public ChatRoom(String name, RoomRange range, User createdBy, Long lastMessageId, Boolean isDeleted) {
         this.name = name;
-        this.type = type;
         this.range = range;
         this.createdBy = createdBy;
+        this.lastMessageId = lastMessageId == null ? 0L : lastMessageId;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
+
+    public void updateLastMessageId(ChatMessage message) {
+        if (this.lastMessageId < message.getId()) {
+            this.lastMessageId = message.getId();
+        }
+    }
+
 }

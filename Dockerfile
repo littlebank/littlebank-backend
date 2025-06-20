@@ -1,6 +1,10 @@
 # 베이스 이미지 설정
 FROM amazoncorretto:17 AS builder
 
+# 시간대 설정
+ENV TZ=Asia/Seoul
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Gradle 및 소스 코드 복사
 WORKDIR /app
 COPY . .
