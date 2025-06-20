@@ -43,8 +43,8 @@ application-*.yml
 ### firebase ###
 /src/main/resources/firebase
 
-### in-app purhcase ###
-/src/main/resources/google-purchase
+### google-play ###
+/src/main/resources/google-play
 
 ### test file ###
 /src/main/java/com/littlebank/finance/global/test
