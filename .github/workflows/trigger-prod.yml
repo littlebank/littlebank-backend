@@ -36,6 +36,11 @@ jobs:
           mkdir -p ./src/main/resources/firebase
           echo "${{ secrets.FIREBASE_ACCOUNT_JSON }}" | base64 --decode > ./src/main/resources/firebase/firebase-account.json
 
+      - name: Generate google-play-account.json
+        run: |
+          mkdir -p ./src/main/resources/google-play
+          echo "${{ secrets.GOOGLE_PLAY_ACCOUNT_JSON }}" | base64 --decode > ./src/main/resources/google-play/google-play-account.json
+
       - name: Zip project files
         run: zip -r ./${{ github.sha }}.zip .
 

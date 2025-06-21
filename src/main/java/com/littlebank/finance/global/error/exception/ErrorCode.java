@@ -65,7 +65,8 @@ public enum ErrorCode {
     // Chat
     CHAT_ROOM_NOT_FOUND(404,"C001","채팅방 데이터가 존재하지 않습니다"),
     USER_CHAT_ROOM_NOT_FOUND(404,"C002","참여중인 채팅방이 아닙니다"),
-    CHAT_ROOM_TOO_FEW_PARTICIPANTS(422,"C003","채팅방에는 최소 2명 이상의 인원이 참여해야 합니다."),
+    CHAT_ROOM_TOO_FEW_PARTICIPANTS(422,"C003","채팅방에는 최소 2명 이상의 인원이 참여해야 합니다"),
+    CHATROOM_INVITE_GROUP_ONLY(400,"C004","그룹 채팅방에서만 채팅방 초대가 가능합니다"),
 
     // Feed
     FEED_NOT_FOUND(404, "F001","피드를 찾을 수 없습니다" ),
@@ -103,7 +104,7 @@ public enum ErrorCode {
     // SUBSCRIPTION
     INVITECODE_NOT_FOUND(404, "SS001", "구독을 찾을 수 없습니다"),
     ALREADY_SUBSCRIBED(400, "SS002", "이미 구독 중입니다"),
-    GOOGLE_PLAY_PUBLISHER_FAIL(404, "SS003", "초기화 실패");
+    GOOGLE_PLAY_PUBLISHER_FAIL(404, "SS003", "초기화 실패"),
     EXCEEDED_SUBSCRIPTUIN_SEATS(409, "SS003", "초대할 있는 사람 수를 초과했습니다");
 
     private final String code;

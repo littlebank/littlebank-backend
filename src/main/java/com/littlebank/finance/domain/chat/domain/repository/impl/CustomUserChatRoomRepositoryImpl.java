@@ -1,6 +1,9 @@
 package com.littlebank.finance.domain.chat.domain.repository.impl;
 
-import com.littlebank.finance.domain.chat.domain.*;
+import com.littlebank.finance.domain.chat.domain.QChatMessage;
+import com.littlebank.finance.domain.chat.domain.QChatRoom;
+import com.littlebank.finance.domain.chat.domain.QUserChatRoom;
+import com.littlebank.finance.domain.chat.domain.UserChatRoom;
 import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.repository.CustomUserChatRoomRepository;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomDetailsResponse;
@@ -85,6 +88,24 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                 .selectFrom(ucr)
                 .join(ucr.room, cr).fetchJoin()
                 .where(ucr.room.id.eq(roomId))
+                .fetch();
+    }
+
+    /**
+     * 특정 유저들을 제외한 채팅방 참여자들을 조회
+     *
+     * @param roomId 채팅방 식별 id
+     * @param targetUserIds 조회에 제외할 특정 유저들의 식별 id 목록
+     * @return
+     */
+    @Override
+    public List<UserChatRoom> findAllWithFetchByRoomIdNotInTargetUserIds(Long roomId, List<Long> targetUserIds) {
+        return queryFactory
+                .selectFrom(ucr)
+                .join(ucr.room, cr).fetchJoin()
+                .where(ucr.room.id.eq(roomId),
+                        ucr.user.id.notIn(targetUserIds)
+                )
                 .fetch();
     }
 
