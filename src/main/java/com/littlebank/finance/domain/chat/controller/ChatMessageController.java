@@ -109,4 +109,34 @@ public class ChatMessageController {
         }
     }
 
+    @MessageMapping("/room-leave")
+    public void leaveChatRoom(@Payload RoomLeaveRequest request, Authentication authentication) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        // 나가기 로그 테이블 저장
+        RoomLeaveResponse response = new RoomLeaveResponse();
+        ChatRoomEventLog eventLog = chatMessageService.leaveChatRoom(customUserDetails.getId(), request, response);
+
+        // 나가기 로그 보내줌
+        List<UserChatRoom> participants = chatMessageService.getChatRoomParticipants(request.getRoomId());
+        for (UserChatRoom participant : participants) {
+            Long receiverId = participant.getUser().getId();
+
+            UserFriendInfoDto agent = friendService.findUserFriendInfoDto(receiverId, customUserDetails.getId());
+
+            String message = ChatPolicy.getLeaveMessage(agent);
+            response.setRoomId(eventLog.getRoom().getId());
+            response.setMessage(message);
+            response.setTimeStamp(eventLog.getCreatedDate());
+
+            messagingTemplate.convertAndSend(
+                    SubscribeBaseUrl.CHAT_SUBSCRIBE_BASE_URL
+                            + "room-leave/"
+                            + request.getRoomId() +
+                            "/" + receiverId,
+                    response
+            );
+        }
+    }
+
 }

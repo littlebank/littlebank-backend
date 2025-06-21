@@ -111,6 +111,30 @@ public class ChatMessageService {
 
         return eventLog;
     }
+
+    public ChatRoomEventLog leaveChatRoom(Long agentId, RoomLeaveRequest request, RoomLeaveResponse response) {
+        User agent = userRepository.findById(agentId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        ChatRoom room = chatRoomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new ChatException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        ChatRoomEventLog eventLog = chatRoomEventLogRepository.save(
+                ChatRoomEventLog.builder()
+                        .eventType(EventType.LEAVE)
+                        .room(room)
+                        .agent(agent)
+                        .build()
+        );
+
+        UserChatRoom participant = userChatRoomRepository.findByUserIdAndRoomId(agent.getId(), room.getId())
+                .orElseThrow(() -> new ChatException(ErrorCode.USER_CHAT_ROOM_NOT_FOUND));
+
+        response.setEndOfDecreaseReadMarkMessageId(participant.getLastReadMessageId());
+        chatMessageRepository.decreaseReadCountByUserChatRoom(participant);
+        userChatRoomRepository.deleteById(participant.getId());
+
+        return eventLog;
+    }
     
     @Transactional(readOnly = true)
     public List<UserChatRoom> getChatRoomParticipantsExcludeTargetUserIds(Long roomId, List<Long> targetUserIds) {
