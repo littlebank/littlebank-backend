@@ -45,7 +45,6 @@ public class ChatMessageService {
 
         int participantCount = userChatRoomRepository.countParticipantsExcludingUser(room.getId(), sender.getId());
 
-
         ChatMessage message = chatMessageRepository.save(ChatMessage.builder()
                 .messageType(request.getMessageType())
                 .room(room)
@@ -55,6 +54,7 @@ public class ChatMessageService {
                 .readCount(participantCount)
                 .build());
 
+        room.updateFirstMessageId(message);
         room.updateLastMessageId(message);
 
         return message;
