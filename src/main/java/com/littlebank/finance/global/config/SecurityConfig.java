@@ -44,7 +44,8 @@ public class SecurityConfig {
             "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs", "/v3/api-docs.yaml",
             // api 관련
             "/api-admin/*/public/**", "/api-user/*/public/**",
-            "/ws/**"
+            "/ws/**",
+            "/view/public/**", "view/**", "/css/**"
     };
 
     @Bean
@@ -68,8 +69,6 @@ public class SecurityConfig {
                         // Admin만 접근 가능
                         .requestMatchers("/api-admin/**").hasRole("ADMIN")
                         .requestMatchers("/api-user/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(
-                                "/view/public/**", "view/**", "/css/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
