@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.friend.domain.repository.impl;
 
+import com.littlebank.finance.domain.chat.dto.UserFriendInfoDto;
 import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.friend.domain.repository.CustomFriendRepository;
 import com.littlebank.finance.domain.friend.dto.response.CommonFriendInfoResponse;
@@ -8,6 +9,7 @@ import com.littlebank.finance.domain.mission.domain.QMission;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.littlebank.finance.domain.user.dto.response.CommonUserInfoResponse;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.littlebank.finance.domain.friend.domain.QFriend.friend;
 import static com.littlebank.finance.domain.mission.domain.QMission.mission;
@@ -28,6 +31,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
     private QFriend f = friend;
     private QFriend f1 = new QFriend("f1");
     private QMission m = mission;
+
     @Override
     public Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable) {
         List<FriendInfoResponse> results =
@@ -116,6 +120,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
 
         return new PageImpl<>(results, pageable, results.size());
     }
+
     public List<FriendInfoResponse> findFriendsByUserId(Long userId) {
         return queryFactory.select(Projections.constructor(
                         FriendInfoResponse.class,
@@ -152,4 +157,69 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                 )
                 .fetch();
     }
+
+    /**
+     * 기준 사용자와 여러 대상 사용자들 간의 친구 관계를 조회
+     *
+     * @param fromUserId    친구를 조회하는 기준 사용자 식별 id (ex. 본인)
+     * @param toUserId     친구 대상 사용자 식별 id
+     * @return FriendDto 리스트로 매핑된 친구 정보 목록
+     */
+    @Override
+    public Optional<UserFriendInfoDto> findUserFriendInfoDto(Long fromUserId, Long toUserId) {
+        return Optional.ofNullable(
+                queryFactory.select(Projections.constructor(
+                                UserFriendInfoDto.class,
+                                u.id,
+                                u.name,
+                                u.profileImagePath,
+                                new CaseBuilder()
+                                        .when(f.id.isNotNull()).then(true)
+                                        .otherwise(false),
+                                f.id,
+                                f.customName,
+                                f.isBlocked,
+                                f.isBestFriend
+                        ))
+                        .from(u)
+                        .leftJoin(f).on(
+                                f.toUser.id.eq(u.id)
+                                        .and(f.fromUser.id.eq(fromUserId))
+                        )
+                        .where(u.id.eq(toUserId))
+                        .fetchOne()
+        );
+    }
+
+    /**
+     * 기준 사용자와 여러 대상 사용자들 간의 친구 관계 목록을 조회
+     *
+     * @param fromUserId    친구를 조회하는 기준 사용자 식별 id (ex. 본인)
+     * @param toUserIds     친구 대상 사용자 식별 id 목록
+     * @return FriendDto 리스트로 매핑된 친구 정보 목록
+     */
+    @Override
+    public List<UserFriendInfoDto> findUserFriendInfoDtoList(Long fromUserId, List<Long> toUserIds) {
+        return queryFactory.select(Projections.constructor(
+                        UserFriendInfoDto.class,
+                        u.id,
+                        u.name,
+                        u.profileImagePath,
+                        new CaseBuilder()
+                                .when(f.id.isNotNull()).then(true)
+                                .otherwise(false),
+                        f.id,
+                        f.customName,
+                        f.isBlocked,
+                        f.isBestFriend
+                ))
+                .from(u)
+                .leftJoin(f).on(
+                        f.toUser.id.eq(u.id)
+                                .and(f.fromUser.id.eq(fromUserId))
+                )
+                .where(u.id.in(toUserIds))
+                .fetch();
+    }
+
 }

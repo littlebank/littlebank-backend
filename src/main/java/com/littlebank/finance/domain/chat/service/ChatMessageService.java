@@ -1,13 +1,14 @@
 package com.littlebank.finance.domain.chat.service;
 
-import com.littlebank.finance.domain.chat.domain.ChatMessage;
-import com.littlebank.finance.domain.chat.domain.ChatRoom;
-import com.littlebank.finance.domain.chat.domain.UserChatRoom;
-import com.littlebank.finance.domain.chat.domain.repository.ChatMessageRepository;
-import com.littlebank.finance.domain.chat.domain.repository.ChatRoomRepository;
-import com.littlebank.finance.domain.chat.domain.repository.UserChatRoomRepository;
+import com.littlebank.finance.domain.chat.domain.*;
+import com.littlebank.finance.domain.chat.domain.constant.EventType;
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
+import com.littlebank.finance.domain.chat.domain.repository.*;
 import com.littlebank.finance.domain.chat.dto.request.ChatMessageRequest;
 import com.littlebank.finance.domain.chat.dto.request.ChatReadRequest;
+import com.littlebank.finance.domain.chat.dto.request.RoomInviteRequest;
+import com.littlebank.finance.domain.chat.dto.request.RoomLeaveRequest;
+import com.littlebank.finance.domain.chat.dto.response.RoomLeaveResponse;
 import com.littlebank.finance.domain.chat.exception.ChatException;
 import com.littlebank.finance.domain.chat.service.async.AsyncChatMessageService;
 import com.littlebank.finance.domain.user.domain.User;
@@ -30,6 +31,8 @@ public class ChatMessageService {
     private final UserRepository userRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final UserChatRoomRepository userChatRoomRepository;
+    private final ChatRoomEventLogRepository chatRoomEventLogRepository;
+    private final ChatRoomEventLogDetailRepository chatRoomEventLogDetailRepository;
     private final AsyncChatMessageService asyncChatMessageService;
 
     public ChatMessage saveMessage(Long userId, ChatMessageRequest request) {
@@ -71,5 +74,47 @@ public class ChatMessageService {
         );
     }
 
+    public ChatRoomEventLog inviteChatRoom(Long agentId, RoomInviteRequest request) {
+        User agent = userRepository.findById(agentId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        ChatRoom room = chatRoomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new ChatException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        if (room.getRange() == RoomRange.PRIVATE) {
+            throw new ChatException(ErrorCode.CHATROOM_INVITE_GROUP_ONLY);
+        }
+
+        ChatRoomEventLog eventLog = chatRoomEventLogRepository.save(
+                ChatRoomEventLog.builder()
+                        .eventType(EventType.INVITE)
+                        .room(room)
+                        .agent(agent)
+                        .build()
+        );
+
+        List<User> targetUsers = userRepository.findAllById(request.getTargetUserIds());
+        targetUsers.stream()
+                .forEach(u -> {
+                    userChatRoomRepository.save(
+                            UserChatRoom.builder()
+                                    .room(room)
+                                    .user(u)
+                                    .build()
+                    );
+                    chatRoomEventLogDetailRepository.save(
+                            ChatRoomEventLogDetail.builder()
+                                    .log(eventLog)
+                                    .targetUser(u)
+                                    .build()
+                    );
+                });
+
+        return eventLog;
+    }
+    
+    @Transactional(readOnly = true)
+    public List<UserChatRoom> getChatRoomParticipantsExcludeTargetUserIds(Long roomId, List<Long> targetUserIds) {
+        return userChatRoomRepository.findAllWithFetchByRoomIdNotInTargetUserIds(roomId, targetUserIds);
+    }
 }
 

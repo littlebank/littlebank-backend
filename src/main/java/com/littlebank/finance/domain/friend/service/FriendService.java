@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.friend.service;
 
+import com.littlebank.finance.domain.chat.dto.UserFriendInfoDto;
 import com.littlebank.finance.domain.friend.domain.Friend;
 import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
 import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
@@ -23,6 +24,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -144,8 +147,19 @@ public class FriendService {
         return FriendRenameResponse.of(friend);
     }
 
+    @Transactional(readOnly = true)
     public Friend findFriend(Long fromUserId, Long toUserId) {
         return friendRepository.findByFromUserIdAndToUserId(fromUserId, toUserId).orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public UserFriendInfoDto findUserFriendInfoDto(Long fromUserId, Long toUserId) {
+        return friendRepository.findUserFriendInfoDto(fromUserId, toUserId).orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserFriendInfoDto> findUserFriendInfoDtoList(Long fromUserId, List<Long> toUserIds) {
+        return friendRepository.findUserFriendInfoDtoList(fromUserId, toUserIds);
     }
 
     private void verifyExistsFriend(Long fromUserId, Long toUserId) {
@@ -159,4 +173,5 @@ public class FriendService {
             throw new FriendException(ErrorCode.NO_PERMISSION_TO_MODIFY);
         }
     }
+
 }

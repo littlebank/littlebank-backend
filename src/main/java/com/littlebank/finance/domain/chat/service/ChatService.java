@@ -81,4 +81,5 @@ public class ChatService {
     public CustomPageResponse<APIMessageResponse> getMessages(Long userId, Long roomId, Long lastMessageId, Pageable pageable) {
         return CustomPageResponse.of(chatMessageRepository.findChatMessages(userId, roomId, lastMessageId, pageable));
     }
+
 }

@@ -3,6 +3,7 @@ package com.littlebank.finance.domain.chat.domain.repository.impl;
 import com.littlebank.finance.domain.chat.domain.QChatMessage;
 import com.littlebank.finance.domain.chat.domain.QChatRoom;
 import com.littlebank.finance.domain.chat.domain.QUserChatRoom;
+import com.littlebank.finance.domain.chat.domain.UserChatRoom;
 import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.repository.CustomChatMessageRepository;
 import com.littlebank.finance.domain.chat.dto.response.APIMessageResponse;
@@ -29,6 +30,25 @@ public class CustomChatMessageRepositoryImpl implements CustomChatMessageReposit
     private QUserChatRoom ucr = userChatRoom;
     private QChatMessage cm = chatMessage;
     private QFriend f = friend;
+
+    /**
+     * 채팅방을 나간 사람이 읽지 않은 메시지의 읽지 않음 갯수를 -1
+     *
+     * @param leaver 채팅방을 나간 사람의 정보
+     */
+    @Override
+    public void decreaseReadCountByUserChatRoom(UserChatRoom leaver) {
+        queryFactory
+                .update(cm)
+                .set(cm.readCount, cm.readCount.subtract(1))
+                .where(
+                        cm.room.id.eq(leaver.getRoom().getId()),
+                        cm.id.gt(leaver.getLastReadMessageId()),
+                        cm.id.loe(leaver.getRoom().getLastMessageId()),
+                        cm.readCount.gt(0)
+                )
+                .execute();
+    }
 
     /**
      * 채팅방 메시지를 최신순으로 페이징 조회
