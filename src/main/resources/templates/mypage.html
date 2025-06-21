@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>마이페이지</title>
+    <link rel="stylesheet" href="/css/mypage.css">
+</head>
+<body>
+<div class="container">
+    <h1>마이페이지</h1>
+    <div id="userInfo">
+        <p><strong>이름:</strong> <span id="name">불러오는 중...</span></p>
+        <p><strong>이메일:</strong> <span id="email">-</span></p>
+        <p><strong>전화번호:</strong> <span id="phone">-</span></p>
+        <p><strong>상태메시지:</strong> <input type="text" id="statusMessage" /></p>
+        <button onclick="updateStatusMessage()">상태 메시지 저장</button>
+    </div>
+
+    <button class="danger" onclick="deleteAccount()">회원 탈퇴</button>
+    <a href="/view/main">메인으로</a>
+</div>
+
+<script>
+    async function fetchUserInfo() {
+        try {
+            const res = await fetch("/api-user/user/info", {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+                }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById("name").textContent = data.name;
+                document.getElementById("email").textContent = data.email;
+                document.getElementById("phone").textContent = data.phone;
+                document.getElementById("statusMessage").value = data.statusMessage || "";
+            } else if (res.status === 401 || res.status === 403) {
+                alert("세션이 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.");
+                localStorage.removeItem("accessToken");
+                window.location.href = "/view/public";  // 또는 루트 경로로 변경 가능
+            } else {
+                alert("회원 정보를 불러오지 못했습니다.");
+            }
+        } catch (err) {
+            alert("에러 발생: " + err.message);
+        }
+    }
+
+    async function updateStatusMessage() {
+        const message = document.getElementById("statusMessage").value;
+        try {
+            const res = await fetch("/api-user/user/status-message", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+                },
+                body: JSON.stringify({ statusMessage: message })
+            });
+            if (res.ok) {
+                alert("상태 메시지가 업데이트되었습니다.");
+            } else {
+                alert("업데이트 실패");
+            }
+        } catch (err) {
+            alert("에러 발생: " + err.message);
+        }
+    }
+
+    async function deleteAccount() {
+        const confirmed = confirm("정말로 계정을 삭제하시겠습니까?");
+        if (!confirmed) return;
+
+        try {
+            const res = await fetch("/api-user/user", {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+                }
+            });
+            if (res.status === 204) {
+                alert("계정이 삭제되었습니다.");
+                localStorage.removeItem("accessToken");
+                window.location.href = "http://localhost:8080/view/public";
+            } else {
+                alert("계정 삭제 실패");
+            }
+        } catch (err) {
+            alert("에러 발생: " + err.message);
+        }
+    }
+    fetchUserInfo();
+</script>
+</body>
+</html>
