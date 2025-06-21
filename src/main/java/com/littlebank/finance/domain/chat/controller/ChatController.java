@@ -1,10 +1,7 @@
 package com.littlebank.finance.domain.chat.controller;
 
 import com.littlebank.finance.domain.chat.dto.request.ChatRoomCreateRequest;
-import com.littlebank.finance.domain.chat.dto.response.APIMessageResponse;
-import com.littlebank.finance.domain.chat.dto.response.ChatRoomCreateResponse;
-import com.littlebank.finance.domain.chat.dto.response.ChatRoomDetailsResponse;
-import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
+import com.littlebank.finance.domain.chat.dto.response.*;
 import com.littlebank.finance.domain.chat.service.ChatService;
 
 import com.littlebank.finance.global.common.CustomPageResponse;
@@ -75,6 +72,23 @@ public class ChatController {
     ) {
         Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.CHAT_MESSAGE_PAGE_SIZE);
         CustomPageResponse<APIMessageResponse> createdRoom = chatService.getMessages(customUserDetails.getId(), roomId, lastMessageId, pageable);
+        return ResponseEntity.ok(createdRoom);
+    }
+
+    @Operation(summary = "채팅방 초대&나가기 로그 조회 API")
+    @GetMapping("/event-log/{roomId}")
+    public ResponseEntity<List<EventLogResponse>> getMessages(
+            @Parameter(description = "채팅방 식별 id")
+            @PathVariable("roomId") Long roomId,
+            @Parameter(description = "페이지 갯수 1개 이하 여부")
+            @RequestParam(name = "isOnlyOnePage") Boolean isOnlyOnePage,
+            @Parameter(description = "로그 조회 기준이 되는 시작 메시지 식별 id")
+            @RequestParam(name = "startMessageId") Long startMessageId,
+            @Parameter(description = "로그 조회 기준이 되는 마지막 메시지 식별 id")
+            @RequestParam(name = "endMessageId") Long endMessageId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        List<EventLogResponse> createdRoom = chatService.getEventLog(customUserDetails.getId(), roomId, isOnlyOnePage, startMessageId, endMessageId);
         return ResponseEntity.ok(createdRoom);
     }
 }

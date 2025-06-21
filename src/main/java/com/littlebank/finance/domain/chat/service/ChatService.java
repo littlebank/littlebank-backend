@@ -1,19 +1,20 @@
 package com.littlebank.finance.domain.chat.service;
 
 import com.littlebank.finance.domain.chat.domain.ChatRoom;
+import com.littlebank.finance.domain.chat.domain.ChatRoomEventLog;
+import com.littlebank.finance.domain.chat.domain.ChatRoomEventLogDetail;
 import com.littlebank.finance.domain.chat.domain.UserChatRoom;
-import com.littlebank.finance.domain.chat.domain.repository.ChatMessageRepository;
-import com.littlebank.finance.domain.chat.domain.repository.ChatRoomRepository;
-import com.littlebank.finance.domain.chat.domain.repository.UserChatRoomRepository;
+import com.littlebank.finance.domain.chat.domain.constant.EventType;
+import com.littlebank.finance.domain.chat.domain.repository.*;
+import com.littlebank.finance.domain.chat.dto.UserFriendInfoDto;
 import com.littlebank.finance.domain.chat.dto.request.ChatRoomCreateRequest;
-import com.littlebank.finance.domain.chat.dto.response.APIMessageResponse;
-import com.littlebank.finance.domain.chat.dto.response.ChatRoomCreateResponse;
-import com.littlebank.finance.domain.chat.dto.response.ChatRoomDetailsResponse;
-import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
+import com.littlebank.finance.domain.chat.dto.response.*;
 import com.littlebank.finance.domain.chat.exception.ChatException;
+import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.business.ChatPolicy;
 import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -34,12 +36,15 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatRoomEventLogRepository chatRoomEventLogRepository;
+    private final ChatRoomEventLogDetailRepository chatRoomEventLogDetailRepository;
+    private final FriendRepository friendRepository;
 
     public ChatRoomCreateResponse createRoom(Long userId, ChatRoomCreateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        ChatRoom chatRoom = chatRoomRepository.save(
+        ChatRoom room = chatRoomRepository.save(
                 ChatRoom.builder()
                         .name(request.getName())
                         .range(request.getRoomRange())
@@ -47,23 +52,43 @@ public class ChatService {
                         .build()
         );
 
-        long resultCount = request.getParticipantIds().stream()
+        ChatRoomEventLog eventLog = chatRoomEventLogRepository.save(
+                ChatRoomEventLog.builder()
+                        .eventType(EventType.INVITE)
+                        .room(room)
+                        .agent(user)
+                        .build()
+        );
+
+        long joinedCount = request.getParticipantIds().stream()
                 .map(userRepository::findById)
                 .flatMap(Optional::stream)
-                .map(u -> userChatRoomRepository.save(
-                                UserChatRoom.builder()
-                                        .room(chatRoom)
-                                        .user(u)
+                .map(u -> {
+                    UserChatRoom joinedUser = userChatRoomRepository.save(
+                                    UserChatRoom.builder()
+                                            .room(room)
+                                            .user(u)
+                                            .build()
+                            );
+
+                    if (joinedUser.getUser().getId() != userId) {
+                        chatRoomEventLogDetailRepository.save(
+                                ChatRoomEventLogDetail.builder()
+                                        .log(eventLog)
+                                        .targetUser(u)
                                         .build()
-                        )
-                )
+                        );
+                    }
+
+                    return joinedUser;
+                })
                 .count();
 
-        if (resultCount < CHAT_ROOM_MIN_PARTICIPANT_COUNT) {
+        if (joinedCount < CHAT_ROOM_MIN_PARTICIPANT_COUNT) {
             throw new ChatException(ErrorCode.CHAT_ROOM_TOO_FEW_PARTICIPANTS);
         }
 
-        return ChatRoomCreateResponse.of(chatRoom);
+        return ChatRoomCreateResponse.of(room);
     }
 
     @Transactional(readOnly = true)
@@ -82,4 +107,36 @@ public class ChatService {
         return CustomPageResponse.of(chatMessageRepository.findChatMessages(userId, roomId, lastMessageId, pageable));
     }
 
+    @Transactional(readOnly = true)
+    public List<EventLogResponse> getEventLog(Long userId, Long roomId, Boolean isOnlyOnePage, Long startMessageId, Long endMessageId) {
+        List<ChatRoomEventLog> eventLogs;
+        if (isOnlyOnePage) {
+            eventLogs = chatRoomEventLogRepository.findAllByRoomId(userId, roomId);
+        } else {
+            eventLogs = chatRoomEventLogRepository.findByRoomIdAndMessageIds(userId, roomId, startMessageId, endMessageId);
+        }
+
+        List<EventLogResponse> responses = eventLogs.stream().map(eventLog -> {
+            String message = "";
+            System.out.println(eventLog.getId());
+            if (eventLog.getEventType() == EventType.INVITE) {
+                UserFriendInfoDto agent = friendRepository.findUserFriendInfoDto(userId, eventLog.getAgent().getId()).orElse(null);
+                List<UserFriendInfoDto> targets =
+                        friendRepository.findUserFriendInfoDtoList(
+                                userId,
+                                eventLog.getEventLogDetails().stream()
+                                        .map(e -> e.getTargetUser().getId())
+                                        .collect(Collectors.toList())
+                        );
+
+                message = ChatPolicy.getInvitationMessage(agent, targets);
+            } else if (eventLog.getEventType() == EventType.LEAVE) {
+                UserFriendInfoDto agent = friendRepository.findUserFriendInfoDto(userId, eventLog.getAgent().getId()).orElse(null);
+                message = ChatPolicy.getLeaveMessage(agent);
+            }
+            return EventLogResponse.of(message, eventLog);
+        }).collect(Collectors.toList());
+
+        return responses;
+    }
 }

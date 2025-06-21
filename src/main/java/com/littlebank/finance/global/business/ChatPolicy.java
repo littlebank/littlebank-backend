@@ -12,7 +12,7 @@ public class ChatPolicy {
 
     public static String getInvitationMessage(UserFriendInfoDto agent, List<UserFriendInfoDto> targets) {
         StringBuilder message = new StringBuilder();
-        message.append(agent.getIsFriend() ? agent.getCustomName() : agent.getName() + "님이 ")
+        message.append((agent.getIsFriend() ? agent.getCustomName() : agent.getName()) + "님이 ")
                 .append(targets.stream()
                         .map(t -> t.getIsFriend() ? t.getCustomName() : t.getName())
                         .collect(Collectors.joining(", ")) + "님을 ")
@@ -22,7 +22,7 @@ public class ChatPolicy {
 
     public static String getLeaveMessage(UserFriendInfoDto agent) {
         StringBuilder message = new StringBuilder();
-        message.append(agent.getIsFriend() ? agent.getCustomName() : agent.getName() + "님이 ")
+        message.append((agent.getIsFriend() ? agent.getCustomName() : agent.getName()) + "님이 ")
                 .append("방을 나가셨습니다");
         return message.toString();
     }

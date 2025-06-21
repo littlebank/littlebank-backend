@@ -8,8 +8,10 @@ import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.repository.CustomChatMessageRepository;
 import com.littlebank.finance.domain.chat.dto.response.APIMessageResponse;
 import com.littlebank.finance.domain.friend.domain.QFriend;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -72,6 +74,16 @@ public class CustomChatMessageRepositoryImpl implements CustomChatMessageReposit
                 .where(cr.id.eq(roomId))
                 .fetchOne();
 
+        BooleanBuilder whereCondition = new BooleanBuilder()
+                .and(cr.id.eq(roomId))
+                .and(blockedMessageCondition(userId, roomRange))
+                .and(cm.id.lt(lastMessageId))
+                .and(cm.timestamp.goe(
+                        JPAExpressions.select(ucr.createdDate)
+                                .from(ucr)
+                                .where(ucr.room.id.eq(roomId).and(ucr.user.id.eq(userId)))
+                ));
+
         List<APIMessageResponse> results = queryFactory
                 .select(Projections.constructor(
                         APIMessageResponse.class,
@@ -90,24 +102,24 @@ public class CustomChatMessageRepositoryImpl implements CustomChatMessageReposit
                 ))
                 .from(cm)
                 .join(cm.room, cr)
-                .join(ucr)
-                .on(ucr.room.id.eq(cr.id)
-                        .and(ucr.user.id.eq(userId)))
-                .leftJoin(f)
-                .on(f.fromUser.id.eq(userId)
-                        .and(f.toUser.id.eq(cm.sender.id)))
-                .where(
-                        cr.id.eq(roomId),
-                        blockedMessageCondition(userId, roomRange),
-                        cm.id.lt(lastMessageId),
-                        cm.timestamp.goe(ucr.createdDate)
+                .leftJoin(f).on(
+                        f.fromUser.id.eq(userId)
+                                .and(f.toUser.id.eq(cm.sender.id))
                 )
+                .where(whereCondition)
                 .orderBy(cm.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return new PageImpl<>(results, pageable, results.size());
+        long totalCount = queryFactory
+                .select(cm.count())
+                .from(cm)
+                .join(cm.room, cr)
+                .where(whereCondition)
+                .fetchOne();
+
+        return new PageImpl<>(results, pageable, totalCount);
     }
 
     private BooleanExpression blockedMessageCondition(Long userId, RoomRange roomRange) {
