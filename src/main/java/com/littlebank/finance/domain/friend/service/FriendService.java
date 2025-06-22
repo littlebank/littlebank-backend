@@ -196,13 +196,8 @@ public class FriendService {
         return FriendSearchHistorySaveResponse.of(friendSearchHistory);
     }
 
-    public void deleteFriendSearchHistory(Long userId, Long searchHistoryId) {
-        FriendSearchHistory friendSearchHistory = friendSearchHistoryRepository.findById(searchHistoryId)
-                .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_SEARCH_HISTORY_NOT_FOUND));
-
-        if (friendSearchHistory.getUser().getId() != userId) return;
-
-        friendSearchHistoryRepository.deleteById(friendSearchHistory.getId());
+    public void deleteFriendSearchHistory(Long userId, FriendSearchHistoryDeleteRequest request) {
+        friendSearchHistoryRepository.deleteSearchHistoryInIds(userId, request.getSearchHistoryIds());
     }
 
 }
