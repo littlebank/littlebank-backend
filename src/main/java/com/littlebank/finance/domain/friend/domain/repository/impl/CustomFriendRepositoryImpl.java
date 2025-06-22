@@ -33,6 +33,18 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
     private QMission m = mission;
 
     @Override
+    public void updateCustomName(Long toUserId, String beforeName, String afterName) {
+        queryFactory
+                .update(f)
+                .set(f.customName, afterName)
+                .where(
+                        f.toUser.id.eq(toUserId),
+                        f.customName.eq(beforeName)
+                )
+                .execute();
+    }
+
+    @Override
     public Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable) {
         List<FriendInfoResponse> results =
                 queryFactory.select(Projections.constructor(

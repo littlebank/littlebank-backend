@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.user.service;
 
+import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.dto.request.AccountPinResetRequest;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final FriendRepository friendRepository;
     private final PasswordEncoder passwordEncoder;
 
     public SignupResponse saveUser(User user) {
@@ -62,7 +64,13 @@ public class UserService {
             throw new UserException(ErrorCode.EMAIL_DUPLICATED);
         }
 
+        String beforeName = user.getName();
+        String afterName = request.getName();
+
         user.update(target);
+
+        friendRepository.updateCustomName(userId, beforeName, afterName);
+
 
         return MyInfoResponse.of(user);
     }
