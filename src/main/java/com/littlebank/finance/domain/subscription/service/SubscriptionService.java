@@ -34,6 +34,7 @@ public class SubscriptionService {
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusMonths(1);
+        boolean includeOwner = request.isIncludeOwner() || request.getSeat() == 1;
 
         Subscription subscription = Subscription.builder()
                 .owner(owner)
@@ -43,10 +44,13 @@ public class SubscriptionService {
                 .build();
         subscription = subscriptionRepository.save(subscription);
 
-        owner.setSubscription(subscription);
-        userRepository.save(owner);
+        if (includeOwner) {
+            owner.setSubscription(subscription);
+            userRepository.save(owner);
+        }
+        int inviteCodeCount = includeOwner? request.getSeat()-1: request.getSeat();
 
-        for (int i=0; i< request.getSeat() -1; i++) {
+        for (int i=0; i< inviteCodeCount; i++) {
             String code = UUID.randomUUID().toString().replace("-","").substring(0,12);
             InviteCode inviteCode = InviteCode.builder()
                     .code(code)
