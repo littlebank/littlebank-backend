@@ -116,6 +116,10 @@ public class CustomChatMessageRepositoryImpl implements CustomChatMessageReposit
                 .select(cm.count())
                 .from(cm)
                 .join(cm.room, cr)
+                .leftJoin(f).on(
+                        f.fromUser.id.eq(userId)
+                                .and(f.toUser.id.eq(cm.sender.id))
+                )
                 .where(whereCondition)
                 .fetchOne();
 
