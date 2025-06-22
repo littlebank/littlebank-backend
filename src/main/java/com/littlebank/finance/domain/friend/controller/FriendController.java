@@ -151,4 +151,13 @@ public class FriendController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "친구 최근 검색어 조회 API")
+    @GetMapping("/search/history")
+    public ResponseEntity<List<FriendRecentlySearchKeywordResponse>> getFriendRecentlySearchKeyword(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        List<FriendRecentlySearchKeywordResponse> response = friendService.getFriendRecentlySearchKeyword(customUserDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
 }

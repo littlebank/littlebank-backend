@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -206,4 +207,13 @@ public class FriendService {
         friendSearchHistoryRepository.deleteSearchHistoryInIds(userId, request.getSearchHistoryIds());
     }
 
+    @Transactional(readOnly = true)
+    public List<FriendRecentlySearchKeywordResponse> getFriendRecentlySearchKeyword(Long userId) {
+        List<FriendRecentlySearchKeywordResponse> results =
+                friendSearchHistoryRepository.findByUserIdFetchKoinFriend(userId).stream()
+                        .map(FriendRecentlySearchKeywordResponse::of)
+                        .collect(Collectors.toList());
+
+        return results;
+    }
 }
