@@ -113,11 +113,13 @@ public class ChatMessageController {
     public void leaveChatRoom(@Payload RoomLeaveRequest request, Authentication authentication) {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        // 나가기 로그 테이블 저장
         RoomLeaveResponse response = new RoomLeaveResponse();
         ChatRoomEventLog eventLog = chatMessageService.leaveChatRoom(customUserDetails.getId(), request, response);
 
-        // 나가기 로그 보내줌
+        if (eventLog == null) {
+            return;
+        }
+
         List<UserChatRoom> participants = chatMessageService.getChatRoomParticipants(request.getRoomId());
         for (UserChatRoom participant : participants) {
             Long receiverId = participant.getUser().getId();

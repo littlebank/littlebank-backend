@@ -5,6 +5,7 @@ import com.littlebank.finance.domain.chat.domain.ChatRoomEventLog;
 import com.littlebank.finance.domain.chat.domain.ChatRoomEventLogDetail;
 import com.littlebank.finance.domain.chat.domain.UserChatRoom;
 import com.littlebank.finance.domain.chat.domain.constant.EventType;
+import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.repository.*;
 import com.littlebank.finance.domain.chat.dto.UserFriendInfoDto;
 import com.littlebank.finance.domain.chat.dto.request.ChatRoomCreateRequest;
@@ -52,13 +53,18 @@ public class ChatService {
                         .build()
         );
 
-        ChatRoomEventLog eventLog = chatRoomEventLogRepository.save(
-                ChatRoomEventLog.builder()
-                        .eventType(EventType.INVITE)
-                        .room(room)
-                        .agent(user)
-                        .build()
-        );
+        ChatRoomEventLog eventLog;
+        if (room.getRange() == RoomRange.GROUP) {
+            eventLog = chatRoomEventLogRepository.save(
+                    ChatRoomEventLog.builder()
+                            .eventType(EventType.INVITE)
+                            .room(room)
+                            .agent(user)
+                            .build()
+            );
+        } else {
+            eventLog = null;
+        }
 
         long joinedCount = request.getParticipantIds().stream()
                 .map(userRepository::findById)
@@ -71,7 +77,7 @@ public class ChatService {
                                             .build()
                             );
 
-                    if (joinedUser.getUser().getId() != userId) {
+                    if (room.getRange() != RoomRange.PRIVATE && joinedUser.getUser().getId() != userId) {
                         chatRoomEventLogDetailRepository.save(
                                 ChatRoomEventLogDetail.builder()
                                         .log(eventLog)

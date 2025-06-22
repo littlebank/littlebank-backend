@@ -46,13 +46,10 @@ public class ChatRoom extends BaseEntity {
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 
-    public void updateFirstMessageId(ChatMessage message) {
+    public void send(ChatMessage message) {
         if (this.firstMessageId == 0L) {
             this.firstMessageId = message.getId();
         }
-    }
-
-    public void updateLastMessageId(ChatMessage message) {
         if (this.lastMessageId < message.getId()) {
             this.lastMessageId = message.getId();
         }

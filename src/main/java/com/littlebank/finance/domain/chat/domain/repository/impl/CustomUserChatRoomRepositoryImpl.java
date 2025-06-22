@@ -8,9 +8,11 @@ import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.repository.CustomUserChatRoomRepository;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomDetailsResponse;
 import com.littlebank.finance.domain.chat.dto.response.ChatRoomSummaryResponse;
+import com.littlebank.finance.domain.chat.exception.ChatException;
 import com.littlebank.finance.domain.friend.domain.Friend;
 import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.user.domain.QUser;
+import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
@@ -124,7 +126,6 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
      *      - 친구가 아닌 경우: User.name 사용
      *
      * 조건:
-     * - 채팅방 타입이 FRIEND인 경우만 조회
      * - 삭제되지 않은 채팅방(User, ChatRoom 엔티티의 @Where 조건 포함)이 기본적으로 필터링됨
      * - 1:1 채팅에서 내가 상대방을 차단한 경우, unreadMessageCount는 0으로 처리
      *
@@ -134,7 +135,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public List<ChatRoomSummaryResponse> findChatRoomSummaryList(Long userId) {
         List<Tuple> myRooms = queryFactory
-                .select(cr.id, cr.name, cr.range, ucr.displayIdx, cr.lastMessageId, ucr.createdDate)
+                .select(cr.id, cr.name, cr.range, ucr.displayIdx, cr.lastMessageId, ucr.joinedDate)
                 .from(ucr)
                 .join(ucr.room, cr)
                 .where(
@@ -146,7 +147,8 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                                                 .selectOne()
                                                 .from(cm)
                                                 .where(cm.room.id.eq(cr.id),
-                                                        cm.timestamp.goe(ucr.createdDate))
+                                                        ucr.isJoined,
+                                                        cm.timestamp.goe(ucr.joinedDate))
                                                 .exists()
                                 )
                 )
@@ -158,15 +160,15 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
             RoomRange roomRange = tuple.get(cr.range);
             LocalDateTime displayIdx = tuple.get(ucr.displayIdx);
             Long lastMessageId = tuple.get(cr.lastMessageId);
-            LocalDateTime ucrCreatedDate = tuple.get(ucr.createdDate);
+            LocalDateTime ucrJoinedDate = tuple.get(ucr.joinedDate);
 
             UserChatRoom userChatRoom = queryFactory
                     .selectFrom(ucr)
                     .where(ucr.user.id.eq(userId).and(ucr.room.id.eq(roomId)))
                     .fetchOne();
 
-            int finalUnreadCount;
-
+            // 읽지 않은 메시지 갯수 조회
+            int finalUnreadCount = 0;
             if (roomRange == RoomRange.PRIVATE) {
                 Long opponentId = queryFactory
                         .select(u.id)
@@ -183,15 +185,16 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                 boolean isBlocked = friend != null && friend.getIsBlocked();
 
                 if (!isBlocked) {
-                    finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId(), ucrCreatedDate);
+                    finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId(), ucrJoinedDate);
                 } else {
                     finalUnreadCount = 0;
                 }
 
-            } else {
-                finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId(), ucrCreatedDate);
+            } else if (roomRange == RoomRange.PRIVATE) {
+                finalUnreadCount = fetchUnreadCount(userId, roomId, lastMessageId, userChatRoom.getLastReadMessageId(), ucrJoinedDate);
             }
 
+            // 내 기준 참여자들과의 친구 관계 이름을 조회
             List<String> participantNames = queryFactory
                     .select(
                             new CaseBuilder()
@@ -223,7 +226,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
         }).collect(Collectors.toList());
     }
 
-    private int fetchUnreadCount(Long userId, Long roomId, Long lastMessageId, Long lastReadMessageId, LocalDateTime ucrCreatedDate) {
+    private int fetchUnreadCount(Long userId, Long roomId, Long lastMessageId, Long lastReadMessageId, LocalDateTime joinedDate) {
         Long count = queryFactory
                 .select(cm.id.count())
                 .from(cm)
@@ -232,7 +235,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                         cm.sender.id.ne(userId),
                         cm.id.gt(lastReadMessageId),
                         cm.id.loe(lastMessageId),
-                        cm.timestamp.goe(ucrCreatedDate)
+                        cm.timestamp.goe(joinedDate)
                 )
                 .limit(MAX_UNREAD_MESSAGE_SHOW_COUNT + 1)
                 .fetchOne();
@@ -267,11 +270,12 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                 .join(ucr.room, cr)
                 .where(
                         cr.id.eq(roomId),
-                        ucr.user.id.eq(userId)
+                        ucr.user.id.eq(userId),
+                        ucr.isJoined.isTrue()
                 )
                 .fetchOne();
 
-        if (roomInfo == null) return Optional.empty();
+        if (roomInfo == null) throw new ChatException(ErrorCode.USER_CHAT_ROOM_NOT_FOUND);
 
         Long fetchedRoomId = roomInfo.get(cr.id);
         String roomName = roomInfo.get(cr.name);
@@ -279,6 +283,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
         Long lastReadMessageId = roomInfo.get(ucr.lastReadMessageId);
         Long lastSendMessageId = roomInfo.get(cr.lastMessageId);
 
+        // 내 기준 참여자들과의 친구 관계 조회
         List<ChatRoomDetailsResponse.ParticipantInfo> participants = queryFactory
                 .select(Projections.constructor(ChatRoomDetailsResponse.ParticipantInfo.class,
                         u.id,
@@ -299,6 +304,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
                 .where(ucr.room.id.eq(roomId))
                 .fetch();
 
+        // 1:1 채팅일 때 채팅방 이름 설정
         if (roomRange == RoomRange.PRIVATE) {
             ChatRoomDetailsResponse.ParticipantInfo participantInfo = participants.stream()
                     .filter(p -> !p.getUserId().equals(userId))
