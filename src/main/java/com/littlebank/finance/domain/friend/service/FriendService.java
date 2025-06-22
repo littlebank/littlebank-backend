@@ -2,11 +2,10 @@ package com.littlebank.finance.domain.friend.service;
 
 import com.littlebank.finance.domain.chat.dto.UserFriendInfoDto;
 import com.littlebank.finance.domain.friend.domain.Friend;
+import com.littlebank.finance.domain.friend.domain.FriendSearchHistory;
 import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
-import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
-import com.littlebank.finance.domain.friend.dto.request.FriendBlockRequest;
-import com.littlebank.finance.domain.friend.dto.request.FriendRenameRequest;
-import com.littlebank.finance.domain.friend.dto.request.FriendUnblockRequest;
+import com.littlebank.finance.domain.friend.domain.repository.FriendSearchHistoryRepository;
+import com.littlebank.finance.domain.friend.dto.request.*;
 import com.littlebank.finance.domain.friend.dto.response.*;
 import com.littlebank.finance.domain.friend.exception.FriendException;
 import com.littlebank.finance.domain.notification.domain.Notification;
@@ -34,6 +33,7 @@ import java.util.List;
 public class FriendService {
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
+    private final FriendSearchHistoryRepository friendSearchHistoryRepository;
     private final NotificationRepository notificationRepository;
     private final FirebaseService firebaseService;
     public FriendAddResponse addFriend(FriendAddRequest request, Long userId) {
@@ -174,7 +174,35 @@ public class FriendService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<FriendInfoResponse> searchFriend(Long userId, String keyword) {
         return friendRepository.searchFriendsByKeyword(userId, keyword);
     }
+
+    public FriendSearchHistorySaveResponse saveFriendSearchHistory(Long userId, FriendSearchHistorySaveRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        Friend friend = friendRepository.findById(request.getFriendId())
+                .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
+
+        FriendSearchHistory friendSearchHistory =
+                friendSearchHistoryRepository.save(
+                        FriendSearchHistory.builder()
+                                .user(user)
+                                .friend(friend)
+                                .build()
+                );
+
+        return FriendSearchHistorySaveResponse.of(friendSearchHistory);
+    }
+
+    public void deleteFriendSearchHistory(Long userId, Long searchHistoryId) {
+        FriendSearchHistory friendSearchHistory = friendSearchHistoryRepository.findById(searchHistoryId)
+                .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_SEARCH_HISTORY_NOT_FOUND));
+
+        if (friendSearchHistory.getUser().getId() != userId) return;
+
+        friendSearchHistoryRepository.deleteById(friendSearchHistory.getId());
+    }
+
 }

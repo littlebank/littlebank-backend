@@ -1,9 +1,6 @@
 package com.littlebank.finance.domain.friend.controller;
 
-import com.littlebank.finance.domain.friend.dto.request.FriendAddRequest;
-import com.littlebank.finance.domain.friend.dto.request.FriendBlockRequest;
-import com.littlebank.finance.domain.friend.dto.request.FriendRenameRequest;
-import com.littlebank.finance.domain.friend.dto.request.FriendUnblockRequest;
+import com.littlebank.finance.domain.friend.dto.request.*;
 import com.littlebank.finance.domain.friend.dto.response.*;
 import com.littlebank.finance.domain.friend.service.FriendService;
 import com.littlebank.finance.global.common.CustomPageResponse;
@@ -133,4 +130,26 @@ public class FriendController {
         List<FriendInfoResponse> response = friendService.searchFriend(customUserDetails.getId(), keyword);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "친구 검색 기록 저장 API")
+    @PostMapping("/search/history")
+    public ResponseEntity<FriendSearchHistorySaveResponse> saveFriendSearchHistory(
+            @RequestBody @Valid FriendSearchHistorySaveRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        FriendSearchHistorySaveResponse response = friendService.saveFriendSearchHistory(customUserDetails.getId(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "친구 검색 기록 삭제 API")
+    @DeleteMapping("/search/history/{searchHistoryId}")
+    public ResponseEntity<Void> deleteFriendSearchHistory(
+            @Parameter(description = "검색 기록 식별 id")
+            @PathVariable(name = "searchHistoryId") Long searchHistoryId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        friendService.deleteFriendSearchHistory(customUserDetails.getId(), searchHistoryId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
