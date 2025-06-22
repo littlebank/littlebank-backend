@@ -43,7 +43,17 @@ public class ChatMessageService {
         ChatRoom room = chatRoomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new ChatException(ErrorCode.CHAT_ROOM_NOT_FOUND));
 
-        int participantCount = userChatRoomRepository.countParticipantsExcludingUser(room.getId(), sender.getId());
+        // 1:1 채팅방에 나간 상태일 때
+        int participantCount = 0;
+        if (room.getRange() == RoomRange.PRIVATE) {
+            UserChatRoom participant = userChatRoomRepository.findByUserIdAndRoomId(sender.getId(), room.getId()).orElse(null);
+            if (participant != null && !participant.getIsJoined()) {
+                participant.joinPrivateRoom();
+            }
+            participantCount = 1;
+        } else if (room.getRange() == RoomRange.PRIVATE) {
+            participantCount = userChatRoomRepository.countParticipantsExcludingUser(room.getId(), sender.getId()); // room 인원 수 컬럼 추가 및 개선
+        }
 
         ChatMessage message = chatMessageRepository.save(ChatMessage.builder()
                 .messageType(request.getMessageType())
@@ -54,8 +64,7 @@ public class ChatMessageService {
                 .readCount(participantCount)
                 .build());
 
-        room.updateFirstMessageId(message);
-        room.updateLastMessageId(message);
+        room.send(message);
 
         return message;
     }
@@ -117,6 +126,13 @@ public class ChatMessageService {
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         ChatRoom room = chatRoomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new ChatException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+        UserChatRoom participant = userChatRoomRepository.findByUserIdAndRoomId(agent.getId(), room.getId())
+                .orElseThrow(() -> new ChatException(ErrorCode.USER_CHAT_ROOM_NOT_FOUND));
+
+        if (room.getRange() == RoomRange.PRIVATE) {
+            participant.leavePrivateRoom();
+            return null;
+        }
 
         ChatRoomEventLog eventLog = chatRoomEventLogRepository.save(
                 ChatRoomEventLog.builder()
@@ -125,9 +141,6 @@ public class ChatMessageService {
                         .agent(agent)
                         .build()
         );
-
-        UserChatRoom participant = userChatRoomRepository.findByUserIdAndRoomId(agent.getId(), room.getId())
-                .orElseThrow(() -> new ChatException(ErrorCode.USER_CHAT_ROOM_NOT_FOUND));
 
         response.setEndOfDecreaseReadMarkMessageId(participant.getLastReadMessageId());
         chatMessageRepository.decreaseReadCountByUserChatRoom(participant);

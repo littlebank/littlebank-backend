@@ -79,10 +79,14 @@ public class CustomChatMessageRepositoryImpl implements CustomChatMessageReposit
                 .and(blockedMessageCondition(userId, roomRange))
                 .and(cm.id.lt(lastMessageId))
                 .and(cm.timestamp.goe(
-                        JPAExpressions.select(ucr.createdDate)
+                        JPAExpressions.select(ucr.joinedDate)
                                 .from(ucr)
-                                .where(ucr.room.id.eq(roomId).and(ucr.user.id.eq(userId)))
-                ));
+                                .where(
+                                        ucr.room.id.eq(roomId),
+                                        ucr.user.id.eq(userId)
+                                )
+                        )
+                );
 
         List<APIMessageResponse> results = queryFactory
                 .select(Projections.constructor(
@@ -126,6 +130,13 @@ public class CustomChatMessageRepositoryImpl implements CustomChatMessageReposit
         return new PageImpl<>(results, pageable, totalCount);
     }
 
+    /**
+     * 1:1 채팅일 때 친구를 차단했다면 차단 시간 이전의 메시지만 조회
+     *
+     * @param userId
+     * @param roomRange
+     * @return
+     */
     private BooleanExpression blockedMessageCondition(Long userId, RoomRange roomRange) {
         if (roomRange == RoomRange.GROUP) {
             return null;

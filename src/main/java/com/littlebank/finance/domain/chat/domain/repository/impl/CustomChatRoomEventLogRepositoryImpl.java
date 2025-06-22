@@ -33,19 +33,11 @@ public class CustomChatRoomEventLogRepositoryImpl implements CustomChatRoomEvent
      */
     @Override
     public List<ChatRoomEventLog> findAllByRoomId(Long userId, Long roomId) {
-        LocalDateTime joinedDate = queryFactory.select(ucr.createdDate)
-                .from(ucr)
-                .where(
-                        ucr.room.id.eq(roomId),
-                        ucr.user.id.eq(userId)
-                )
-                .fetchOne();
-
         return queryFactory.selectFrom(el)
                 .leftJoin(eld).on(eld.log.id.eq(el.id)).fetchJoin()
                 .where(
                         el.room.id.eq(roomId),
-                        el.createdDate.goe(joinedDate)
+                        el.createdDate.goe(getJoinedDate(roomId, userId))
                 )
                 .orderBy(el.createdDate.desc())
                 .fetch();
@@ -61,6 +53,7 @@ public class CustomChatRoomEventLogRepositoryImpl implements CustomChatRoomEvent
      */
     @Override
     public List<ChatRoomEventLog> findByRoomIdAndMessageIds(Long userId, Long roomId, Long startMessageId, Long endMessageId) {
+        // 현재 페이지 가장 오래된 메시지와 다음 페이지 가장 최근 메시지 사이의 로그 메시지도 조회하기 위함
         Long realStartMessageId = queryFactory
                 .select(cm.id)
                 .from(cm)
@@ -70,8 +63,6 @@ public class CustomChatRoomEventLogRepositoryImpl implements CustomChatRoomEvent
                 .orderBy(cm.id.desc())
                 .fetchOne();
 
-        // 더 있다 -> 해당 id 까지만
-        // 더 없다 -> 현재 id 이전
         if (realStartMessageId == null) {
             realStartMessageId = startMessageId;
         }
@@ -108,24 +99,21 @@ public class CustomChatRoomEventLogRepositoryImpl implements CustomChatRoomEvent
             return Collections.emptyList();
         }
 
-        LocalDateTime joinedDate = queryFactory.select(ucr.createdDate)
-                .from(ucr)
-                .where(
-                        ucr.room.id.eq(roomId),
-                        ucr.user.id.eq(userId)
-                )
-                .fetchOne();
-
         BooleanBuilder condition = new BooleanBuilder()
                 .and(
                         el.room.id.eq(roomId)
-                                .and(el.createdDate.goe(joinedDate))
+                                .and(el.createdDate.goe(getJoinedDate(roomId, userId)))
                 );
 
+        // 햔재 페이지 가장 오래된 메시지가 첫 번째 메시지일 때, 그 이전 로그 메시지들까지 전부 조회
         if (startMessageId.equals(chatRoom.getFirstMessageId())) {
             condition.and(el.createdDate.lt(endTime));
+
+            // 햔재 페이지 가장 최근 메시지가 마지막 메시지일 때, 그 이후 로그 메시지들까지 전부 조회
         } else if (endMessageId.equals(chatRoom.getLastMessageId())) {
             condition.and(el.createdDate.goe(startTime));
+
+            // 메시지들 사이에 존재하는 로그 메시지 조회
         } else {
             condition.and(el.createdDate.goe(startTime)
                     .and(el.createdDate.lt(endTime)));
@@ -136,6 +124,16 @@ public class CustomChatRoomEventLogRepositoryImpl implements CustomChatRoomEvent
                 .where(condition)
                 .orderBy(el.createdDate.desc())
                 .fetch();
+    }
+
+    private LocalDateTime getJoinedDate(Long roomId, Long userId) {
+        return queryFactory.select(ucr.joinedDate)
+                .from(ucr)
+                .where(
+                        ucr.room.id.eq(roomId),
+                        ucr.user.id.eq(userId)
+                )
+                .fetchOne();
     }
 
 }

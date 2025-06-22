@@ -33,21 +33,36 @@ public class UserChatRoom extends BaseEntity {
     private LocalDateTime displayIdx;
     @Column(nullable = false)
     private Long lastReadMessageId;
+    @Column(nullable = false)
+    private Boolean isJoined;
+    @Column(nullable = false)
+    private LocalDateTime joinedDate;
     @Version
     private Long version;
 
     @Builder
-    public UserChatRoom(ChatRoom room, User user, LocalDateTime displayIdx, Long lastReadMessageId) {
+    public UserChatRoom(ChatRoom room, User user, LocalDateTime displayIdx, Long lastReadMessageId, Boolean isJoined, LocalDateTime joinedDate) {
         this.room = room;
         this.user = user;
         this.displayIdx = displayIdx == null ? LocalDateTime.now() : displayIdx;
         this.lastReadMessageId = lastReadMessageId == null ? 0L : lastReadMessageId;
+        this.isJoined = isJoined == null ? true : isJoined;
+        this.joinedDate = joinedDate == null ? LocalDateTime.now() : joinedDate;
     }
 
     public void updateLastReadMessageId(Long messageId) {
         if (this.lastReadMessageId < messageId) {
             this.lastReadMessageId = messageId;
         }
+    }
+
+    public void joinPrivateRoom() {
+        this.isJoined = true;
+        this.joinedDate = LocalDateTime.now();
+    }
+
+    public void leavePrivateRoom() {
+        this.isJoined = false;
     }
 
 }
