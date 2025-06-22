@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.user.domain;
 
 import com.littlebank.finance.domain.feed.domain.Feed;
 import com.littlebank.finance.domain.subscription.domain.Subscription;
+import com.littlebank.finance.domain.subscription.domain.TrialSubscription;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -67,6 +68,8 @@ public class User extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id")
     private Subscription subscription;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private TrialSubscription trialSubscription;
 
     @Builder
     public User(
