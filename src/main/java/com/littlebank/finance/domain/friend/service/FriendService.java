@@ -174,4 +174,7 @@ public class FriendService {
         }
     }
 
+    public List<FriendInfoResponse> searchFriend(Long userId, String keyword) {
+        return friendRepository.searchFriendsByKeyword(userId, keyword);
+    }
 }

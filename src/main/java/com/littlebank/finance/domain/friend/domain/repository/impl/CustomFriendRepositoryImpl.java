@@ -33,6 +33,18 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
     private QMission m = mission;
 
     @Override
+    public void updateCustomName(Long toUserId, String beforeName, String afterName) {
+        queryFactory
+                .update(f)
+                .set(f.customName, afterName)
+                .where(
+                        f.toUser.id.eq(toUserId),
+                        f.customName.eq(beforeName)
+                )
+                .execute();
+    }
+
+    @Override
     public Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable) {
         List<FriendInfoResponse> results =
                 queryFactory.select(Projections.constructor(
@@ -151,6 +163,56 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                 .where(
                                         f1.fromUser.id.eq(f.toUser.id),
                                         f1.toUser.id.eq(userId),
+                                        f1.isBlocked.isTrue()
+                                )
+                                .notExists()
+                )
+                .fetch();
+    }
+
+    /**
+     * 자신이 설정한 친구의 이름(customName)에 주어진 키워드가 포함된 친구들을 검색
+     * 나를 차단한 친구는 검색 결과에서 제외
+     * 대소문자를 구분하지 않고 검색하며, 친구 정보와 사용자 정보를 함께 반환
+     *
+     * @param userId  검색을 수행할 기준 사용자 식별 id
+     * @param keyword 친구의 사용자 정의 이름에서 검색할 키워드 (대소문자 구분 없음)
+     * @return {@link FriendInfoResponse} 객체 리스트 (사용자 정보 + 친구 관계 정보 포함)
+     */
+    @Override
+    public List<FriendInfoResponse> searchFriendsByKeyword(Long userId, String keyword) {
+        return queryFactory.select(Projections.constructor(
+                        FriendInfoResponse.class,
+                        Projections.constructor(
+                                CommonUserInfoResponse.class,
+                                f.toUser.id,
+                                f.toUser.name,
+                                f.toUser.rrn,
+                                f.toUser.phone,
+                                f.toUser.statusMessage,
+                                f.toUser.bankName,
+                                f.toUser.bankCode,
+                                f.toUser.bankAccount,
+                                f.toUser.profileImagePath,
+                                f.toUser.role
+                        ),
+                        Projections.constructor(
+                                CommonFriendInfoResponse.class,
+                                f.id,
+                                f.customName,
+                                f.isBlocked,
+                                f.isBestFriend
+                        )
+                ))
+                .from(f)
+                .where(
+                        f.fromUser.id.eq(userId),
+                        f.customName.containsIgnoreCase(keyword),
+                        JPAExpressions.selectOne()
+                                .from(f1)
+                                .where(
+                                        f1.toUser.id.eq(f.fromUser.id),
+                                        f1.fromUser.id.eq(f.toUser.id),
                                         f1.isBlocked.isTrue()
                                 )
                                 .notExists()
