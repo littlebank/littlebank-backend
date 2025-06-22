@@ -141,4 +141,15 @@ public class FriendController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "친구 검색 기록 삭제 API")
+    @DeleteMapping("/search/history/{searchHistoryId}")
+    public ResponseEntity<Void> deleteFriendSearchHistory(
+            @Parameter(description = "검색 기록 식별 id")
+            @PathVariable(name = "searchHistoryId") Long searchHistoryId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        friendService.deleteFriendSearchHistory(customUserDetails.getId(), searchHistoryId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

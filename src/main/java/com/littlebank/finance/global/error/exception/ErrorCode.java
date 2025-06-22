@@ -27,6 +27,7 @@ public enum ErrorCode {
     FRIEND_NOT_FOUND(404, "F001", "친구가 존재하지 않습니다"),
     ALREADY_FRIEND_EXISTS(409, "F002", "이미 친구 추가 되어있습니다"),
     NO_PERMISSION_TO_MODIFY(403, "F003", "수정 권한이 없습니다"),
+    FRIEND_SEARCH_HISTORY_NOT_FOUND(404, "F004", "친구 검색 기록이 존재하지 않습니다"),
 
     // Family
     FAMILY_NOT_FOUND(404, "FA001", "가족이 존재하지 않습니다"),
