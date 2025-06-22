@@ -71,13 +71,13 @@ public class FriendService {
     }
 
     @Transactional(readOnly = true)
-    public CustomPageResponse<FriendInfoResponse> getFriendList(Long userId, Pageable pageable) {
-        return CustomPageResponse.of(friendRepository.findFriendsByUserId(userId, pageable));
+    public List<FriendInfoResponse> getFriendList(Long userId) {
+        return friendRepository.findFriendsByUserId(userId);
     }
 
     @Transactional(readOnly = true)
-    public CustomPageResponse<FriendInfoResponse> getFriendAddedMe(Long userId, Pageable pageable) {
-        return CustomPageResponse.of(friendRepository.findFriendAddedMeByUserId(userId, pageable));
+    public List<FriendInfoResponse> getFriendAddedMe(Long userId) {
+        return friendRepository.findFriendAddedMeByUserId(userId);
     }
 
     public void deleteFriend(Long friendId) {

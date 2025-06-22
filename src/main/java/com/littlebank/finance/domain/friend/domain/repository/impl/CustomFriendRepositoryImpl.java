@@ -13,9 +13,6 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +29,15 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
     private QFriend f1 = new QFriend("f1");
     private QMission m = mission;
 
+    /**
+     * 내 이름 'name'을 업데이틀할 때
+     * 나를 친구로 등록한 유저에게 표시되는 내 이름 'customName'이 'name'과 일치할 때
+     * 'customName'을 'name'으로 업데이트
+     *
+     * @param toUserId
+     * @param beforeName
+     * @param afterName
+     */
     @Override
     public void updateCustomName(Long toUserId, String beforeName, String afterName) {
         queryFactory
@@ -44,8 +50,14 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                 .execute();
     }
 
+    /**
+     * 친구 목록을 조회
+     *
+     * @param userId 유저 식별 id
+     * @return
+     */
     @Override
-    public Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable) {
+    public List<FriendInfoResponse> findFriendsByUserId(Long userId) {
         List<FriendInfoResponse> results =
                 queryFactory.select(Projections.constructor(
                                 FriendInfoResponse.class,
@@ -64,6 +76,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                 ),
                                 Projections.constructor(
                                         CommonFriendInfoResponse.class,
+                                        f1.id.isNotNull(),
                                         f.id,
                                         f.customName,
                                         f.isBlocked,
@@ -83,15 +96,19 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                         )
                                         .notExists()
                         )
-                        .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
                         .fetch();
 
-        return new PageImpl<>(results, pageable, results.size());
+        return results;
     }
 
+    /**
+     * 나를 친구로 추가한 유저를 조회
+     *
+     * @param userId '나'의 유저 식별 id (본인)
+     * @return
+     */
     @Override
-    public Page<FriendInfoResponse> findFriendAddedMeByUserId(Long userId, Pageable pageable) {
+    public List<FriendInfoResponse> findFriendAddedMeByUserId(Long userId) {
         List<FriendInfoResponse> results =
                 queryFactory.select(Projections.constructor(
                                 FriendInfoResponse.class,
@@ -110,10 +127,11 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                 ),
                                 Projections.constructor(
                                         CommonFriendInfoResponse.class,
-                                        f.id,
-                                        f.customName,
-                                        f.isBlocked,
-                                        f.isBestFriend
+                                        f1.id.isNotNull(),
+                                        f1.id,
+                                        f1.customName,
+                                        f1.isBlocked,
+                                        f1.isBestFriend
                                 )
                         ))
                         .from(f)
@@ -126,48 +144,9 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                 f.toUser.id.eq(userId),
                                 f.isBlocked.isFalse()
                         )
-                        .offset(pageable.getOffset())
-                        .limit(pageable.getPageSize())
                         .fetch();
 
-        return new PageImpl<>(results, pageable, results.size());
-    }
-
-    public List<FriendInfoResponse> findFriendsByUserId(Long userId) {
-        return queryFactory.select(Projections.constructor(
-                        FriendInfoResponse.class,
-                        Projections.constructor(
-                                CommonUserInfoResponse.class,
-                                u.id.as("userId"),
-                                u.name.as("realName"),
-                                u.rrn,
-                                u.phone,
-                                u.statusMessage,
-                                u.profileImagePath,
-                                u.role
-                        ),
-                        Projections.constructor(
-                                CommonFriendInfoResponse.class,
-                                f.id,
-                                f.customName,
-                                f.isBlocked,
-                                f.isBestFriend
-                        )
-                ))
-                .from(f)
-                .join(u).on(u.id.eq(f.toUser.id))
-                .where (
-                        f.fromUser.id.eq(userId),
-                        JPAExpressions.selectOne()
-                                .from(f1)
-                                .where(
-                                        f1.fromUser.id.eq(f.toUser.id),
-                                        f1.toUser.id.eq(userId),
-                                        f1.isBlocked.isTrue()
-                                )
-                                .notExists()
-                )
-                .fetch();
+        return results;
     }
 
     /**
@@ -198,6 +177,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                         ),
                         Projections.constructor(
                                 CommonFriendInfoResponse.class,
+                                f1.id.isNotNull(),
                                 f.id,
                                 f.customName,
                                 f.isBlocked,
