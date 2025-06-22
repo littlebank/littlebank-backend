@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -45,10 +46,10 @@ public class FriendService {
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         Friend friend = friendRepository.save(
                 Friend.builder()
-                .fromUser(fromUser)
-                .toUser(toUser)
-                .customName(toUser.getName())
-                .build()
+                        .fromUser(fromUser)
+                        .toUser(toUser)
+                        .customName(toUser.getName())
+                        .build()
         );
 
         // 알림 생성
@@ -81,7 +82,7 @@ public class FriendService {
 
     public void deleteFriend(Long friendId) {
         Friend friend = friendRepository.findById(friendId)
-                        .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
+                .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
         friendRepository.deleteById(friend.getId());
     }
 
@@ -186,23 +187,33 @@ public class FriendService {
                 .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
 
         FriendSearchHistory friendSearchHistory =
-                friendSearchHistoryRepository.save(
-                        FriendSearchHistory.builder()
-                                .user(user)
-                                .friend(friend)
-                                .build()
-                );
+                friendSearchHistoryRepository.findByUserIdAndFriendId(user.getId(), friend.getId()).orElse(null);
+
+        if (friendSearchHistory == null) {
+            friendSearchHistory = friendSearchHistoryRepository.save(
+                    FriendSearchHistory.builder()
+                            .user(user)
+                            .friend(friend)
+                            .build()
+            );
+        } else {
+            friendSearchHistory.searchAgain();
+        }
 
         return FriendSearchHistorySaveResponse.of(friendSearchHistory);
     }
 
-    public void deleteFriendSearchHistory(Long userId, Long searchHistoryId) {
-        FriendSearchHistory friendSearchHistory = friendSearchHistoryRepository.findById(searchHistoryId)
-                .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_SEARCH_HISTORY_NOT_FOUND));
-
-        if (friendSearchHistory.getUser().getId() != userId) return;
-
-        friendSearchHistoryRepository.deleteById(friendSearchHistory.getId());
+    public void deleteFriendSearchHistory(Long userId, FriendSearchHistoryDeleteRequest request) {
+        friendSearchHistoryRepository.deleteSearchHistoryInIds(userId, request.getSearchHistoryIds());
     }
 
+    @Transactional(readOnly = true)
+    public List<FriendRecentlySearchKeywordResponse> getFriendRecentlySearchKeyword(Long userId) {
+        List<FriendRecentlySearchKeywordResponse> results =
+                friendSearchHistoryRepository.findByUserIdFetchKoinFriend(userId).stream()
+                        .map(FriendRecentlySearchKeywordResponse::of)
+                        .collect(Collectors.toList());
+
+        return results;
+    }
 }

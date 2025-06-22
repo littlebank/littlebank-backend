@@ -142,14 +142,22 @@ public class FriendController {
     }
 
     @Operation(summary = "친구 검색 기록 삭제 API")
-    @DeleteMapping("/search/history/{searchHistoryId}")
+    @DeleteMapping("/search/history")
     public ResponseEntity<Void> deleteFriendSearchHistory(
-            @Parameter(description = "검색 기록 식별 id")
-            @PathVariable(name = "searchHistoryId") Long searchHistoryId,
+            @RequestBody @Valid FriendSearchHistoryDeleteRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        friendService.deleteFriendSearchHistory(customUserDetails.getId(), searchHistoryId);
+        friendService.deleteFriendSearchHistory(customUserDetails.getId(), request);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "친구 최근 검색어 조회 API")
+    @GetMapping("/search/history")
+    public ResponseEntity<List<FriendRecentlySearchKeywordResponse>> getFriendRecentlySearchKeyword(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        List<FriendRecentlySearchKeywordResponse> response = friendService.getFriendRecentlySearchKeyword(customUserDetails.getId());
+        return ResponseEntity.ok(response);
     }
 
 }
