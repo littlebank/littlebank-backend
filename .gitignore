@@ -48,5 +48,5 @@ application-*.yml
 
 ### test file ###
 /src/main/java/com/littlebank/finance/global/test
-/src/main/resources/static
+/src/main/resources/static/ws-test.html
 /src/main/resources/templates/test

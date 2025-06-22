@@ -5,6 +5,7 @@ import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.service.UserService;
 import com.littlebank.finance.global.security.CustomUserDetails;
+import com.littlebank.finance.global.util.CookieUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "User")
 public class UserController {
     private final UserService userService;
+    private final CookieUtil cookieUtil;
 
     @Operation(summary = "회원가입 API")
     @SecurityRequirements()
@@ -90,7 +93,11 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         userService.deleteUser(customUserDetails.getId());
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, cookieUtil.deleteCookie().toString())
+                .build();
     }
 
     @Operation(summary = "최초 소셜 로그인 추가 정보 저장 API")

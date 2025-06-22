@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>메인</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+<script src="/js/main.js"></script>
+<script>
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    alert("로그인이 필요합니다.");
+    window.location.href = "/view/public/login";
+  }
+</script>
+
+<div class="container">
+  <h1>메인 화면</h1>
+  <p>서비스에 오신 것을 환영합니다.</p>
+
+  <a href="/view/mypage">마이페이지</a>
+
+  <button onclick="logout()">로그아웃</button>
+</div>
+
+<script>
+  async function logout() {
+    const confirmed = confirm("정말 로그아웃하시겠습니까?");
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch("/api-user/auth/logout", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("accessToken")}`
+        },
+        credentials: "include"
+      });
+
+      if (res.status === 204 || res.status === 200) {
+        localStorage.removeItem("accessToken");
+        window.location.href = "/view/public/login";
+      } else if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem("accessToken");
+        alert("세션이 만료되어 로그아웃되었습니다.");
+        window.location.href = "/view/public/login";
+      } else {
+        alert("로그아웃 실패");
+      }
+    } catch (err) {
+      alert("에러 발생: " + err.message);
+    }
+  }
+</script>
+
+</body>
+</html>

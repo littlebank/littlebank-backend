@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>회원가입</title>
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/signup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>회원가입</h1>
+    <form id="signupForm">
+      <label>이메일: <input type="email" name="email" required></label><br>
+      <label>비밀번호: <input type="password" name="password" required></label><br>
+      <label>이름: <input type="text" name="name" required></label><br>
+      <label>전화번호: <input type="text" name="phone" placeholder="01012345678" required></label><br>
+      <label>생년월일(6자리): <input type="text" name="rrn" placeholder="yymmdd" required></label><br>
+      <label>은행명: <input type="text" name="bankName"></label><br>
+      <label>은행 코드: <input type="text" name="bankCode"></label><br>
+      <label>계좌번호: <input type="text" name="bankAccount"></label><br>
+      <label>계좌 PIN(6자리): <input type="password" name="accountPin"></label><br>
+      <label>유저 역할:
+        <select name="role" required>
+          <option value="PARENT">부모</option>
+          <option value="CHILD">아이</option>
+          <option value="TEACHER">선생님</option>
+        </select>
+      </label><br>
+      <button type="submit">회원가입</button>
+    </form>
+  </div>
+</body>
+
+<script>
+  document.querySelector("#signupForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const data = {
+      email: form.email.value,
+      password: form.password.value,
+      name: form.name.value,
+      phone: form.phone.value,
+      rrn: form.rrn.value,
+      bankName: form.bankName.value,
+      bankCode: form.bankCode.value,
+      bankAccount: form.bankAccount.value,
+      accountPin: form.accountPin.value,
+      role: form.role.value
+    };
+
+    const res = await fetch("/api-user/user/public/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      alert("회원가입 성공!");
+      window.location.href = "/view/public/login";
+    } else {
+      const result = await res.json();
+      alert("회원가입 실패: " + (result.message || "입력 오류"));
+    }
+  });
+</script>
+</body>
+</html>
