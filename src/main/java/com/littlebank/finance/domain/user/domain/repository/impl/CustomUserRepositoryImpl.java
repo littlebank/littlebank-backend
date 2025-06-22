@@ -72,6 +72,7 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
                                 u.role,
                                 Projections.constructor(
                                         CommonFriendInfoResponse.class,
+                                        f.id.isNotNull(),
                                         f.id,
                                         f.customName,
                                         f.isBlocked,
@@ -87,8 +88,8 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
                                         JPAExpressions.selectOne()
                                                 .from(f1)
                                                 .where(
-                                                        f1.fromUser.id.eq(u.id),
-                                                        f1.toUser.id.eq(requesterId),
+                                                        f1.fromUser.id.eq(f.toUser.id),
+                                                        f1.toUser.id.eq(f.fromUser.id),
                                                         f1.isBlocked.isTrue()
                                                 )
                                                 .notExists()
