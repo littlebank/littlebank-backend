@@ -106,7 +106,9 @@ public enum ErrorCode {
     INVITECODE_NOT_FOUND(404, "SS001", "구독을 찾을 수 없습니다"),
     ALREADY_SUBSCRIBED(400, "SS002", "이미 구독 중입니다"),
     GOOGLE_PLAY_PUBLISHER_FAIL(404, "SS003", "초기화 실패"),
-    EXCEEDED_SUBSCRIPTUIN_SEATS(409, "SS003", "초대할 있는 사람 수를 초과했습니다");
+    EXCEEDED_SUBSCRIPTUIN_SEATS(409, "SS003", "초대할 있는 사람 수를 초과했습니다"),
+    INVALID_CODE(400, "SS004", "무료 구독 코드가 아닙니다"),
+    ALREADY_USED_TRIAL(409, "SS005","이미 무료 구독권을 사용했습니다");
 
     private final String code;
     private final String message;

@@ -1,7 +1,10 @@
 package com.littlebank.finance.domain.subscription.controller;
 
+import com.littlebank.finance.domain.subscription.domain.Subscription;
+import com.littlebank.finance.domain.subscription.dto.request.FreeSubscriptionRequestDto;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionCreateRequestDto;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionPurchaseRequestDto;
+import com.littlebank.finance.domain.subscription.dto.response.FreeSubscriptionResponseDto;
 import com.littlebank.finance.domain.subscription.dto.response.SubscriptionResponseDto;
 import com.littlebank.finance.domain.subscription.service.PurchaseService;
 import com.littlebank.finance.domain.subscription.service.SubscriptionService;
@@ -60,4 +63,15 @@ public class SubscriptionController {
         boolean response = purchaseService.verifyReceiptForGoogle(user.getId(), request);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "무료 구독권 시작")
+    @PostMapping("/start/free")
+    public ResponseEntity<FreeSubscriptionResponseDto> startFreeSubscription (
+            @RequestBody FreeSubscriptionRequestDto request,
+            @AuthenticationPrincipal CustomUserDetails user
+            ) {
+        FreeSubscriptionResponseDto response = subscriptionService.startFreeSubscription(user.getId(), request);
+        return ResponseEntity.ok(response);
+    }
 }
+

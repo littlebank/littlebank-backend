@@ -10,4 +10,5 @@ import java.time.LocalDateTime;
 public class SubscriptionCreateRequestDto {
     @NotNull
     private int seat;
+    private boolean includeOwner;
 }

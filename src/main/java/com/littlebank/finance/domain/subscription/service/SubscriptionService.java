@@ -3,10 +3,13 @@ package com.littlebank.finance.domain.subscription.service;
 
 import com.littlebank.finance.domain.subscription.domain.InviteCode;
 import com.littlebank.finance.domain.subscription.domain.Subscription;
+import com.littlebank.finance.domain.subscription.domain.TrialSubscription;
 import com.littlebank.finance.domain.subscription.domain.repository.InviteCodeRepository;
 import com.littlebank.finance.domain.subscription.domain.repository.SubscriptionRepository;
+import com.littlebank.finance.domain.subscription.domain.repository.TrialSubscriptionRepository;
+import com.littlebank.finance.domain.subscription.dto.request.FreeSubscriptionRequestDto;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionCreateRequestDto;
-
+import com.littlebank.finance.domain.subscription.dto.response.FreeSubscriptionResponseDto;
 import com.littlebank.finance.domain.subscription.dto.response.SubscriptionResponseDto;
 import com.littlebank.finance.domain.subscription.exception.SubscriptionException;
 import com.littlebank.finance.domain.user.domain.User;
@@ -29,11 +32,13 @@ public class SubscriptionService {
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final InviteCodeRepository inviteCodeRepository;
+    private final TrialSubscriptionRepository trialSubscriptionRepository;
     public SubscriptionResponseDto createSubscription(Long userId, SubscriptionCreateRequestDto request) {
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusMonths(1);
+        boolean includeOwner = request.isIncludeOwner() || request.getSeat() == 1;
 
         Subscription subscription = Subscription.builder()
                 .owner(owner)
@@ -43,10 +48,13 @@ public class SubscriptionService {
                 .build();
         subscription = subscriptionRepository.save(subscription);
 
-        owner.setSubscription(subscription);
-        userRepository.save(owner);
+        if (includeOwner) {
+            owner.setSubscription(subscription);
+            userRepository.save(owner);
+        }
+        int inviteCodeCount = includeOwner? request.getSeat()-1: request.getSeat();
 
-        for (int i=0; i< request.getSeat() -1; i++) {
+        for (int i=0; i< inviteCodeCount; i++) {
             String code = UUID.randomUUID().toString().replace("-","").substring(0,12);
             InviteCode inviteCode = InviteCode.builder()
                     .code(code)
@@ -95,5 +103,25 @@ public class SubscriptionService {
         subscriptionRepository.save(subscription);
 
         return SubscriptionResponseDto.of(subscription);
+    }
+
+    public FreeSubscriptionResponseDto startFreeSubscription(Long userId, FreeSubscriptionRequestDto request) {
+        if (!"littlebank".equals(request.getCode())) {
+            throw new SubscriptionException(ErrorCode.INVALID_CODE);
+        }
+        if (trialSubscriptionRepository.existsByUserId(userId)) {
+            throw new SubscriptionException(ErrorCode.ALREADY_USED_TRIAL);
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        TrialSubscription trial = TrialSubscription.builder()
+                .user(user)
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now().plusWeeks(2))
+                .used(true)
+                .build();
+
+        trialSubscriptionRepository.save(trial);
+        return FreeSubscriptionResponseDto.of(trial);
     }
 }
