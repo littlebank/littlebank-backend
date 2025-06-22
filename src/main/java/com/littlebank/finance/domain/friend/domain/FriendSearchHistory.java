@@ -8,10 +8,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "friend_id"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "friend_id가"}))
 public class FriendSearchHistory extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,10 +25,18 @@ public class FriendSearchHistory extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "friend_id", nullable = false)
     private Friend friend;
+    @Column(nullable = false)
+    private LocalDateTime searchAt;
 
     @Builder
-    public FriendSearchHistory(User user, Friend friend) {
+    public FriendSearchHistory(User user, Friend friend, LocalDateTime searchAt) {
         this.user = user;
         this.friend = friend;
+        this.searchAt = searchAt == null ? LocalDateTime.now() : searchAt;
     }
+
+    public void searchAgain() {
+        this.searchAt = LocalDateTime.now();
+    }
+
 }

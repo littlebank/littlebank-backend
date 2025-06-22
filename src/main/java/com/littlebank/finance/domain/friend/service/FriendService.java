@@ -45,10 +45,10 @@ public class FriendService {
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         Friend friend = friendRepository.save(
                 Friend.builder()
-                .fromUser(fromUser)
-                .toUser(toUser)
-                .customName(toUser.getName())
-                .build()
+                        .fromUser(fromUser)
+                        .toUser(toUser)
+                        .customName(toUser.getName())
+                        .build()
         );
 
         // 알림 생성
@@ -81,7 +81,7 @@ public class FriendService {
 
     public void deleteFriend(Long friendId) {
         Friend friend = friendRepository.findById(friendId)
-                        .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
+                .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
         friendRepository.deleteById(friend.getId());
     }
 
@@ -186,12 +186,18 @@ public class FriendService {
                 .orElseThrow(() -> new FriendException(ErrorCode.FRIEND_NOT_FOUND));
 
         FriendSearchHistory friendSearchHistory =
-                friendSearchHistoryRepository.save(
-                        FriendSearchHistory.builder()
-                                .user(user)
-                                .friend(friend)
-                                .build()
-                );
+                friendSearchHistoryRepository.findByUserIdAndFriendId(user.getId(), friend.getId()).orElse(null);
+
+        if (friendSearchHistory == null) {
+            friendSearchHistory = friendSearchHistoryRepository.save(
+                    FriendSearchHistory.builder()
+                            .user(user)
+                            .friend(friend)
+                            .build()
+            );
+        } else {
+            friendSearchHistory.searchAgain();
+        }
 
         return FriendSearchHistorySaveResponse.of(friendSearchHistory);
     }
