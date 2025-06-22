@@ -11,7 +11,7 @@ public interface CustomFriendRepository {
     Optional<UserFriendInfoDto> findUserFriendInfoDto(Long fromUserId, Long toUserId);
     List<UserFriendInfoDto> findUserFriendInfoDtoList(Long fromUserId, List<Long> toUserIds);
     List<FriendInfoResponse> findFriendsByUserId(Long userId);
+    List<FriendInfoResponse> searchFriendsByKeyword(Long userId, String keyword);
     Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable);
     Page<FriendInfoResponse> findFriendAddedMeByUserId(Long userId, Pageable pageable);
-
 }

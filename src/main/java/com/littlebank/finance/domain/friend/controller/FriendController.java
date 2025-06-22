@@ -21,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api-user/friend")
 @RequiredArgsConstructor
@@ -118,6 +120,17 @@ public class FriendController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         FriendRenameResponse response = friendService.renameFriend(customUserDetails.getId(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "친구 검색 API")
+    @GetMapping("/search")
+    public ResponseEntity<List<FriendInfoResponse>> searchFriend(
+            @Parameter(description = "검색 키워드")
+            @RequestParam(name = "keyword") String keyword,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        List<FriendInfoResponse> response = friendService.searchFriend(customUserDetails.getId(), keyword);
         return ResponseEntity.ok(response);
     }
 }
