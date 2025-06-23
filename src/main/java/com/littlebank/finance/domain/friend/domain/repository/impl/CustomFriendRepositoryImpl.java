@@ -76,7 +76,7 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                 ),
                                 Projections.constructor(
                                         CommonFriendInfoResponse.class,
-                                        f1.id.isNotNull(),
+                                        f.id.isNotNull(),
                                         f.id,
                                         f.customName,
                                         f.isBlocked,
