@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChatPolicy {
+    public static final int ROOM_PARTICIPANT_LIMIT_NUMBER = 50;
 
     public static String getInvitationMessage(UserFriendInfoDto agent, List<UserFriendInfoDto> targets) {
         StringBuilder message = new StringBuilder();

@@ -71,7 +71,6 @@ public class UserService {
 
         friendRepository.updateCustomName(userId, beforeName, afterName);
 
-
         return MyInfoResponse.of(user);
     }
 

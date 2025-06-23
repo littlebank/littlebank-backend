@@ -50,8 +50,16 @@ public class ChatService {
                         .name(request.getName())
                         .range(request.getRoomRange())
                         .createdBy(user)
+                        .participantCount(request.getParticipantIds().size())
                         .build()
         );
+
+        if (request.getParticipantIds().size() < CHAT_ROOM_MIN_PARTICIPANT_COUNT) {
+            throw new ChatException(ErrorCode.CHAT_ROOM_TOO_FEW_PARTICIPANTS);
+        }
+        if (room.getParticipantNumber() > ChatPolicy.ROOM_PARTICIPANT_LIMIT_NUMBER) {
+            throw new ChatException(ErrorCode.CHAT_ROOM_PARTICIPANT_LIMIT_EXCEEDED);
+        }
 
         ChatRoomEventLog eventLog;
         if (room.getRange() == RoomRange.GROUP) {
@@ -66,10 +74,10 @@ public class ChatService {
             eventLog = null;
         }
 
-        long joinedCount = request.getParticipantIds().stream()
+        request.getParticipantIds().stream()
                 .map(userRepository::findById)
                 .flatMap(Optional::stream)
-                .map(u -> {
+                .forEach(u -> {
                     UserChatRoom joinedUser = userChatRoomRepository.save(
                                     UserChatRoom.builder()
                                             .room(room)
@@ -85,14 +93,7 @@ public class ChatService {
                                         .build()
                         );
                     }
-
-                    return joinedUser;
-                })
-                .count();
-
-        if (joinedCount < CHAT_ROOM_MIN_PARTICIPANT_COUNT) {
-            throw new ChatException(ErrorCode.CHAT_ROOM_TOO_FEW_PARTICIPANTS);
-        }
+                });
 
         return ChatRoomCreateResponse.of(room);
     }

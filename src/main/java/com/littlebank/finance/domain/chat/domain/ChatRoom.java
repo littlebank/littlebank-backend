@@ -30,6 +30,8 @@ public class ChatRoom extends BaseEntity {
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
     @Column(nullable = false)
+    private Integer participantNumber;
+    @Column(nullable = false)
     private Long firstMessageId;
     @Column(nullable = false)
     private Long lastMessageId;
@@ -37,10 +39,11 @@ public class ChatRoom extends BaseEntity {
     private Boolean isDeleted;
 
     @Builder
-    public ChatRoom(String name, RoomRange range, User createdBy, Long firstMessageId, Long lastMessageId, Boolean isDeleted) {
+    public ChatRoom(String name, RoomRange range, User createdBy, Integer participantCount, Long firstMessageId, Long lastMessageId, Boolean isDeleted) {
         this.name = name;
         this.range = range;
         this.createdBy = createdBy;
+        this.participantNumber = participantCount;
         this.firstMessageId = firstMessageId == null ? 0L : firstMessageId;
         this.lastMessageId = lastMessageId == null ? 0L : lastMessageId;
         this.isDeleted = isDeleted == null ? false : isDeleted;
@@ -55,4 +58,11 @@ public class ChatRoom extends BaseEntity {
         }
     }
 
+    public void invite(Integer participantCount) {
+        this.participantNumber += participantCount;
+    }
+
+    public void leaveGroupRoom() {
+        this.participantNumber--;
+    }
 }

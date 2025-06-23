@@ -14,6 +14,7 @@ import com.littlebank.finance.domain.chat.service.async.AsyncChatMessageService;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.business.ChatPolicy;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -92,6 +93,10 @@ public class ChatMessageService {
         if (room.getRange() == RoomRange.PRIVATE) {
             throw new ChatException(ErrorCode.CHATROOM_INVITE_GROUP_ONLY);
         }
+        if (room.getParticipantNumber() + request.getTargetUserIds().size()
+                > ChatPolicy.ROOM_PARTICIPANT_LIMIT_NUMBER) {
+            throw new ChatException(ErrorCode.CHAT_ROOM_PARTICIPANT_LIMIT_EXCEEDED);
+        }
 
         ChatRoomEventLog eventLog = chatRoomEventLogRepository.save(
                 ChatRoomEventLog.builder()
@@ -117,6 +122,8 @@ public class ChatMessageService {
                                     .build()
                     );
                 });
+
+        room.invite(request.getTargetUserIds().size());
 
         return eventLog;
     }
@@ -145,6 +152,8 @@ public class ChatMessageService {
         response.setEndOfDecreaseReadMarkMessageId(participant.getLastReadMessageId());
         chatMessageRepository.decreaseReadCountByUserChatRoom(participant);
         userChatRoomRepository.deleteById(participant.getId());
+
+        room.leaveGroupRoom();
 
         return eventLog;
     }
