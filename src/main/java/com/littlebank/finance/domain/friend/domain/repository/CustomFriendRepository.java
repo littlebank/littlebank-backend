@@ -2,8 +2,7 @@ package com.littlebank.finance.domain.friend.domain.repository;
 
 import com.littlebank.finance.domain.chat.dto.UserFriendInfoDto;
 import com.littlebank.finance.domain.friend.dto.response.FriendInfoResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +13,6 @@ public interface CustomFriendRepository {
     List<UserFriendInfoDto> findUserFriendInfoDtoList(Long fromUserId, List<Long> toUserIds);
     List<FriendInfoResponse> findFriendsByUserId(Long userId);
     List<FriendInfoResponse> searchFriendsByKeyword(Long userId, String keyword);
-    Page<FriendInfoResponse> findFriendsByUserId(Long userId, Pageable pageable);
-    Page<FriendInfoResponse> findFriendAddedMeByUserId(Long userId, Pageable pageable);
+    List<FriendInfoResponse> findFriendAddedMeByUserId(Long userId);
 
 }

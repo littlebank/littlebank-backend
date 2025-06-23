@@ -39,25 +39,19 @@ public class FriendController {
 
     @Operation(summary = "친구 목록 조회 API")
     @GetMapping("/list")
-    public ResponseEntity<CustomPageResponse<FriendInfoResponse>> getFriendList(
-            @Parameter(description = "페이지 번호, 0부터 시작")
-            @RequestParam(name = "pageNumber") Integer pageNumber,
+    public ResponseEntity<List<FriendInfoResponse>> getFriendList(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.GENERAL_PAGE_SIZE);
-        CustomPageResponse<FriendInfoResponse> response = friendService.getFriendList(customUserDetails.getId(), pageable);
+        List<FriendInfoResponse> response = friendService.getFriendList(customUserDetails.getId());
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "나를 친구로 추가한 유저 목록 조회 API")
     @GetMapping("/added-me")
-    public ResponseEntity<CustomPageResponse<FriendInfoResponse>> getFriendAddedMe(
-            @Parameter(description = "페이지 번호, 0부터 시작")
-            @RequestParam(name = "pageNumber") Integer pageNumber,
+    public ResponseEntity<List<FriendInfoResponse>> getFriendAddedMe(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        Pageable pageable = PageRequest.of(pageNumber, PaginationPolicy.GENERAL_PAGE_SIZE);
-        CustomPageResponse<FriendInfoResponse> response = friendService.getFriendAddedMe(customUserDetails.getId(), pageable);
+        List<FriendInfoResponse> response = friendService.getFriendAddedMe(customUserDetails.getId());
         return ResponseEntity.ok(response);
     }
 
