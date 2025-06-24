@@ -124,4 +124,16 @@ public class SubscriptionService {
         trialSubscriptionRepository.save(trial);
         return FreeSubscriptionResponseDto.of(trial);
     }
+
+    public FreeSubscriptionResponseDto getFreeSubscription(Long userId) {
+        return trialSubscriptionRepository.findByUserId(userId)
+                .map(FreeSubscriptionResponseDto::of)
+                .orElseGet(() -> FreeSubscriptionResponseDto.builder()
+                        .trialId(null)
+                        .startDate(null)
+                        .endDate(null)
+                        .used(false)
+                        .build()
+                );
+    }
 }

@@ -73,5 +73,14 @@ public class SubscriptionController {
         FreeSubscriptionResponseDto response = subscriptionService.startFreeSubscription(user.getId(), request);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "무료 구독권 조회")
+    @GetMapping("/free")
+    public ResponseEntity<FreeSubscriptionResponseDto> getFreeSubscription (
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        FreeSubscriptionResponseDto response = subscriptionService.getFreeSubscription(user.getId());
+        return ResponseEntity.ok(response);
+    }
 }
 
