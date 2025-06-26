@@ -42,6 +42,7 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
                                 u.role,
                                 Projections.constructor(
                                         CommonFriendInfoResponse.class,
+                                        f.id.isNotNull(),
                                         f.id,
                                         f.customName,
                                         f.isBlocked,
