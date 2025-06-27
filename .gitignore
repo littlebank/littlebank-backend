@@ -35,3 +35,18 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### application ###
+application.yml
+application-*.yml
+
+### firebase ###
+/src/main/resources/firebase
+
+### google-play ###
+/src/main/resources/google-play
+
+### test file ###
+/src/main/java/com/littlebank/finance/global/test
+/src/main/resources/static/ws-test.html
+/src/main/resources/templates/test

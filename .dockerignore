@@ -1,0 +1,12 @@
+.github/
+scripts/
+test
+
+build/
+out/
+
+.git/
+.gitignore
+
+docker-compose.yml
+docker-compose.*.yml
