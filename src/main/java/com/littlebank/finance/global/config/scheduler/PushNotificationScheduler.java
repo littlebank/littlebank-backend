@@ -23,14 +23,31 @@ public class PushNotificationScheduler {
     public void notifyParentOfChildGoalAchievements() {
         fixPushNotificationService.sendWeeklyGoalAchievementAlertToParents();
     }
-    // 미션 - 9시, 챌린지 신청 - 20시, 챌린지 완료 - 9시
+
+    // 챌린지 신청 - 20시,
     @Scheduled(cron = "0 0 0 * * *")
     public void updateStatusAtMidnight() {
         fixPushNotificationService.updateExpiredMissionsAndChallengesStatus();
     }
 
-    @Scheduled(cron = "0 0 8 * * *")
+    /**
+     * [미션 및 챌린지 달성 알림]
+     * 매일 오전 9시
+     * 부모에게 아이들의 달성한 미션 및 챌린지에 대해 포인트 지급에 대한 알림
+     */
+    @Scheduled(cron = "0 0 9 * * *")
     public void notifyParentsOfExpiredTasks() {
         fixPushNotificationService.notifyParentsOfCompletedMissionsAndChallenges();
+    }
+
+    /**
+     *
+     * [[부모] 미션 주기 제안 알림]
+     * 월요일 18시 30분
+     * 아이에게 미션 제안하라는 알림
+     */
+    @Scheduled(cron = "0 30 18 * * 1")
+    public void suggestNewMissionToParents() {
+        fixPushNotificationService.suggestParentsMissionCreation();
     }
 }

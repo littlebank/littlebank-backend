@@ -15,4 +15,5 @@ public interface CustomFamilyMemberRepository {
     List<FamilyMember> findParentsByFamilyId(Long familyId);
 
     FamilyInfoResponse getFamilyInfoByUserId(Long userId);
+    List<FamilyMember> findChildrenByParentUserId(Long id);
 }
