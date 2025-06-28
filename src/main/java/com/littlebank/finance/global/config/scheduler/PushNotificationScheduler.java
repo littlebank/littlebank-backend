@@ -50,4 +50,15 @@ public class PushNotificationScheduler {
     public void suggestNewMissionToParents() {
         fixPushNotificationService.suggestParentsMissionCreation();
     }
+
+    /**
+     *
+     * [[아이] 챌린지 참여하기 제안 알림]
+     * 일요일 20시
+     * 아이에게 챌린지 참여하라는 알림
+     */
+    @Scheduled(cron = "0 0 20 * * 7")
+    public void suggestChallengeToChildren() {
+        fixPushNotificationService.suggestChildrenParticipateChallenge();
+    }
 }

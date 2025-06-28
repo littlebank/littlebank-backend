@@ -12,10 +12,7 @@ import com.littlebank.finance.domain.notification.domain.Notification;
 import com.littlebank.finance.domain.notification.domain.NotificationType;
 import com.littlebank.finance.domain.notification.domain.repository.NotificationRepository;
 import com.littlebank.finance.domain.notification.dto.GoalAchievementNotificationDto;
-import com.littlebank.finance.domain.notification.dto.response.AchievementNotificationResultDto;
-import com.littlebank.finance.domain.notification.dto.response.ChallengeAchievementNotificationDto;
-import com.littlebank.finance.domain.notification.dto.response.MissionAchievementNotificationDto;
-import com.littlebank.finance.domain.notification.dto.response.SuggestParentDto;
+import com.littlebank.finance.domain.notification.dto.response.*;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.UserRole;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
@@ -58,8 +55,8 @@ public class FixPushNotificationService {
                                 .targetId(r.getGoalId())
                                 .isRead(false)
                                 .build());
-
                         firebaseService.sendNotification(notification);
+
                     });
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
@@ -138,15 +135,14 @@ public class FixPushNotificationService {
             List<FamilyMember> children = familyMemberRepository.findChildrenByParentUserId(parent.getId());
 
             for (FamilyMember child : children) {
-                Notification notification = notificationRepository.save(Notification.builder()
-                        .receiver(parent)
-                        .message(child.getNickname() + "에게 새로운 미션을 주세요!")
-                        .type(NotificationType.SUGGEST_MISSION_CREATION)
-                        .targetId(child.getUser().getId())
-                        .isRead(false)
-                        .build());
-
                 try {
+                    Notification notification = notificationRepository.save(Notification.builder()
+                            .receiver(parent)
+                            .message(child.getNickname() + "에게 새로운 미션을 주세요!")
+                            .type(NotificationType.SUGGEST_MISSION_CREATION)
+                            .targetId(child.getUser().getId())
+                            .isRead(false)
+                            .build());
                     firebaseService.sendNotification(notification);
                     results.add(new SuggestParentDto(
                             parent.getId(),
@@ -158,7 +154,32 @@ public class FixPushNotificationService {
                 }
             }
         }
-
         return results;
+    }
+
+    public List<SuggestChildDto> suggestChildrenParticipateChallenge() {
+        List<User> children = userRepository.findAllByRoleAndIsDeletedFalse(UserRole.CHILD);
+        List<SuggestChildDto> results = new ArrayList<>();
+        try {
+            children.forEach(child -> {
+                Notification notification = notificationRepository.save(Notification.builder()
+                        .receiver(child)
+                        .message(child.getName() + "님, 이번 주 새로운 챌린지가 열렸어요!")
+                        .subMessage("도전하고 보상을 받아보세요!")
+                        .type(NotificationType.SUGGEST_CHALLENGE_PARTICIPATION)
+                        .isRead(false)
+                        .build());
+                firebaseService.sendNotification(notification);
+
+                results.add(new SuggestChildDto(
+                        child.getId(),
+                        child.getName()
+                ));
+            });
+        } catch (DataIntegrityViolationException e) {
+            log.warn("중복 알림 생략 또는 전송 실패가 발생했습니다.");
+        }
+        return results;
+
     }
 }
