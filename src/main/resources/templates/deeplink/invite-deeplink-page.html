@@ -2,27 +2,37 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title></title>
+  <title>앱 실행 중...</title>
   <script>
       function openApp() {
-        // 앱 딥링크 URL
+        var now = new Date().getTime();
+        var timeout = 1500;
+
+        // 앱 스킴 (딥링크)
         var schemeUrl = "littlebank://invite?code=testcode123";
 
-        // 앱이 설치되어 있지 않으면 리디렉션할 Play Store URL
-        var storeUrl = "https://play.google.com/store/apps/details?id=com.worldcoin.pocketmoneymanagementz&referrer=invite_code%3Dtestcode123";
+        // Play Store 앱 링크
+        var storeUrl = "market://details?id=com.worldcoin.pocketmoneymanagementz&referrer=invite_code%3Dtestcode123";
 
-        // 타이머로 앱 설치 안 된 경우 Play Store로 이동
-        var fallbackTimer = setTimeout(function () {
-          window.location.href = storeUrl;
-        }, 1500); // 1.5초 기다렸다가 이동
+        // iframe 생성
+        var iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = schemeUrl;
+        document.body.appendChild(iframe);
 
-        // 앱 딥링크 실행
-        window.location.href = schemeUrl;
+        // 앱 실행 실패 시 Play Store 앱으로 이동
+        setTimeout(function () {
+          var later = new Date().getTime();
+          if (later - now < timeout + 200) {
+            window.location.href = storeUrl;
+          }
+        }, timeout);
       }
 
       window.onload = openApp;
     </script>
 </head>
 <body>
+<p>앱을 실행 중입니다...</p>
 </body>
 </html>
