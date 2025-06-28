@@ -1,10 +1,10 @@
 package com.littlebank.finance.domain.notification.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor
 public class SuggestChildDto {
     private Long childId;
     private String childUserName;

@@ -44,10 +44,11 @@ public class FixPushNotificationService {
         try {
             results.stream()
                     .forEach(r -> {
+                        // 부모에게
                         User parent = userRepository.findById(r.getParentId())
                                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-                        Notification notification = notificationRepository.save(Notification.builder()
+                        Notification parentNotification = notificationRepository.save(Notification.builder()
                                 .receiver(parent)
                                 .message("지난 주, " + r.getNickname() + "(이)가 \"" + r.getTitle() + "\" 목표를 " + (r.getStampCount() * 100 / 7) + "% 달성했어요!")
                                 .subMessage("앱에서 아이에게 약속한 보상을 주세요~!")
@@ -55,8 +56,19 @@ public class FixPushNotificationService {
                                 .targetId(r.getGoalId())
                                 .isRead(false)
                                 .build());
-                        firebaseService.sendNotification(notification);
+                        firebaseService.sendNotification(parentNotification);
 
+                        // 아이에게
+                        User child = userRepository.findById(r.getChildId())
+                                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+                        Notification childNotification = notificationRepository.save(Notification.builder()
+                                .receiver(child)
+                                .message(r.getNickname() + "님 새로운 목표에 도전하세요!")
+                                .subMessage("이번주에도 힘내서 목표를 향해 나아가요~")
+                                .type(NotificationType.SUGGEST_NEW_GOAL)
+                                .isRead(false)
+                                .build());
+                        firebaseService.sendNotification(childNotification);
                     });
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");

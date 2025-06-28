@@ -15,9 +15,10 @@ public class PushNotificationScheduler {
     private final FixPushNotificationService fixPushNotificationService;
 
     /**
-     * [목표 달성 알림]
+     * [[부모]목표 달성 알림] + [[아이] 목표 제안 알림]
      * 매주 월요일 오전 8시
-     * 부모에게 아이들의 달성한 목표에 대해 포인트 지급에 대한 알림
+     * 1. 부모에게 아이들의 달성한 목표에 대해 포인트 지급에 대한 알림
+     * 2. 아이에게 새로운 목표에 도전하라는 알림
      */
     @Scheduled(cron = "0 0 8 * * 1")
     public void notifyParentOfChildGoalAchievements() {

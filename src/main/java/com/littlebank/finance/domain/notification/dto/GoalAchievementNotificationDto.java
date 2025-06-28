@@ -11,4 +11,5 @@ public class GoalAchievementNotificationDto {
     private String title;
     private Long goalId;
     private Integer stampCount;
+    private Long childId;
 }
