@@ -45,7 +45,10 @@ public class SecurityConfig {
             // api 관련
             "/api-admin/*/public/**", "/api-user/*/public/**",
             "/ws/**",
-            "/view/public/**", "/view/**", "/css/**"
+            // view
+            "/view/public/**", "/view/**", "/css/**",
+            // view-link-page
+            "/deeplink/invite"
     };
 
     @Bean
