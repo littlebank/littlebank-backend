@@ -33,7 +33,7 @@ docker rmi $IMAGE_NAME || true
 docker build -t $IMAGE_NAME .
 
 # ========== 컨테이너 실행 ==========
-docker run -d \
+docker run -d -p 8080:8080 \
   --name $CONTAINER_NAME \
   --network $DOCKER_NETWORK \
   -v /etc/localtime:/etc/localtime:ro \
