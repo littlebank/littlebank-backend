@@ -4,33 +4,37 @@
   <meta charset="UTF-8" />
   <title></title>
   <script>
-      function openApp() {
-        var now = new Date().getTime();
-        var timeout = 3000;
+    let hidden = false;
 
-        // 앱 스킴 (딥링크)
-        var schemeUrl = "littlebank://invite?code=testcode123";
+    // 앱 실행을 시도하고 일정 시간 후 실패하면 스토어로 이동
+    function openApp() {
+      const schemeUrl = "littlebank://invite?code=testcode123";
+      const storeUrl = "market://details?id=com.worldcoin.pocketmoneymanagementz&referrer=invite_code%3Dtestcode123";
+      const timeout = 3000;
 
-        // Play Store 앱 링크
-        var storeUrl = "market://details?id=com.worldcoin.pocketmoneymanagementz&referrer=invite_code%3Dtestcode123";
+      // 사용자가 브라우저를 빠져나가면 (앱 전환 등) → 앱 실행된 것으로 간주
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') {
+          hidden = true;
+        }
+      });
 
-        // iframe 생성
-        var iframe = document.createElement("iframe");
-        iframe.style.display = "none";
-        iframe.src = schemeUrl;
-        document.body.appendChild(iframe);
+      // iframe으로 앱 실행
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = schemeUrl;
+      document.body.appendChild(iframe);
 
-        // 앱 실행 실패 시 Play Store 앱으로 이동
-        setTimeout(function () {
-          var later = new Date().getTime();
-          if (later - now < timeout + 200) {
-            window.location.href = storeUrl;
-          }
-        }, timeout);
-      }
+      // 일정 시간 뒤에도 브라우저가 foreground에 있으면 → 앱 실행 실패로 간주하고 Play Store 이동
+      setTimeout(function () {
+        if (!hidden) {
+          window.location.href = storeUrl;
+        }
+      }, timeout);
+    }
 
-      window.onload = openApp;
-    </script>
+    window.onload = openApp;
+  </script>
 </head>
 <body>
 </body>
