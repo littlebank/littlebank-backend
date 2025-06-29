@@ -41,6 +41,8 @@ public class ChallengeParticipation extends BaseEntity {
     private Integer totalStudyTime;
     @Column(nullable = false)
     private Integer reward;
+    @Column(name = "is_rewarded", nullable = false)
+    private Boolean isRewarded;
     @Column(name = "is_accepted", nullable = false)
     private Boolean isAccepted = false;
     @Column(nullable = false)
@@ -50,7 +52,7 @@ public class ChallengeParticipation extends BaseEntity {
     @Column(name = "finish_score")
     private Integer finsihScore;
 
-    public ChallengeParticipation(Challenge challenge, User user, ChallengeStatus challengeStatus, LocalDateTime startDate, LocalDateTime endDate, String title, String subject, LocalDateTime startTime, Integer totalStudyTime, Integer reward, FamilyMember parent, Integer finsihScore) {
+    public ChallengeParticipation(Challenge challenge, User user, ChallengeStatus challengeStatus, LocalDateTime startDate, LocalDateTime endDate, String title, String subject, LocalDateTime startTime, Integer totalStudyTime, Integer reward, Boolean isRewarded, FamilyMember parent, Integer finsihScore) {
         this.challenge = challenge;
         this.user = user;
         this.challengeStatus = challengeStatus;
@@ -61,11 +63,15 @@ public class ChallengeParticipation extends BaseEntity {
         this.startTime = startTime;
         this.totalStudyTime = totalStudyTime;
         this.reward = reward;
+        this.isRewarded = false;
         this.parent = parent;
         this.finsihScore = finsihScore;
     }
 
     public void storeScore(Integer score) {
         this.finsihScore = score;
+    }
+    public void rewarded() {
+        this.isRewarded = true;
     }
 }

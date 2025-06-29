@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.point.dto.response;
 
+import com.littlebank.finance.domain.point.domain.RewardType;
 import com.littlebank.finance.domain.point.domain.TransactionHistory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +15,8 @@ public class CommonPointTransferResponse {
     private String message;
     private Integer remainingPoint;
     private Long receiverId;
-
+    private RewardType rewardType;
+    private Long rewardId;
     public static CommonPointTransferResponse of(TransactionHistory transactionHistory) {
         return CommonPointTransferResponse.builder()
                 .historyId(transactionHistory.getId())
@@ -22,6 +24,8 @@ public class CommonPointTransferResponse {
                 .message(transactionHistory.getMessage())
                 .remainingPoint(transactionHistory.getSenderRemainingPoint())
                 .receiverId(transactionHistory.getReceiver().getId())
+                .rewardType(transactionHistory.getRewardType())
+                .rewardId(transactionHistory.getRewardId())
                 .build();
     }
 }

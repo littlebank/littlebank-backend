@@ -65,7 +65,10 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                         th.receiverRemainingPoint,
                         sender.id,
                         sender.name,
-                        th.createdDate
+                        th.createdDate,
+                        th.rewardType,
+                        th.rewardId,
+                        Expressions.nullExpression(String.class) // rewardTitle
                 ))
                 .from(th)
                 .join(th.sender, sender)
@@ -91,7 +94,10 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                         th.senderRemainingPoint,
                         receiver.id,
                         receiver.name,
-                        th.createdDate
+                        th.createdDate,
+                        th.rewardType,
+                        th.rewardId,
+                        Expressions.nullExpression(String.class) // rewardTitle
                 ))
                 .from(th)
                 .join(th.receiver, receiver)

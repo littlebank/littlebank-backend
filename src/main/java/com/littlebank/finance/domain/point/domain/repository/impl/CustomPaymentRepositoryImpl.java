@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.point.domain.repository.impl;
 
 import com.littlebank.finance.domain.point.domain.PaymentStatus;
 import com.littlebank.finance.domain.point.domain.QPayment;
+import com.littlebank.finance.domain.point.domain.RewardType;
 import com.littlebank.finance.domain.point.domain.repository.CustomPaymentRepository;
 import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryResponse;
@@ -57,7 +58,10 @@ public class CustomPaymentRepositoryImpl implements CustomPaymentRepository {
                         p.remainingPoint,
                         Expressions.nullExpression(Long.class),
                         p.pgProvider,
-                        p.paidAt
+                        p.paidAt,
+                        Expressions.nullExpression(RewardType.class),
+                        Expressions.nullExpression(Long.class),
+                        Expressions.nullExpression(String.class)
                 ))
                 .from(p)
                 .where(p.user.id.eq(userId)

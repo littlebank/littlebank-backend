@@ -30,14 +30,20 @@ public class TransactionHistory extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
     private User receiver;
-
+    @Column(name = "reward_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private RewardType rewardType;
+    @Column(name = "reward_id")
+    private Long rewardId;
     @Builder
-    public TransactionHistory(Integer pointAmount, String message, Integer senderRemainingPoint, Integer receiverRemainingPoint, User sender, User receiver) {
+    public TransactionHistory(Integer pointAmount, String message, Integer senderRemainingPoint, Integer receiverRemainingPoint, User sender, User receiver, RewardType rewardType, Long rewardId) {
         this.pointAmount = pointAmount;
         this.message = message;
         this.senderRemainingPoint = senderRemainingPoint;
         this.receiverRemainingPoint = receiverRemainingPoint;
         this.sender = sender;
         this.receiver = receiver;
+        this.rewardType = rewardType;
+        this.rewardId = rewardId;
     }
 }

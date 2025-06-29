@@ -283,6 +283,7 @@ public class ChallengeService {
             throw new ChallengeException(ErrorCode.INVALID_INPUT_VALUE);
         }
         participation.storeScore(request.getScore());
+        participation.setIsRewarded(false);
         participationRepository.save(participation);
         return ChallengeFinishScoreResponseDto.of(participation, request.getScore());
     }
