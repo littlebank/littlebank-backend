@@ -19,6 +19,7 @@ docker build -t $IMAGE_NAME .
 docker run -d \
   --name $CONTAINER_NAME \
   -p 8080:8080 \
+  --network backend-net \
   -v /etc/localtime:/etc/localtime:ro \
   -e TZ=Asia/Seoul \
   $IMAGE_NAME \
