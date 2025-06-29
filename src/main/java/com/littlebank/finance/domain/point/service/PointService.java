@@ -295,6 +295,19 @@ public class PointService {
                         .build()
         );
 
+        try {
+            Notification notification = Notification.builder()
+                    .receiver(user)
+                    .message(processedAmount + "포인트를 꺼냈습니다!")
+                    .subMessage("앱에 들어가서 확인해보세요!")
+                    .type(NotificationType.POINT_REFUND)
+                    .targetId(refund.getId())
+                    .isRead(false)
+                    .build();
+            notificationRepository.save(notification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
         return PointRefundResponse.of(refund);
     }
 
@@ -332,6 +345,20 @@ public class PointService {
                         .depositTargetUser(depositTargetUser)
                         .build()
         );
+
+        try {
+            Notification notification = Notification.builder()
+                    .receiver(user)
+                    .message(processedAmount + "포인트를 꺼냈습니다!")
+                    .subMessage("앱에 들어가서 확인해보세요!")
+                    .type(NotificationType.POINT_REFUND)
+                    .targetId(refund.getId())
+                    .isRead(false)
+                    .build();
+            notificationRepository.save(notification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
 
         return PointRefundResponse.of(refund);
     }
