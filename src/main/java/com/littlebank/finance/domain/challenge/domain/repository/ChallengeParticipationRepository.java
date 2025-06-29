@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public interface ChallengeParticipationRepository extends JpaRepository<ChallengeParticipation, Long>, CustomChallengeParticipationRepository {
     boolean existsByChallengeIdAndUserId(Long challengeId, Long userId);
@@ -23,4 +25,8 @@ public interface ChallengeParticipationRepository extends JpaRepository<Challeng
 
 
     Page<ChallengeParticipation> findByUserId(Long childId, Pageable pageable);
+    default Map<Long, String> findIdTitleMapByIds(List<Long> ids) {
+        return findAllById(ids).stream()
+                .collect(Collectors.toMap(ChallengeParticipation::getId, ChallengeParticipation::getTitle));
+    }
 }

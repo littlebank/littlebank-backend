@@ -130,4 +130,26 @@ public class CustomFamilyMemberRepositoryImpl implements CustomFamilyMemberRepos
 
         return new FamilyInfoResponse(familyId, members);
     }
+
+    @Override
+    public List<FamilyMember> findChildrenByParentUserId(Long parentId) {
+        Long familyId = queryFactory
+                .select(m.family.id)
+                .from(m)
+                .where(
+                        m.user.id.eq(parentId),
+                        m.status.eq(Status.JOINED)
+                )
+                .fetchOne();
+        if (familyId == null) {return List.of();}
+        return queryFactory
+                .selectFrom(m)
+                .join(m.user, u).fetchJoin()
+                .where(
+                        m.family.id.eq(familyId),
+                        m.status.eq(Status.JOINED),
+                        u.role.eq(UserRole.CHILD)
+                )
+                .fetch();
+    }
 }

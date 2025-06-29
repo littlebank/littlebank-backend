@@ -250,7 +250,7 @@ public class FeedService {
             }
         }
 
-        if (isLiked && !user.getId().equals(feed.getUser().getId())){
+        if (isLiked && !user.getId().equals(feed.getUser().getId()) && updatedLikeCount <= 30){
             try {
                 // 알림 생성
                 Notification notification = notificationRepository.save(Notification.builder()
@@ -506,7 +506,7 @@ public class FeedService {
         }
 
         // 알림
-        if (isLiked && !user.getId().equals(feedComment.getUser().getId())) {
+        if (isLiked && !user.getId().equals(feedComment.getUser().getId()) && updatedLikeCount <= 15) {
             try {
                 Notification notification = Notification.builder()
                         .receiver(feedComment.getUser())

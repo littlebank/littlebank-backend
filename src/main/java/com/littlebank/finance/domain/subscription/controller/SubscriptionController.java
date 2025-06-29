@@ -1,11 +1,11 @@
 package com.littlebank.finance.domain.subscription.controller;
 
-import com.littlebank.finance.domain.subscription.domain.Subscription;
 import com.littlebank.finance.domain.subscription.dto.request.FreeSubscriptionRequestDto;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionCreateRequestDto;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionPurchaseRequestDto;
 import com.littlebank.finance.domain.subscription.dto.response.FreeSubscriptionResponseDto;
 import com.littlebank.finance.domain.subscription.dto.response.SubscriptionResponseDto;
+import com.littlebank.finance.domain.subscription.dto.response.SubscriptionStatusResponseDto;
 import com.littlebank.finance.domain.subscription.service.PurchaseService;
 import com.littlebank.finance.domain.subscription.service.SubscriptionService;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -56,11 +56,25 @@ public class SubscriptionController {
     }
     @Operation(summary = "구독권 결제")
     @PostMapping("/purchase/inapp")
-    public ResponseEntity<?> verifyGooglePurchase (
+    public ResponseEntity<SubscriptionResponseDto> verifyGooglePurchase (
             @RequestBody SubscriptionPurchaseRequestDto request,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-        boolean response = purchaseService.verifyReceiptForGoogle(user.getId(), request);
+        SubscriptionResponseDto response = purchaseService.verifySubscription(user.getId(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "구독권에 결제자 포함 유무")
+    @PostMapping("include-owner")
+    public ResponseEntity<Void> includeOwner(@AuthenticationPrincipal CustomUserDetails user) {
+        subscriptionService.includeOwnerToSubscription(user.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "마이 구독권 조회")
+    @GetMapping("/my-status")
+    public ResponseEntity<SubscriptionStatusResponseDto> getSubscriptionStatus(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        SubscriptionStatusResponseDto response = purchaseService.getSubscriptionStatus(userDetails.getId());
         return ResponseEntity.ok(response);
     }
 

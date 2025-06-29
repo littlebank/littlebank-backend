@@ -44,6 +44,9 @@ public class Mission extends BaseEntity {
     @Column(nullable = false)
     private Integer reward;
 
+    @Column(name = "is_rewarded", nullable = false)
+    private Boolean isRewarded;
+
     @Column(nullable = false)
     private LocalDateTime startDate;
 
@@ -66,13 +69,14 @@ public class Mission extends BaseEntity {
     private Boolean isDeleted;
 
     @Builder
-    public Mission(String title, MissionType type, MissionCategory category, MissionSubject subject, MissionStatus status, Integer reward, LocalDateTime startDate, LocalDateTime endDate, User createdBy, User child, Boolean isDeleted, Integer finsihScore) {
+    public Mission(String title, MissionType type, MissionCategory category, MissionSubject subject, MissionStatus status, Integer reward, Boolean isRewarded, LocalDateTime startDate, LocalDateTime endDate, User createdBy, User child, Boolean isDeleted, Integer finsihScore) {
         this.title = title;
         this.type = type;
         this.category = category;
         this.subject = subject;
         this.status = status;
         this.reward = reward;
+        this.isRewarded = false;
         this.startDate = startDate;
         this.endDate = endDate;
         this.createdBy = createdBy;
@@ -91,5 +95,9 @@ public class Mission extends BaseEntity {
 
     public void setStatus(MissionStatus missionStatus) {
         this.status = MissionStatus.ACHIEVEMENT;
+    }
+
+    public void rewarded() {
+        this.isRewarded = true;
     }
 }

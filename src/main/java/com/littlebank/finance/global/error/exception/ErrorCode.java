@@ -103,14 +103,20 @@ public enum ErrorCode {
     MiSSION_NOT_FINISH(409, "MS003", "아직 보상할 타이밍이 아닙니다"),
     // SURVEY
     SURVEY_NOT_FOUND( 404, "Q001", "퀴즈를 찾을 수 없습니다"),
+    // POINT
+    ALREADY_REWARDED(409, "P001", "이미 리워드를 지급했습니다"),
+    INVALID_REWARD_TYPE(400, "P002", "리워드 타입을 잘못 입력했습니다"),
     // SUBSCRIPTION
     INVITECODE_NOT_FOUND(404, "SS001", "구독을 찾을 수 없습니다"),
     ALREADY_SUBSCRIBED(400, "SS002", "이미 구독 중입니다"),
     GOOGLE_PLAY_PUBLISHER_FAIL(404, "SS003", "초기화 실패"),
     EXCEEDED_SUBSCRIPTUIN_SEATS(409, "SS003", "초대할 있는 사람 수를 초과했습니다"),
     INVALID_CODE(400, "SS004", "무료 구독 코드가 아닙니다"),
-    ALREADY_USED_TRIAL(409, "SS005","이미 무료 구독권을 사용했습니다");
-
+    ALREADY_USED_TRIAL(409, "SS005","이미 무료 구독권을 사용했습니다"),
+    GOOGLE_TOKEN_NOT_FOUND(409, "SS006", "구독이 유효하지 않거나 승인되지 않았습니다"),
+    GOOGLE_ITEM_NOT_FOUND(409, "SS007", "구독 항목(lineItems)이 없습니다"),
+    SUBSCRIPTION_NOT_FOUND(400, "SS008", "구독을 찾을 수 없습니다"),
+    GOOGLE_VERIFICATION_FAIL(409, "SS009", "영수증을 검증할 수 없습니다");
     private final String code;
     private final String message;
     private final int status;

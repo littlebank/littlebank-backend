@@ -162,11 +162,12 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
         List<GoalAchievementNotificationDto> results = queryFactory
                 .select(Projections.constructor(
                         GoalAchievementNotificationDto.class,
-                        u.id,
+                        u.id, // 부모
                         fm.nickname,
                         g.title,
                         g.id,
-                        stampCount
+                        stampCount,
+                        fm.user.id // 자녀
                 ))
                 .from(g)
                 .join(f).on(f.id.eq(g.family.id))
