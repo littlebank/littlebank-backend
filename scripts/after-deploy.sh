@@ -1,19 +1,25 @@
-#!/bin/bash
-REPOSITORY=/home/ubuntu/
+REPOSITORY=/home/ubuntu/littlebank
+cd $REPOSITORY
 
-cd $REPOSITORY/littlebank
+CONTAINER_NAME="littlebank-server-dev"
+IMAGE_NAME="littlebank-image-dev"
+SPRING_PROFILE="dev"
 
-if [ "$DEPLOYMENT_GROUP_NAME" = "env-dev" ]; then
-  echo "> Stop & Remove docker services. (dev)"
-  docker compose -f docker-compose.dev.yml down
+# ========== 이전 컨테이너 정리 ==========
+docker stop $CONTAINER_NAME || true
+docker rm $CONTAINER_NAME || true
 
-  echo "> Run new docker services. (dev)"
-  docker compose -f docker-compose.dev.yml up --build -d
+# ========== 기존 이미지 제거 ==========
+docker rmi $IMAGE_NAME || true
 
-elif [ "$DEPLOYMENT_GROUP_NAME" = "env-prod" ]; then
-  echo "> Stop & Remove docker services. (prod)"
-  docker compose -f docker-compose.prod.yml down
+# ========== Docker 이미지 빌드 ==========
+docker build -t $IMAGE_NAME .
 
-  echo "> Run new docker services. (prod)"
-  docker compose -f docker-compose.prod.yml up --build -d
-fi
+# ========== 컨테이너 실행 ==========
+docker run -d \
+  --name $CONTAINER_NAME \
+  -p 8080:8080 \
+  -v /etc/localtime:/etc/localtime:ro \
+  -e TZ=Asia/Seoul \
+  $IMAGE_NAME \
+  --spring.profiles.active=$SPRING_PROFILE
