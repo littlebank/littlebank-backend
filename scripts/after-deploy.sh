@@ -15,9 +15,10 @@ docker rmi $IMAGE_NAME || true
 # ========== Docker 이미지 빌드 ==========
 docker build -t $IMAGE_NAME .
 
-# ========== 컨테이너 실행 ==========정
+# ========== 컨테이너 실행 ==========
 docker run -d \
   --name $CONTAINER_NAME \
+  -p 8080:8080 \
   -v /etc/localtime:/etc/localtime:ro \
   -e TZ=Asia/Seoul \
   $IMAGE_NAME \
