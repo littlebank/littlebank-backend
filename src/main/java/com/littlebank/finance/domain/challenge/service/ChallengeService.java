@@ -113,6 +113,7 @@ public class ChallengeService {
                     .startTime(request.getStartTime())
                     .totalStudyTime(request.getTotalStudyTime())
                     .reward(request.getReward())
+                    .isRewarded(false)
                     .isAccepted(false)
                     .isDeleted(false)
                     .build();
