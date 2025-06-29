@@ -3,9 +3,11 @@ package com.littlebank.finance.domain.subscription.service;
 import com.google.api.services.androidpublisher.AndroidPublisher;
 import com.google.api.services.androidpublisher.model.SubscriptionPurchaseLineItem;
 import com.google.api.services.androidpublisher.model.SubscriptionPurchaseV2;
+import com.littlebank.finance.domain.subscription.domain.Subscription;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionCreateRequestDto;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionPurchaseRequestDto;
 import com.littlebank.finance.domain.subscription.dto.response.SubscriptionResponseDto;
+import com.littlebank.finance.domain.subscription.dto.response.SubscriptionStatusResponseDto;
 import com.littlebank.finance.domain.subscription.exception.SubscriptionException;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
@@ -62,7 +64,7 @@ public class PurchaseService {
                 case "subscription_plan_1" -> 1;
                 case "subscription_plan_3" -> 3;
                 case "subscription_plan_5" -> 5;
-                default -> throw new IllegalArgumentException("알 수 없는 구독 상품입니다.");
+                default -> throw new SubscriptionException(ErrorCode.INVALID_INPUT_VALUE);
             };
             boolean includeOwner = (seat == 1);
             SubscriptionCreateRequestDto createRequest = SubscriptionCreateRequestDto.builder()
@@ -75,7 +77,39 @@ public class PurchaseService {
             return subscriptionService.createSubscription(userId, createRequest);
 
         } catch (Exception e) {
-            throw new RuntimeException("구글 영수증 검증 실패: " + e.getMessage(), e);
+            throw new SubscriptionException(ErrorCode.GOOGLE_VERIFICATION_FAIL);
         }
+    }
+
+    public SubscriptionStatusResponseDto getSubscriptionStatus(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        Subscription subscription = user.getSubscription();
+        if (subscription == null) {
+            return SubscriptionStatusResponseDto.builder()
+                    .active(false)
+                    .endDate(null)
+                    .autoRenew(false)
+                    .build();
+        }
+        boolean isActive = subscription.getEndDate().isAfter(LocalDateTime.now());
+        boolean autoRenew = false;
+        try {
+            SubscriptionPurchaseV2 purchase = androidPublisher
+                    .purchases()
+                    .subscriptionsv2()
+                    .get("com.littlebank.littlebank", subscription.getPurchaseToken())
+                    .execute();
+
+            autoRenew = purchase.getLineItems().get(0).getAutoRenewingPlan().getAutoRenewEnabled();
+        } catch (Exception e) {
+            throw new SubscriptionException(ErrorCode.GOOGLE_TOKEN_NOT_FOUND);
+        }
+
+        return SubscriptionStatusResponseDto.builder()
+                .active(isActive)
+                .endDate(subscription.getEndDate())
+                .autoRenew(autoRenew)
+                .build();
     }
 }

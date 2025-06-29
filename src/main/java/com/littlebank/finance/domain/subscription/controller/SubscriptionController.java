@@ -5,6 +5,7 @@ import com.littlebank.finance.domain.subscription.dto.request.SubscriptionCreate
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionPurchaseRequestDto;
 import com.littlebank.finance.domain.subscription.dto.response.FreeSubscriptionResponseDto;
 import com.littlebank.finance.domain.subscription.dto.response.SubscriptionResponseDto;
+import com.littlebank.finance.domain.subscription.dto.response.SubscriptionStatusResponseDto;
 import com.littlebank.finance.domain.subscription.service.PurchaseService;
 import com.littlebank.finance.domain.subscription.service.SubscriptionService;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -68,6 +69,13 @@ public class SubscriptionController {
     public ResponseEntity<Void> includeOwner(@AuthenticationPrincipal CustomUserDetails user) {
         subscriptionService.includeOwnerToSubscription(user.getId());
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "마이 구독권 조회")
+    @GetMapping("/my-status")
+    public ResponseEntity<SubscriptionStatusResponseDto> getSubscriptionStatus(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        SubscriptionStatusResponseDto response = purchaseService.getSubscriptionStatus(userDetails.getId());
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "무료 구독권 시작")

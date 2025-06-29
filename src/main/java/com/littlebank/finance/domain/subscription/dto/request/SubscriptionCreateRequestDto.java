@@ -14,4 +14,5 @@ public class SubscriptionCreateRequestDto {
     private boolean includeOwner;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private String purchaseToken;
 }

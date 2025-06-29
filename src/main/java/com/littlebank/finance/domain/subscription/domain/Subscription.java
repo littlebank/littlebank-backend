@@ -35,14 +35,16 @@ public class Subscription extends BaseEntity {
     private List<User> members = new ArrayList<>();
     @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InviteCode> inviteCodes = new ArrayList<>();
-
+    @Column(nullable = false, unique = true)
+    private String purchaseToken;
     @Builder
-    public Subscription(Long id, User owner, int seat, LocalDateTime startDate, LocalDateTime endDate) {
+    public Subscription(Long id, User owner, int seat, LocalDateTime startDate, LocalDateTime endDate, String purchaseToken) {
         this.id = id;
         this.owner = owner;
         this.seat = seat;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.purchaseToken = purchaseToken;
     }
 
     public void addInviteCode(InviteCode inviteCode) {

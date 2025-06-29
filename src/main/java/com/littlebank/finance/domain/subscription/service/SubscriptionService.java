@@ -43,8 +43,9 @@ public class SubscriptionService {
         Subscription subscription = Subscription.builder()
                 .owner(owner)
                 .seat(request.getSeat())
-                .startDate(startDate)
-                .endDate(endDate)
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .purchaseToken(request.getPurchaseToken())
                 .build();
         subscription = subscriptionRepository.save(subscription);
 

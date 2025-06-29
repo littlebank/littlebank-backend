@@ -115,7 +115,8 @@ public enum ErrorCode {
     ALREADY_USED_TRIAL(409, "SS005","이미 무료 구독권을 사용했습니다"),
     GOOGLE_TOKEN_NOT_FOUND(409, "SS006", "구독이 유효하지 않거나 승인되지 않았습니다"),
     GOOGLE_ITEM_NOT_FOUND(409, "SS007", "구독 항목(lineItems)이 없습니다"),
-    SUBSCRIPTION_NOT_FOUND(400, "SS008", "구독을 찾을 수 없습니다");
+    SUBSCRIPTION_NOT_FOUND(400, "SS008", "구독을 찾을 수 없습니다"),
+    GOOGLE_VERIFICATION_FAIL(409, "SS009", "영수증을 검증할 수 없습니다");
     private final String code;
     private final String message;
     private final int status;
