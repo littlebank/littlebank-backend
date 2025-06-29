@@ -29,6 +29,7 @@ import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.business.PointPolicy;
 import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
+import com.littlebank.finance.global.firebase.FirebaseService;
 import com.littlebank.finance.global.portone.PortoneService;
 import com.littlebank.finance.global.portone.dto.PortonePaymentDto;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +60,7 @@ public class PointService {
     private final MissionRepository missionRepository;
     private final ChallengeParticipationRepository challengeParticipationRepository;
     private final NotificationRepository notificationRepository;
+    private final FirebaseService firebaseService;
     public PaymentInfoSaveResponse verifyAndSave(Long userId, PaymentInfoSaveRequest request) {
         String token = portoneService.getAccessToken();
         PortonePaymentDto paymentDto = portoneService.getPaymentInfo(request.getImpUid(), token);
@@ -88,6 +90,22 @@ public class PointService {
         user.addPoint(payment.getAmount());
 
         payment.recordRemainingPoint(user);
+
+        try {
+            Notification notification = Notification.builder()
+                    .receiver(user)
+                    .message(payment.getAmount() + "포인트를 충전했습니다!")
+                    .subMessage("앱에 들어가서 확인해보세요!")
+                    .type(NotificationType.POINT_STORE)
+                    .targetId(payment.getId())
+                    .isRead(false)
+                    .build();
+            notificationRepository.save(notification);
+            firebaseService.sendNotification(notification);
+
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
 
         return PaymentInfoSaveResponse.of(payment);
     }
@@ -134,6 +152,7 @@ public class PointService {
                     .isRead(false)
                     .build();
             notificationRepository.save(receiverNotification);
+            firebaseService.sendNotification(receiverNotification);
 
             Notification senderNotification = Notification.builder()
                     .receiver(sender)
@@ -143,6 +162,8 @@ public class PointService {
                     .isRead(false)
                     .build();
             notificationRepository.save(senderNotification);
+            firebaseService.sendNotification(senderNotification);
+
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
@@ -305,9 +326,11 @@ public class PointService {
                     .isRead(false)
                     .build();
             notificationRepository.save(notification);
+            firebaseService.sendNotification(notification);
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
+
         return PointRefundResponse.of(refund);
     }
 
@@ -356,6 +379,7 @@ public class PointService {
                     .isRead(false)
                     .build();
             notificationRepository.save(notification);
+            firebaseService.sendNotification(notification);
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
