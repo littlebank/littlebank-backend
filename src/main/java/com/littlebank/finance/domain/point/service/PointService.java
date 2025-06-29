@@ -2,7 +2,6 @@ package com.littlebank.finance.domain.point.service;
 
 import com.littlebank.finance.domain.challenge.domain.ChallengeParticipation;
 import com.littlebank.finance.domain.challenge.domain.repository.ChallengeParticipationRepository;
-import com.littlebank.finance.domain.challenge.domain.repository.ChallengeRepository;
 import com.littlebank.finance.domain.challenge.exception.ChallengeException;
 import com.littlebank.finance.domain.goal.domain.Goal;
 import com.littlebank.finance.domain.goal.domain.repository.GoalRepository;
@@ -10,6 +9,9 @@ import com.littlebank.finance.domain.goal.exception.GoalException;
 import com.littlebank.finance.domain.mission.domain.Mission;
 import com.littlebank.finance.domain.mission.domain.repository.MissionRepository;
 import com.littlebank.finance.domain.mission.exception.MissionException;
+import com.littlebank.finance.domain.notification.domain.Notification;
+import com.littlebank.finance.domain.notification.domain.NotificationType;
+import com.littlebank.finance.domain.notification.domain.repository.NotificationRepository;
 import com.littlebank.finance.domain.point.domain.*;
 import com.littlebank.finance.domain.point.domain.repository.PaymentRepository;
 import com.littlebank.finance.domain.point.domain.repository.RefundRepository;
@@ -30,6 +32,8 @@ import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.portone.PortoneService;
 import com.littlebank.finance.global.portone.dto.PortonePaymentDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -53,6 +58,7 @@ public class PointService {
     private final GoalRepository goalRepository;
     private final MissionRepository missionRepository;
     private final ChallengeParticipationRepository challengeParticipationRepository;
+    private final NotificationRepository notificationRepository;
     public PaymentInfoSaveResponse verifyAndSave(Long userId, PaymentInfoSaveRequest request) {
         String token = portoneService.getAccessToken();
         PortonePaymentDto paymentDto = portoneService.getPaymentInfo(request.getImpUid(), token);
@@ -117,7 +123,29 @@ public class PointService {
                         .rewardId(request.getRewardId())
                         .build()
         );
+        // receiver한테 알림 가도록
+        try {
+            Notification receiverNotification = Notification.builder()
+                    .receiver(receiver)
+                    .message(sender.getName() + "님에게" + request.getPointAmount() + "포인트를 받았습니다!")
+                    .subMessage("앱에 들어가서 확인해보세요!")
+                    .type(NotificationType.POINT_TRANSFER)
+                    .targetId(transactionHistory.getId())
+                    .isRead(false)
+                    .build();
+            notificationRepository.save(receiverNotification);
 
+            Notification senderNotification = Notification.builder()
+                    .receiver(sender)
+                    .message(receiver.getName() + "님에게" + request.getPointAmount() + "포인트를 보냈습니다!")
+                    .type(NotificationType.POINT_TRANSFER)
+                    .targetId(transactionHistory.getId())
+                    .isRead(false)
+                    .build();
+            notificationRepository.save(senderNotification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
         return CommonPointTransferResponse.of(transactionHistory);
     }
 

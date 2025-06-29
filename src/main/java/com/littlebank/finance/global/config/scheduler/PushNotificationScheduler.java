@@ -62,4 +62,5 @@ public class PushNotificationScheduler {
     public void suggestChallengeToChildren() {
         fixPushNotificationService.suggestChildrenParticipateChallenge();
     }
+
 }
