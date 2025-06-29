@@ -1,6 +1,5 @@
 package com.littlebank.finance.domain.subscription.controller;
 
-import com.littlebank.finance.domain.subscription.domain.Subscription;
 import com.littlebank.finance.domain.subscription.dto.request.FreeSubscriptionRequestDto;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionCreateRequestDto;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionPurchaseRequestDto;
@@ -56,12 +55,19 @@ public class SubscriptionController {
     }
     @Operation(summary = "구독권 결제")
     @PostMapping("/purchase/inapp")
-    public ResponseEntity<?> verifyGooglePurchase (
+    public ResponseEntity<SubscriptionResponseDto> verifyGooglePurchase (
             @RequestBody SubscriptionPurchaseRequestDto request,
             @AuthenticationPrincipal CustomUserDetails user
     ) {
-        boolean response = purchaseService.verifyReceiptForGoogle(user.getId(), request);
+        SubscriptionResponseDto response = purchaseService.verifySubscription(user.getId(), request);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "구독권에 결제자 포함 유무")
+    @PostMapping("include-owner")
+    public ResponseEntity<Void> includeOwner(@AuthenticationPrincipal CustomUserDetails user) {
+        subscriptionService.includeOwnerToSubscription(user.getId());
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "무료 구독권 시작")

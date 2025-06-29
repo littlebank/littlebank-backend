@@ -136,4 +136,29 @@ public class SubscriptionService {
                         .build()
                 );
     }
+
+
+    public void includeOwnerToSubscription(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        Subscription subscription = subscriptionRepository.findTopByOwnerIdOrderByStartDateDesc(userId)
+                .orElseThrow(() -> new SubscriptionException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+        if (subscription.getMembers().contains(user)) return;
+
+        if (subscription.getMembers().size() >= subscription.getSeat()) {
+            throw new SubscriptionException(ErrorCode.EXCEEDED_SUBSCRIPTUIN_SEATS);
+        }
+
+        InviteCode inviteCode = inviteCodeRepository
+                .findFirstBySubscriptionIdAndUsedFalseOrderByIdAsc(subscription.getId())
+                .orElseThrow(() -> new SubscriptionException(ErrorCode.INVITECODE_NOT_FOUND));
+
+        inviteCode.setIsUsed();
+        inviteCode.setRedeemedBy(user);
+        inviteCodeRepository.save(inviteCode);
+
+        user.setSubscription(subscription);
+        userRepository.save(user);
+    }
 }
