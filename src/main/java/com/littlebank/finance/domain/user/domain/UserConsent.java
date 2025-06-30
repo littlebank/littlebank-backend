@@ -13,25 +13,56 @@ import org.hibernate.annotations.Where;
 @Getter
 @Setter
 @Table(name = "userConsent")
-@SQLDelete(sql = "UPDATE userConsent SET is_deleted = true WHERE userConsent_id = ?")
+@SQLDelete(sql = "UPDATE userConsent SET is_deleted = true WHERE user_id = ?")
 @Where(clause = "is_deleted = false")
 @NoArgsConstructor()
 public class UserConsent extends BaseEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "userConsent_id")
-    private Long id;
-    @JoinColumn(nullable = false, unique = true)
+    @Id
+    private Long userId;
+    @MapsId
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
     @Column(nullable = false)
-    private Boolean isActive;
+    private Boolean agreedTermsOfService;
+    @Column(nullable = false)
+    private Boolean agreedPrivacyCollection;
+    @Column(nullable = false)
+    private Boolean agreedMinorGuardian;
+    @Column(nullable = false)
+    private Boolean agreedElectronicFinance;
+    @Column(nullable = false)
+    private Boolean agreedRewardGuardian;
+    @Column(nullable = false)
+    private Boolean agreedThirdPartySharing;
+    @Column(nullable = false)
+    private Boolean agreedDataProcessingDelegation;
+    @Column(nullable = false)
+    private Boolean agreedMarketing;
     @Column(nullable = false)
     private Boolean isDeleted;
     @Builder
-    private UserConsent(Long id, User user, Boolean isActive, Boolean isDeleted) {
-        this.id = id;
+    public UserConsent(
+            User user,
+            Boolean agreedTermsOfService,
+            Boolean agreedPrivacyCollection,
+            Boolean agreedMinorGuardian,
+            Boolean agreedElectronicFinance,
+            Boolean agreedRewardGuardian,
+            Boolean agreedThirdPartySharing,
+            Boolean agreedDataProcessingDelegation,
+            Boolean agreedMarketing,
+            Boolean isDeleted
+    ) {
         this.user = user;
-        this.isActive = isActive;
+        this.agreedTermsOfService = agreedTermsOfService;
+        this.agreedPrivacyCollection = agreedPrivacyCollection;
+        this.agreedMinorGuardian = agreedMinorGuardian;
+        this.agreedElectronicFinance = agreedElectronicFinance;
+        this.agreedRewardGuardian = agreedRewardGuardian;
+        this.agreedThirdPartySharing = agreedThirdPartySharing;
+        this.agreedDataProcessingDelegation = agreedDataProcessingDelegation;
+        this.agreedMarketing = agreedMarketing;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 }

@@ -11,10 +11,11 @@ import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -23,6 +24,8 @@ public class UserService {
     private final FriendRepository friendRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserConsentRepository userConsentRepository;
+
+    @Transactional
     public SignupResponse saveUser(SignupRequest request, Authority authority) {
         User user = request.toEntity(authority);
 
@@ -30,11 +33,15 @@ public class UserService {
         verifyDuplicatedPhone(user.getPhone());
 
         user.encodePassword(passwordEncoder);
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        log.info(">>> savedUser ID: {}", savedUser.getId()); // ✅ null이면 문제
 
-        UserConsent consent = request.toUserConsentEntity(user);
+        UserConsent consent = request.toUserConsentEntity(savedUser);
+        log.info(">>> consent ID: {}", consent.getUserId()); // ✅ null이면 Builder 내에서 id 세팅 안 된 것
+
         userConsentRepository.save(consent);
-        return SignupResponse.of(user, consent.getIsActive());
+        log.info(">>> savedUser ID: {}", savedUser.getId());
+        return SignupResponse.of(savedUser, consent);
     }
 
     public ProfileImagePathUpdateResponse updateProfileImagePath(Long userId, String profileImagePath) {

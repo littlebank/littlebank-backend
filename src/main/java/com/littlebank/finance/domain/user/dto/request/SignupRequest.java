@@ -43,9 +43,14 @@ public class SignupRequest {
     @NotNull
     @Schema(description = "유저 역할", example = "PARENT or CHILD or TEACHER")
     private UserRole role;
-    @NotNull
-    @Schema(description = "수신 동의", example = "true")
-    private Boolean isActive;
+    @NotNull private Boolean agreedTermsOfService;
+    @NotNull private Boolean agreedPrivacyCollection;
+    @NotNull private Boolean agreedMinorGuardian;
+    @NotNull private Boolean agreedElectronicFinance;
+    @NotNull private Boolean agreedRewardGuardian;
+    @NotNull private Boolean agreedThirdPartySharing;
+    @NotNull private Boolean agreedDataProcessingDelegation;
+    @NotNull private Boolean agreedMarketing;
 
     public User toEntity(Authority authority) {
         return User.builder()
@@ -63,9 +68,18 @@ public class SignupRequest {
                 .build();
     }
 
+
     public UserConsent toUserConsentEntity(User user) {
         return UserConsent.builder()
                 .user(user)
-                .isActive(isActive)
+                .agreedTermsOfService(agreedTermsOfService)
+                .agreedPrivacyCollection(agreedPrivacyCollection)
+                .agreedMinorGuardian(agreedMinorGuardian)
+                .agreedElectronicFinance(agreedElectronicFinance)
+                .agreedRewardGuardian(agreedRewardGuardian)
+                .agreedThirdPartySharing(agreedThirdPartySharing)
+                .agreedDataProcessingDelegation(agreedDataProcessingDelegation)
+                .agreedMarketing(agreedMarketing)
                 .build();
-    }}
+    }
+}

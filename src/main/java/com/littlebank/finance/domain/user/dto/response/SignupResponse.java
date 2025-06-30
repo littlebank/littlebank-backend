@@ -2,6 +2,7 @@ package com.littlebank.finance.domain.user.dto.response;
 
 import com.littlebank.finance.domain.user.domain.Authority;
 import com.littlebank.finance.domain.user.domain.User;
+import com.littlebank.finance.domain.user.domain.UserConsent;
 import com.littlebank.finance.domain.user.domain.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,13 +19,39 @@ public class SignupResponse {
     private Authority authority;
     private Boolean isActive;
 
-    public static SignupResponse of(User user, Boolean isActive) {
+    private Boolean agreedTermsOfService;
+    private Boolean agreedPrivacyCollection;
+    private Boolean agreedMinorGuardian;
+    private Boolean agreedElectronicFinance;
+    private Boolean agreedRewardGuardian;
+    private Boolean agreedThirdPartySharing;
+    private Boolean agreedDataProcessingDelegation;
+    private Boolean agreedMarketing;
+
+    public static SignupResponse of(User user, UserConsent consent) {
+        boolean allAgreed = consent.getAgreedTermsOfService()
+                && consent.getAgreedPrivacyCollection()
+                && consent.getAgreedMinorGuardian()
+                && consent.getAgreedElectronicFinance()
+                && consent.getAgreedRewardGuardian()
+                && consent.getAgreedThirdPartySharing()
+                && consent.getAgreedDataProcessingDelegation()
+                && consent.getAgreedMarketing();
+
         return SignupResponse.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .authority(user.getAuthority())
-                .isActive(isActive)
+                .isActive(allAgreed)
+                .agreedTermsOfService(consent.getAgreedTermsOfService())
+                .agreedPrivacyCollection(consent.getAgreedPrivacyCollection())
+                .agreedMinorGuardian(consent.getAgreedMinorGuardian())
+                .agreedElectronicFinance(consent.getAgreedElectronicFinance())
+                .agreedRewardGuardian(consent.getAgreedRewardGuardian())
+                .agreedThirdPartySharing(consent.getAgreedThirdPartySharing())
+                .agreedDataProcessingDelegation(consent.getAgreedDataProcessingDelegation())
+                .agreedMarketing(consent.getAgreedMarketing())
                 .build();
     }
 }
