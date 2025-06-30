@@ -1,6 +1,6 @@
 package com.littlebank.finance.domain.point.dto.response;
 
-import com.littlebank.finance.domain.point.domain.RewardType;
+import com.littlebank.finance.domain.point.domain.constant.RewardType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +20,4 @@ public class ReceivePointHistoryResponse {
     private LocalDateTime receivedAt;
     private RewardType rewardType;
     private Long rewardId;
-    @Setter
-    private String rewardTitle;
 }

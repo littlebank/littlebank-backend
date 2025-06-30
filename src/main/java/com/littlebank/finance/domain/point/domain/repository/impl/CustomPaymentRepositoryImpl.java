@@ -1,11 +1,12 @@
 package com.littlebank.finance.domain.point.domain.repository.impl;
 
-import com.littlebank.finance.domain.point.domain.PaymentStatus;
+import com.littlebank.finance.domain.point.domain.constant.PaymentStatus;
 import com.littlebank.finance.domain.point.domain.QPayment;
-import com.littlebank.finance.domain.point.domain.RewardType;
+import com.littlebank.finance.domain.point.domain.constant.RewardType;
 import com.littlebank.finance.domain.point.domain.repository.CustomPaymentRepository;
 import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryResponse;
+import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -17,11 +18,13 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import static com.littlebank.finance.domain.point.domain.QPayment.payment;
+import static com.littlebank.finance.domain.user.domain.QUser.user;
 
 @RequiredArgsConstructor
 public class CustomPaymentRepositoryImpl implements CustomPaymentRepository {
     private final JPAQueryFactory queryFactory;
     private QPayment p = payment;
+    private QUser u = user;
 
     @Override
     public Page<PaymentHistoryResponse> findHistoryByUserId(Long userId, Pageable pageable) {
@@ -31,11 +34,13 @@ public class CustomPaymentRepositoryImpl implements CustomPaymentRepository {
                                 p.id,
                                 p.amount,
                                 p.remainingPoint,
+                                u.name,
                                 p.pgProvider,
                                 p.payMethod,
                                 p.paidAt
                         ))
                         .from(p)
+                        .join(u).on(u.id.eq(p.user.id))
                         .where(p.user.id.eq(userId)
                                 .and(p.status.eq(PaymentStatus.PAID)))
                         .offset(pageable.getOffset())
@@ -60,8 +65,7 @@ public class CustomPaymentRepositoryImpl implements CustomPaymentRepository {
                         p.pgProvider,
                         p.paidAt,
                         Expressions.nullExpression(RewardType.class),
-                        Expressions.nullExpression(Long.class),
-                        Expressions.nullExpression(String.class)
+                        Expressions.nullExpression(Long.class)
                 ))
                 .from(p)
                 .where(p.user.id.eq(userId)

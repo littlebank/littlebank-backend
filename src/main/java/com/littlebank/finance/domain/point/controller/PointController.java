@@ -1,9 +1,6 @@
 package com.littlebank.finance.domain.point.controller;
 
-import com.littlebank.finance.domain.point.dto.request.ChildPointRefundRequest;
-import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
-import com.littlebank.finance.domain.point.dto.request.ParentPointRefundRequest;
-import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
+import com.littlebank.finance.domain.point.dto.request.*;
 import com.littlebank.finance.domain.point.dto.response.*;
 import com.littlebank.finance.domain.point.service.PointService;
 
@@ -53,13 +50,43 @@ public class PointController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "포인트 보내기 API")
-    @PostMapping("/transfer")
-    public ResponseEntity<CommonPointTransferResponse> transferPoint(
+    @Operation(summary = "일반 포인트 보내기 API")
+    @PostMapping("/transfer/general")
+    public ResponseEntity<CommonPointTransferResponse> transferPointGeneral(
             @RequestBody @Valid PointTransferRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        CommonPointTransferResponse response = pointService.transferPoint(customUserDetails.getId(), request);
+        CommonPointTransferResponse response = pointService.transferPointGeneral(customUserDetails.getId(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "미션 보상 포인트 보내기 API")
+    @PostMapping("/transfer/mission")
+    public ResponseEntity<CommonPointTransferResponse> transferPointMission(
+            @RequestBody @Valid MissionPointTransferRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        CommonPointTransferResponse response = pointService.transferPointMission(customUserDetails.getId(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "챌린지 보상 포인트 보내기 API")
+    @PostMapping("/transfer/challenge")
+    public ResponseEntity<CommonPointTransferResponse> transferPointChallenge(
+            @RequestBody @Valid ChallengePointTransferRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        CommonPointTransferResponse response = pointService.transferPointChallenge(customUserDetails.getId(), request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "목표 보상 포인트 보내기 API")
+    @PostMapping("/transfer/goal")
+    public ResponseEntity<CommonPointTransferResponse> transferPointGoal(
+            @RequestBody @Valid GoalPointTransferRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        CommonPointTransferResponse response = pointService.transferPointGoal(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
 

@@ -12,14 +12,16 @@ import com.littlebank.finance.domain.mission.exception.MissionException;
 import com.littlebank.finance.domain.notification.domain.Notification;
 import com.littlebank.finance.domain.notification.domain.NotificationType;
 import com.littlebank.finance.domain.notification.domain.repository.NotificationRepository;
-import com.littlebank.finance.domain.point.domain.*;
+import com.littlebank.finance.domain.point.domain.Payment;
+import com.littlebank.finance.domain.point.domain.Refund;
+import com.littlebank.finance.domain.point.domain.TransactionHistory;
+import com.littlebank.finance.domain.point.domain.constant.PaymentStatus;
+import com.littlebank.finance.domain.point.domain.constant.RefundStatus;
+import com.littlebank.finance.domain.point.domain.constant.RewardType;
 import com.littlebank.finance.domain.point.domain.repository.PaymentRepository;
 import com.littlebank.finance.domain.point.domain.repository.RefundRepository;
 import com.littlebank.finance.domain.point.domain.repository.TransactionHistoryRepository;
-import com.littlebank.finance.domain.point.dto.request.ChildPointRefundRequest;
-import com.littlebank.finance.domain.point.dto.request.PaymentInfoSaveRequest;
-import com.littlebank.finance.domain.point.dto.request.ParentPointRefundRequest;
-import com.littlebank.finance.domain.point.dto.request.PointTransferRequest;
+import com.littlebank.finance.domain.point.dto.request.*;
 import com.littlebank.finance.domain.point.dto.response.*;
 import com.littlebank.finance.domain.point.exception.PointException;
 import com.littlebank.finance.domain.user.domain.User;
@@ -61,6 +63,7 @@ public class PointService {
     private final ChallengeParticipationRepository challengeParticipationRepository;
     private final NotificationRepository notificationRepository;
     private final FirebaseService firebaseService;
+
     public PaymentInfoSaveResponse verifyAndSave(Long userId, PaymentInfoSaveRequest request) {
         String token = portoneService.getAccessToken();
         PortonePaymentDto paymentDto = portoneService.getPaymentInfo(request.getImpUid(), token);
@@ -70,7 +73,7 @@ public class PointService {
         }
 
         if (paymentRepository.existsByImpUid(request.getImpUid())) {
-            throw new PointException(ErrorCode.PAYMENT_ALREADY_EXISTS); // 중복 방지
+            throw new PointException(ErrorCode.PAYMENT_ALREADY_EXISTS);
         }
 
         User user = userRepository.findById(userId)
@@ -115,8 +118,7 @@ public class PointService {
         return CustomPageResponse.of(paymentRepository.findHistoryByUserId(userId, pageable));
     }
 
-    public CommonPointTransferResponse transferPoint(Long userId, PointTransferRequest request) {
-        validateNotRewarded(request.getRewardType(), request.getRewardId());
+    public CommonPointTransferResponse transferPointGeneral(Long userId, PointTransferRequest request) {
         User sender = userRepository.findByIdWithLock(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         if (sender.getPoint() < request.getPointAmount()) {
@@ -137,98 +139,170 @@ public class PointService {
                         .receiverRemainingPoint(receiver.getPoint())
                         .sender(sender)
                         .receiver(receiver)
-                        .rewardType(request.getRewardType())
-                        .rewardId(request.getRewardId())
+                        .rewardType(RewardType.GENERAL)
                         .build()
         );
-        // receiver한테 알림 가도록
+
         try {
-            Notification receiverNotification = Notification.builder()
-                    .receiver(receiver)
-                    .message(sender.getName() + "님에게" + request.getPointAmount() + "포인트를 받았습니다!")
-                    .subMessage("앱에 들어가서 확인해보세요!")
-                    .type(NotificationType.POINT_TRANSFER)
-                    .targetId(transactionHistory.getId())
-                    .isRead(false)
-                    .build();
-            notificationRepository.save(receiverNotification);
+            Notification receiverNotification = notificationRepository.save(
+                    Notification.builder()
+                            .receiver(receiver)
+                            .message(sender.getName() + "님에게 " + request.getPointAmount() + "포인트를 받았습니다!")
+                            .subMessage("앱에 들어가서 확인해보세요!")
+                            .type(NotificationType.POINT_TRANSFER)
+                            .targetId(transactionHistory.getId())
+                            .isRead(false)
+                            .build()
+            );
             firebaseService.sendNotification(receiverNotification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
 
-            Notification senderNotification = Notification.builder()
-                    .receiver(sender)
-                    .message(receiver.getName() + "님에게" + request.getPointAmount() + "포인트를 보냈습니다!")
-                    .type(NotificationType.POINT_TRANSFER)
-                    .targetId(transactionHistory.getId())
-                    .isRead(false)
-                    .build();
-            notificationRepository.save(senderNotification);
-            firebaseService.sendNotification(senderNotification);
+        return CommonPointTransferResponse.of(transactionHistory);
+    }
 
+    public CommonPointTransferResponse transferPointMission(Long userId, MissionPointTransferRequest request) {
+        User sender = userRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        if (sender.getPoint() < request.getPointAmount()) {
+            throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
+        }
+        Mission mission = missionRepository.findById(request.getMissionId())
+                .orElseThrow(() -> new MissionException(ErrorCode.MISSION_NOT_FOUND));
+
+        User receiver = userRepository.findByIdWithLock(request.getReceiverId())
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        sender.sendPoint(request.getPointAmount());
+        receiver.receivePoint(request.getPointAmount());
+
+        TransactionHistory transactionHistory = transactionHistoryRepository.save(
+                TransactionHistory.builder()
+                        .pointAmount(request.getPointAmount())
+                        .message(request.getMessage())
+                        .senderRemainingPoint(sender.getPoint())
+                        .receiverRemainingPoint(receiver.getPoint())
+                        .sender(sender)
+                        .receiver(receiver)
+                        .rewardType(RewardType.MISSION)
+                        .rewardId(mission.getId())
+                        .build()
+        );
+
+        try {
+            Notification receiverNotification = notificationRepository.save(
+                    Notification.builder()
+                            .receiver(receiver)
+                            .message(sender.getName() + "님에게 미션 수행 보상으로 " + request.getPointAmount() + "포인트를 받았습니다!")
+                            .subMessage("앱에 들어가서 확인해보세요!")
+                            .type(NotificationType.POINT_TRANSFER)
+                            .targetId(transactionHistory.getId())
+                            .isRead(false)
+                            .build()
+            );
+            firebaseService.sendNotification(receiverNotification);
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
         return CommonPointTransferResponse.of(transactionHistory);
     }
 
-    private void validateNotRewarded(RewardType type, Long rewardId) {
-        switch (type) {
-            case GOAL -> {
-                Goal goal = goalRepository.findById(rewardId)
-                        .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
-                if (goal.getIsRewarded()) {
-                    throw new PointException(ErrorCode.ALREADY_REWARDED);
-                }
-                goal.rewarded();
-            }
-            case MISSION -> {
-                Mission mission = missionRepository.findById(rewardId)
-                        .orElseThrow(() -> new MissionException(ErrorCode.MISSION_NOT_FOUND));
-                if (mission.getIsRewarded()) {
-                    throw new PointException(ErrorCode.ALREADY_REWARDED);
-                }
-                mission.rewarded();
-            }
-            case CHALLENGE -> {
-                ChallengeParticipation participation = challengeParticipationRepository.findById(rewardId)
-                        .orElseThrow(() -> new ChallengeException(ErrorCode.CHALLENGE_NOT_FOUND));
-                if (participation.getIsRewarded()) {
-                    throw new PointException(ErrorCode.ALREADY_REWARDED);
-                }
-                participation.rewarded();
-            }
-            default -> throw new PointException(ErrorCode.INVALID_REWARD_TYPE);
+    public CommonPointTransferResponse transferPointChallenge(Long userId, ChallengePointTransferRequest request) {
+        User sender = userRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        if (sender.getPoint() < request.getPointAmount()) {
+            throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
         }
+        ChallengeParticipation participation = challengeParticipationRepository.findById(request.getParticipationId())
+                .orElseThrow(() -> new ChallengeException(ErrorCode.CHALLENGE_NOT_FOUND));
+
+        User receiver = userRepository.findByIdWithLock(request.getReceiverId())
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        sender.sendPoint(request.getPointAmount());
+        receiver.receivePoint(request.getPointAmount());
+
+        TransactionHistory transactionHistory = transactionHistoryRepository.save(
+                TransactionHistory.builder()
+                        .pointAmount(request.getPointAmount())
+                        .message(request.getMessage())
+                        .senderRemainingPoint(sender.getPoint())
+                        .receiverRemainingPoint(receiver.getPoint())
+                        .sender(sender)
+                        .receiver(receiver)
+                        .rewardType(RewardType.CHALLENGE)
+                        .rewardId(participation.getId())
+                        .build()
+        );
+
+        try {
+            Notification receiverNotification = notificationRepository.save(
+                    Notification.builder()
+                            .receiver(receiver)
+                            .message(sender.getName() + "님에게 챌린지 참여 보상으로 " + request.getPointAmount() + "포인트를 받았습니다!")
+                            .subMessage("앱에 들어가서 확인해보세요!")
+                            .type(NotificationType.POINT_TRANSFER)
+                            .targetId(transactionHistory.getId())
+                            .isRead(false)
+                            .build()
+            );
+            firebaseService.sendNotification(receiverNotification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
+        return CommonPointTransferResponse.of(transactionHistory);
+    }
+
+    public CommonPointTransferResponse transferPointGoal(Long userId, GoalPointTransferRequest request) {
+        User sender = userRepository.findByIdWithLock(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+        if (sender.getPoint() < request.getPointAmount()) {
+            throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
+        }
+        Goal goal = goalRepository.findById(request.getGoalId())
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+
+        User receiver = userRepository.findByIdWithLock(request.getReceiverId())
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        sender.sendPoint(request.getPointAmount());
+        receiver.receivePoint(request.getPointAmount());
+
+        TransactionHistory transactionHistory = transactionHistoryRepository.save(
+                TransactionHistory.builder()
+                        .pointAmount(request.getPointAmount())
+                        .message(request.getMessage())
+                        .senderRemainingPoint(sender.getPoint())
+                        .receiverRemainingPoint(receiver.getPoint())
+                        .sender(sender)
+                        .receiver(receiver)
+                        .rewardType(RewardType.GOAL)
+                        .rewardId(goal.getId())
+                        .build()
+        );
+
+        try {
+            Notification receiverNotification = notificationRepository.save(
+                    Notification.builder()
+                            .receiver(receiver)
+                            .message(sender.getName() + "님에게 목표 실천 보상으로 " + request.getPointAmount() + "포인트를 받았습니다!")
+                            .subMessage("앱에 들어가서 확인해보세요!")
+                            .type(NotificationType.POINT_TRANSFER)
+                            .targetId(transactionHistory.getId())
+                            .isRead(false)
+                            .build()
+            );
+            firebaseService.sendNotification(receiverNotification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
+        return CommonPointTransferResponse.of(transactionHistory);
     }
     @Transactional(readOnly = true)
     public CustomPageResponse<ReceivePointHistoryResponse> getReceivedPointHistory(Long userId, Pageable pageable) {
         List<ReceivePointHistoryResponse> sendResults = transactionHistoryRepository.findReceivedPointHistoryByUserId(userId);
         List<ReceivePointHistoryResponse> paymentResults = paymentRepository.findPaymentHistoryByUserId(userId);
-
-        Map<RewardType, List<Long>> rewardIdMap = sendResults.stream()
-                .filter(r -> r.getRewardType() != null && r.getRewardId() != null)
-                .collect(Collectors.groupingBy(
-                        ReceivePointHistoryResponse::getRewardType,
-                        Collectors.mapping(ReceivePointHistoryResponse::getRewardId, Collectors.toList())
-                ));
-        Map<Long, String> goalTitleMap = goalRepository.findIdTitleMapByIds(
-                rewardIdMap.getOrDefault(RewardType.GOAL, List.of())
-        );
-        Map<Long, String> missionTitleMap = missionRepository.findIdTitleMapByIds(
-                rewardIdMap.getOrDefault(RewardType.MISSION, List.of())
-        );
-        Map<Long, String> challengeTitleMap = challengeParticipationRepository.findIdTitleMapByIds(
-                rewardIdMap.getOrDefault(RewardType.CHALLENGE, List.of())
-        );
-
-        sendResults.forEach(r -> {
-            if (r.getRewardType() == null || r.getRewardId() == null) return;
-            switch (r.getRewardType()) {
-                case GOAL -> r.setRewardTitle(goalTitleMap.getOrDefault(r.getRewardId(), "알 수 없음"));
-                case MISSION -> r.setRewardTitle(missionTitleMap.getOrDefault(r.getRewardId(), "알 수 없음"));
-                case CHALLENGE -> r.setRewardTitle(challengeTitleMap.getOrDefault(r.getRewardId(), "알 수 없음"));
-                default -> r.setRewardTitle("일반 포인트");
-            }
-        });
 
         List<ReceivePointHistoryResponse> merged = new ArrayList<>();
         merged.addAll(sendResults);
@@ -248,30 +322,13 @@ public class PointService {
         List<SendPointHistoryResponse> sendResults = transactionHistoryRepository.findSentPointHistoryByUserId(userId);
         List<SendPointHistoryResponse> refundResults = refundRepository.findRefundHistoryByUserId(userId);
 
-        Map<RewardType, List<Long>> rewardIdMap = sendResults.stream()
-                .filter(r -> r.getRewardType() != null && r.getRewardId() != null)
-                .collect(Collectors.groupingBy(
-                        SendPointHistoryResponse::getRewardType,
-                        Collectors.mapping(SendPointHistoryResponse::getRewardId, Collectors.toList())
-                ));
-
-        Map<Long, String> goalTitleMap = goalRepository.findIdTitleMapByIds(rewardIdMap.getOrDefault(RewardType.GOAL, List.of()));
-        Map<Long, String> missionTitleMap = missionRepository.findIdTitleMapByIds(rewardIdMap.getOrDefault(RewardType.MISSION, List.of()));
-        Map<Long, String> challengeTitleMap = challengeParticipationRepository.findIdTitleMapByIds(rewardIdMap.getOrDefault(RewardType.CHALLENGE, List.of()));
-
-        sendResults.forEach(r -> {
-            if (r.getRewardType() == null || r.getRewardId() == null) return;
-            switch (r.getRewardType()) {
-                case GOAL -> r.setRewardTitle(goalTitleMap.getOrDefault(r.getRewardId(), "알 수 없음"));
-                case MISSION -> r.setRewardTitle(missionTitleMap.getOrDefault(r.getRewardId(), "알 수 없음"));
-                case CHALLENGE -> r.setRewardTitle(challengeTitleMap.getOrDefault(r.getRewardId(), "알 수 없음"));
-                default -> r.setRewardTitle("일반 포인트");
-            }
-        });
-
         List<SendPointHistoryResponse> merged = new ArrayList<>();
         merged.addAll(sendResults);
         merged.addAll(refundResults);
+
+        merged.stream().forEach(e -> {
+            System.out.println(e.getHistoryId() + "," + e.getSentAt());
+        });
 
         merged.sort((a, b) -> b.getSentAt().compareTo(a.getSentAt()));
 
@@ -299,7 +356,6 @@ public class PointService {
         if (user.getPoint() < request.getExchangeAmount()) {
             throw new PointException(ErrorCode.INSUFFICIENT_POINT_BALANCE);
         }
-
 
         user.exchangePointToMoney(request.getExchangeAmount());
 

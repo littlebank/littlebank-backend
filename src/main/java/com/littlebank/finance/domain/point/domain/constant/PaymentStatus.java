@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.point.domain;
+package com.littlebank.finance.domain.point.domain.constant;
 
 import com.littlebank.finance.domain.point.exception.PointException;
 import com.littlebank.finance.global.error.exception.ErrorCode;

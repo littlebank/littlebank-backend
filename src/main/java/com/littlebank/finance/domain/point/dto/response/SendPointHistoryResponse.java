@@ -1,9 +1,8 @@
 package com.littlebank.finance.domain.point.dto.response;
 
-import com.littlebank.finance.domain.point.domain.RewardType;
+import com.littlebank.finance.domain.point.domain.constant.RewardType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -20,7 +19,5 @@ public class SendPointHistoryResponse {
     private LocalDateTime sentAt;
     private RewardType rewardType;
     private Long rewardId;
-    @Setter
-    private String rewardTitle;
 
 }

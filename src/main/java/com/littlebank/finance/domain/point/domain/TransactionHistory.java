@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.point.domain;
 
+import com.littlebank.finance.domain.point.domain.constant.RewardType;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
@@ -35,6 +36,7 @@ public class TransactionHistory extends BaseEntity {
     private RewardType rewardType;
     @Column(name = "reward_id")
     private Long rewardId;
+
     @Builder
     public TransactionHistory(Integer pointAmount, String message, Integer senderRemainingPoint, Integer receiverRemainingPoint, User sender, User receiver, RewardType rewardType, Long rewardId) {
         this.pointAmount = pointAmount;
