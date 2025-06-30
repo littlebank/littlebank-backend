@@ -43,14 +43,32 @@ public class SignupRequest {
     @NotNull
     @Schema(description = "유저 역할", example = "PARENT or CHILD or TEACHER")
     private UserRole role;
-    @NotNull private Boolean agreedTermsOfService;
-    @NotNull private Boolean agreedPrivacyCollection;
-    @NotNull private Boolean agreedMinorGuardian;
-    @NotNull private Boolean agreedElectronicFinance;
-    @NotNull private Boolean agreedRewardGuardian;
-    @NotNull private Boolean agreedThirdPartySharing;
-    @NotNull private Boolean agreedDataProcessingDelegation;
-    @NotNull private Boolean agreedMarketing;
+    @NotNull
+    @Schema(description = "서비스 이용약관 동의")
+    private Boolean agreedTermsOfService;
+    @NotNull
+    @Schema(description = "개인정보 수집 및 이용 동의")
+    private Boolean agreedPrivacyCollection;
+    @NotNull
+    @Schema(description = "만 14세 미만 이용자의 보호자 동의")
+    private Boolean agreedMinorGuardian;
+    @NotNull
+    @Schema(description = "전자금융거래에 관한 동의")
+    private Boolean agreedElectronicFinance;
+    @NotNull
+    @Schema(description = "보상 지급 관련 보호자 승인 및 책임")
+    private Boolean agreedRewardGuardian;
+    @NotNull
+    @Schema(description = "개인정보 제3자 제공 동의")
+    private Boolean agreedThirdPartySharing;
+    @NotNull
+    @Schema(description = "개인정보 처리 위탁 동의")
+    private Boolean agreedDataProcessingDelegation;
+    @NotNull
+    @Schema(description = "마케팅 정보 수신 동의")
+    private Boolean agreedMarketing;
+    @Schema(description = "전체 동의 여부")
+    private Boolean allAgreed;
 
     public User toEntity(Authority authority) {
         return User.builder()
@@ -70,16 +88,18 @@ public class SignupRequest {
 
 
     public UserConsent toUserConsentEntity(User user) {
+        boolean agreeAll = Boolean.TRUE.equals(allAgreed);
+
         return UserConsent.builder()
                 .user(user)
-                .agreedTermsOfService(agreedTermsOfService)
-                .agreedPrivacyCollection(agreedPrivacyCollection)
-                .agreedMinorGuardian(agreedMinorGuardian)
-                .agreedElectronicFinance(agreedElectronicFinance)
-                .agreedRewardGuardian(agreedRewardGuardian)
-                .agreedThirdPartySharing(agreedThirdPartySharing)
-                .agreedDataProcessingDelegation(agreedDataProcessingDelegation)
-                .agreedMarketing(agreedMarketing)
+                .agreedTermsOfService(agreeAll ? true : agreedTermsOfService)
+                .agreedPrivacyCollection(agreeAll ? true : agreedPrivacyCollection)
+                .agreedMinorGuardian(agreeAll ? true : agreedMinorGuardian)
+                .agreedElectronicFinance(agreeAll ? true : agreedElectronicFinance)
+                .agreedRewardGuardian(agreeAll ? true : agreedRewardGuardian)
+                .agreedThirdPartySharing(agreeAll ? true : agreedThirdPartySharing)
+                .agreedDataProcessingDelegation(agreeAll ? true : agreedDataProcessingDelegation)
+                .agreedMarketing(agreeAll ? true : agreedMarketing)
                 .build();
     }
 }

@@ -34,13 +34,10 @@ public class UserService {
 
         user.encodePassword(passwordEncoder);
         User savedUser = userRepository.save(user);
-        log.info(">>> savedUser ID: {}", savedUser.getId()); // ✅ null이면 문제
 
         UserConsent consent = request.toUserConsentEntity(savedUser);
-        log.info(">>> consent ID: {}", consent.getUserId()); // ✅ null이면 Builder 내에서 id 세팅 안 된 것
 
         userConsentRepository.save(consent);
-        log.info(">>> savedUser ID: {}", savedUser.getId());
         return SignupResponse.of(savedUser, consent);
     }
 

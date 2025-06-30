@@ -13,7 +13,7 @@ import org.hibernate.annotations.Where;
 @Getter
 @Setter
 @Table(name = "userConsent")
-@SQLDelete(sql = "UPDATE userConsent SET is_deleted = true WHERE user_id = ?")
+@SQLDelete(sql = "UPDATE user_consent SET is_deleted = true WHERE user_id = ?")
 @Where(clause = "is_deleted = false")
 @NoArgsConstructor()
 public class UserConsent extends BaseEntity {
