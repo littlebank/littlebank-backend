@@ -1,12 +1,12 @@
 package com.littlebank.finance.domain.user.service;
 
 import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
+import com.littlebank.finance.domain.user.domain.Authority;
 import com.littlebank.finance.domain.user.domain.User;
+import com.littlebank.finance.domain.user.domain.UserConsent;
+import com.littlebank.finance.domain.user.domain.repository.UserConsentRepository;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
-import com.littlebank.finance.domain.user.dto.request.AccountPinResetRequest;
-import com.littlebank.finance.domain.user.dto.request.SocialLoginAdditionalInfoRequest;
-import com.littlebank.finance.domain.user.dto.request.UpdateStatusMessageRequest;
-import com.littlebank.finance.domain.user.dto.request.UserInfoUpdateRequest;
+import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
@@ -22,14 +22,21 @@ public class UserService {
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserConsentRepository userConsentRepository;
 
-    public SignupResponse saveUser(User user) {
+    @Transactional
+    public SignupResponse saveUser(SignupRequest request, Authority authority) {
+        User user = request.toEntity(authority);
+
         verifyDuplicatedEmail(user.getEmail());
         verifyDuplicatedPhone(user.getPhone());
 
         user.encodePassword(passwordEncoder);
+        User savedUser = userRepository.save(user);
 
-        return SignupResponse.of(userRepository.save(user));
+        UserConsent consent = request.toUserConsentEntity(savedUser);
+        userConsentRepository.save(consent);
+        return SignupResponse.of(savedUser, consent);
     }
 
     public ProfileImagePathUpdateResponse updateProfileImagePath(Long userId, String profileImagePath) {
