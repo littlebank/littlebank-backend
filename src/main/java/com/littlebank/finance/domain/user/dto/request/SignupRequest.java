@@ -49,13 +49,11 @@ public class SignupRequest {
     @NotNull
     @Schema(description = "개인정보 수집 및 이용 동의")
     private Boolean agreedPrivacyCollection;
-    @NotNull
     @Schema(description = "만 14세 미만 이용자의 보호자 동의")
     private Boolean agreedMinorGuardian;
     @NotNull
     @Schema(description = "전자금융거래에 관한 동의")
     private Boolean agreedElectronicFinance;
-    @NotNull
     @Schema(description = "보상 지급 관련 보호자 승인 및 책임")
     private Boolean agreedRewardGuardian;
     @NotNull

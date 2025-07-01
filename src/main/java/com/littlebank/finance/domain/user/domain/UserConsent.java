@@ -27,11 +27,11 @@ public class UserConsent extends BaseEntity {
     private Boolean agreedTermsOfService;
     @Column(nullable = false)
     private Boolean agreedPrivacyCollection;
-    @Column(nullable = false)
+    @Column
     private Boolean agreedMinorGuardian;
     @Column(nullable = false)
     private Boolean agreedElectronicFinance;
-    @Column(nullable = false)
+    @Column
     private Boolean agreedRewardGuardian;
     @Column(nullable = false)
     private Boolean agreedThirdPartySharing;
