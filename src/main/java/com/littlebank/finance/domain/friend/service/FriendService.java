@@ -14,13 +14,11 @@ import com.littlebank.finance.domain.notification.domain.repository.Notification
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
-import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.firebase.FirebaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +35,7 @@ public class FriendService {
     private final FriendSearchHistoryRepository friendSearchHistoryRepository;
     private final NotificationRepository notificationRepository;
     private final FirebaseService firebaseService;
+
     public FriendAddResponse addFriend(FriendAddRequest request, Long userId) {
         verifyExistsFriend(userId, request.getTargetUserId());
 
@@ -52,17 +51,22 @@ public class FriendService {
                         .build()
         );
 
-        // 알림 생성
+        Friend reverseFriend = friendRepository.findByFromUserIdAndToUserId(toUser.getId(), fromUser.getId()).orElse(null);
+
         try {
             Notification notification = notificationRepository.save(Notification.builder()
                     .receiver(toUser)
-                    .message(fromUser.getName() + "님이 친구 요청을 보냈어요!")
-                    .subMessage("친구를 맺고 함께 소통을 시작해보세요")
+                    .message(
+                            reverseFriend == null ? fromUser.getName() : reverseFriend.getCustomName() + "님이 "
+                                    + toUser.getName() + "님을 친구로 추가 했어요"
+                    )
+                    .subMessage(
+                            reverseFriend == null ? "친구를 맺고 소통을 시작해보세요!" : ""
+                    )
                     .type(NotificationType.ADD_FRIEND)
                     .targetId(friend.getId())
                     .isRead(false)
                     .build());
-            log.info("알림 저장 성공: " + notification.getId());
             firebaseService.sendNotification(notification);
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");

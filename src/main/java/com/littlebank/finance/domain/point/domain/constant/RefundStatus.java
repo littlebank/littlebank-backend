@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.point.domain;
+package com.littlebank.finance.domain.point.domain.constant;
 
 public enum RefundStatus {
     WAIT, // 환전 대기 중

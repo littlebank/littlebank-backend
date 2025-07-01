@@ -1,8 +1,8 @@
 package com.littlebank.finance.domain.point.domain.repository.impl;
 
 import com.littlebank.finance.domain.point.domain.QRefund;
-import com.littlebank.finance.domain.point.domain.RefundStatus;
-import com.littlebank.finance.domain.point.domain.RewardType;
+import com.littlebank.finance.domain.point.domain.constant.RefundStatus;
+import com.littlebank.finance.domain.point.domain.constant.RewardType;
 import com.littlebank.finance.domain.point.domain.repository.CustomRefundRepository;
 import com.littlebank.finance.domain.point.dto.response.LatestRefundDepositTargetResponse;
 import com.littlebank.finance.domain.point.dto.response.SendPointHistoryResponse;
@@ -68,8 +68,7 @@ public class CustomRefundRepositoryImpl implements CustomRefundRepository {
                         Expressions.constant("내 계좌"),
                         r.exchangedAt,
                         Expressions.nullExpression(RewardType.class),
-                        Expressions.nullExpression(Long.class),
-                        Expressions.nullExpression(String.class)
+                        Expressions.nullExpression(Long.class)
                 ))
                 .from(r)
                 .where(r.user.id.eq(userId)

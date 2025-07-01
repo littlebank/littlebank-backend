@@ -1,7 +1,6 @@
 package com.littlebank.finance.domain.point.dto.response;
 
-import com.littlebank.finance.domain.point.domain.RefundStatus;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.point.domain.constant.RefundStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -67,8 +67,7 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                         sender.name,
                         th.createdDate,
                         th.rewardType,
-                        th.rewardId,
-                        Expressions.nullExpression(String.class) // rewardTitle
+                        th.rewardId
                 ))
                 .from(th)
                 .join(th.sender, sender)
@@ -96,8 +95,7 @@ public class CustomTransactionHistoryRepositoryImpl implements CustomTransaction
                         receiver.name,
                         th.createdDate,
                         th.rewardType,
-                        th.rewardId,
-                        Expressions.nullExpression(String.class) // rewardTitle
+                        th.rewardId
                 ))
                 .from(th)
                 .join(th.receiver, receiver)
