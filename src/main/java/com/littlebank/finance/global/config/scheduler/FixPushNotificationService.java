@@ -99,7 +99,6 @@ public class FixPushNotificationService {
     public List<MissionAchievementNotificationDto> notifyParentsOfCompletedMissions() {
         // 완료된 미션 알림
         List<MissionAchievementNotificationDto> missionResults = missionRepository.findMissionAchievementNotificationDto();
-        log.info("완료된 미션 알림 개수: ", missionResults.size());
         try {
             missionResults.stream().forEach(
                     r -> {
@@ -125,7 +124,6 @@ public class FixPushNotificationService {
 
     public List<ChallengeAchievementNotificationDto> notifyParentsOfCompletedChallenges() {
         List<ChallengeAchievementNotificationDto> challengeResults = challengeParticipationRepository.findChallengeAchievementNotificationDto();
-        log.info("완료된 챌린지 개수: ", challengeResults.size());
         try {
             challengeResults.stream().forEach(
                     r -> {
