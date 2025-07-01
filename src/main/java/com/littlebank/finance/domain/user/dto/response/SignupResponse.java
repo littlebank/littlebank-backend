@@ -17,7 +17,6 @@ public class SignupResponse {
     private String email;
     private UserRole role;
     private Authority authority;
-    private Boolean allAgreed;
     private Boolean agreedTermsOfService;
     private Boolean agreedPrivacyCollection;
     private Boolean agreedMinorGuardian;
@@ -28,21 +27,13 @@ public class SignupResponse {
     private Boolean agreedMarketing;
 
     public static SignupResponse of(User user, UserConsent consent) {
-        boolean allAgreed = consent.getAgreedTermsOfService()
-                && consent.getAgreedPrivacyCollection()
-                && consent.getAgreedMinorGuardian()
-                && consent.getAgreedElectronicFinance()
-                && consent.getAgreedRewardGuardian()
-                && consent.getAgreedThirdPartySharing()
-                && consent.getAgreedDataProcessingDelegation()
-                && consent.getAgreedMarketing();
+
 
         return SignupResponse.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .authority(user.getAuthority())
-                .allAgreed(allAgreed)
                 .agreedTermsOfService(consent.getAgreedTermsOfService())
                 .agreedPrivacyCollection(consent.getAgreedPrivacyCollection())
                 .agreedMinorGuardian(consent.getAgreedMinorGuardian())

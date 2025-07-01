@@ -67,8 +67,6 @@ public class SignupRequest {
     @NotNull
     @Schema(description = "마케팅 정보 수신 동의")
     private Boolean agreedMarketing;
-    @Schema(description = "전체 동의 여부")
-    private Boolean allAgreed;
 
     public User toEntity(Authority authority) {
         return User.builder()
@@ -88,18 +86,18 @@ public class SignupRequest {
 
 
     public UserConsent toUserConsentEntity(User user) {
-        boolean agreeAll = Boolean.TRUE.equals(allAgreed);
 
         return UserConsent.builder()
                 .user(user)
-                .agreedTermsOfService(agreeAll ? true : agreedTermsOfService)
-                .agreedPrivacyCollection(agreeAll ? true : agreedPrivacyCollection)
-                .agreedMinorGuardian(agreeAll ? true : agreedMinorGuardian)
-                .agreedElectronicFinance(agreeAll ? true : agreedElectronicFinance)
-                .agreedRewardGuardian(agreeAll ? true : agreedRewardGuardian)
-                .agreedThirdPartySharing(agreeAll ? true : agreedThirdPartySharing)
-                .agreedDataProcessingDelegation(agreeAll ? true : agreedDataProcessingDelegation)
-                .agreedMarketing(agreeAll ? true : agreedMarketing)
+                .agreedTermsOfService(this.agreedTermsOfService)
+                .agreedPrivacyCollection(this.agreedPrivacyCollection)
+                .agreedMinorGuardian(this.agreedMinorGuardian)
+                .agreedElectronicFinance(this.agreedElectronicFinance)
+                .agreedRewardGuardian(this.agreedRewardGuardian)
+                .agreedThirdPartySharing(this.agreedThirdPartySharing)
+                .agreedDataProcessingDelegation(this.agreedDataProcessingDelegation)
+                .agreedMarketing(this.agreedMarketing)
+                .isDeleted(false)
                 .build();
     }
 }
