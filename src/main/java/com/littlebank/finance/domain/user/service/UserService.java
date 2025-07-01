@@ -11,11 +11,10 @@ import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-@Slf4j
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -36,7 +35,6 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         UserConsent consent = request.toUserConsentEntity(savedUser);
-
         userConsentRepository.save(consent);
         return SignupResponse.of(savedUser, consent);
     }

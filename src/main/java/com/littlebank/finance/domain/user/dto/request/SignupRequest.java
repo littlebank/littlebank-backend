@@ -84,9 +84,7 @@ public class SignupRequest {
                 .build();
     }
 
-
     public UserConsent toUserConsentEntity(User user) {
-
         return UserConsent.builder()
                 .user(user)
                 .agreedTermsOfService(this.agreedTermsOfService)

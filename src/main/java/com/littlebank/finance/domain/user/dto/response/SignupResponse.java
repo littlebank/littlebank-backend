@@ -27,8 +27,6 @@ public class SignupResponse {
     private Boolean agreedMarketing;
 
     public static SignupResponse of(User user, UserConsent consent) {
-
-
         return SignupResponse.builder()
                 .userId(user.getId())
                 .email(user.getEmail())

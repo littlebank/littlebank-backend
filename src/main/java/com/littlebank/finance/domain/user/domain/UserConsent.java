@@ -41,6 +41,7 @@ public class UserConsent extends BaseEntity {
     private Boolean agreedMarketing;
     @Column(nullable = false)
     private Boolean isDeleted;
+
     @Builder
     public UserConsent(
             User user,
