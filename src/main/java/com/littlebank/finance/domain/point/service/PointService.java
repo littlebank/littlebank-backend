@@ -396,7 +396,7 @@ public class PointService {
         try {
             Notification notification = Notification.builder()
                     .receiver(depositTargetUser)
-                    .message(user.getName() + "님이 " + processedAmount + "포인트 꺼내기를 요청했습니다!")
+                    .message(user.getName() + "님이 "+ depositTargetUser.getName() + "님의 계좌로 " + processedAmount + "포인트를 꺼냈습니다!")
                     .subMessage("앱에서 확인해보세요!")
                     .type(NotificationType.POINT_REFUND)
                     .targetId(refund.getId())
