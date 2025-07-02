@@ -16,6 +16,8 @@ public class FirebaseService {
 
     @Async
     public void sendNotification(Notification notification) {
+        log.info("receiver fcm 토큰 : " + notification.getReceiver().getFcmToken());
+
         Message message = Message.builder()
                 .setToken(notification.getReceiver().getFcmToken())
                 .setNotification(
