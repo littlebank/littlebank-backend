@@ -34,7 +34,7 @@ public class CreateMissionRequestDto {
     private LocalDateTime endDate;
     @NotNull
     @Schema(description = "미션 보내는 자식 id", example = "[1,2]")
-    private List<User> childs;
+    private List<Long> childs;
 
     public Mission toEntity(User createdBy, User child) {
         return Mission.builder()
