@@ -59,7 +59,9 @@ public class MissionService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         List<CommonMissionResponseDto> responses = new ArrayList<>();
-        for (User child : request.getChilds()) {
+        for (Long childId : request.getChilds()) {
+            User child = userRepository.findById(childId)
+                    .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
             Mission mission = missionRepository.save(request.toEntity(user, child));
             responses.add(CommonMissionResponseDto.of(mission));
             FamilyMember parentMember = familyMemberRepository.findByUserIdAndStatusWithUser(userId, Status.JOINED)
