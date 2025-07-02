@@ -44,7 +44,7 @@ public class PushNotificationScheduler {
      * 매일 오전 9시
      * 부모에게 아이들의 달성한 미션에 대해 포인트 지급에 대한 알림
      */
-    @Scheduled(cron = "0 * 9 * * *")
+    @Scheduled(cron = "0 0 9 * * *")
     public void notifyParentsOfExpiredMissions() {
         fixPushNotificationService.notifyParentsOfCompletedMissions();
     }
@@ -54,7 +54,7 @@ public class PushNotificationScheduler {
      * 매일 오전 9시
      * 부모에게 아이들의 달성한 챌린지에 대해 포인트 지급에 대한 알림
      */
-    @Scheduled(cron = "0 * 9 * * *")
+    @Scheduled(cron = "0 0 9 * * *")
     public void notifyParentsOfExpiredChallenges() {
         fixPushNotificationService.notifyParentsOfCompletedChallenges();
     }
