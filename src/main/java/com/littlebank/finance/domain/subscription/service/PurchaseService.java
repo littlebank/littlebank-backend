@@ -61,12 +61,12 @@ public class PurchaseService {
                     .withZoneSameInstant(ZoneId.systemDefault())
                     .toLocalDateTime();
             int seat = switch (request.getProductId()) {
-                case "subscription_plan_1" -> 1;
-                case "subscription_plan_3" -> 3;
-                case "subscription_plan_5" -> 5;
+                case "one_month_ly" -> 1;
+                case "three_month_ly" -> 3;
+                case "five_month_ly" -> 5;
                 default -> throw new SubscriptionException(ErrorCode.INVALID_INPUT_VALUE);
             };
-            boolean includeOwner = (seat == 1);
+            boolean includeOwner = (seat == 1) || request.isIncludeOwner();
             SubscriptionCreateRequestDto createRequest = SubscriptionCreateRequestDto.builder()
                     .seat(seat)
                     .includeOwner(includeOwner)
