@@ -70,8 +70,7 @@ public class PushNotificationScheduler {
      * 월요일 18시 30분
      * 아이에게 미션 제안하라는 알림
      */
-    //@Scheduled(cron = "0 30 18 * * 1")
-    @Scheduled(cron = "0 */2 * * * *")
+    @Scheduled(cron = "0 30 18 * * 1")
     public void suggestNewMissionToParents() {
         fixPushNotificationService.suggestParentsMissionCreation();
     }

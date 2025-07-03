@@ -75,12 +75,12 @@ public class CustomMissionRepositoryImpl implements CustomMissionRepository{
         LocalDateTime yesterdayEnd = LocalDate.now().minusDays(1).atTime(23, 59, 59);
         List<MissionAchievementNotificationDto> results = queryFactory
                 .select(Projections.constructor(MissionAchievementNotificationDto.class,
-                        m.createdBy.user.id,
+                        m.createdBy.id,
                         fm.nickname,
                         m.title,
                         m.id))
                 .from(m)
-                .join(fm).on(fm.user.id.eq(m.child.user.id))
+                .join(fm).on(fm.user.id.eq(m.child.id))
                 .where(
                         m.status.eq(MissionStatus.ACHIEVEMENT),
                         m.endDate.between(yesterdayStart, yesterdayEnd),
