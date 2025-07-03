@@ -143,7 +143,7 @@ public class PointService {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
 
-        return CommonPointTransferResponse.of(transactionHistory);
+        return CommonPointTransferResponse.of(transactionHistory, null);
     }
 
     public CommonPointTransferResponse transferPointMission(Long userId, MissionPointTransferRequest request) {
@@ -160,6 +160,7 @@ public class PointService {
 
         sender.sendPoint(request.getPointAmount());
         receiver.receivePoint(request.getPointAmount());
+        mission.rewarded();
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
@@ -189,7 +190,7 @@ public class PointService {
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
-        return CommonPointTransferResponse.of(transactionHistory);
+        return CommonPointTransferResponse.of(transactionHistory, mission.getId());
     }
 
     public CommonPointTransferResponse transferPointChallenge(Long userId, ChallengePointTransferRequest request) {
@@ -206,6 +207,7 @@ public class PointService {
 
         sender.sendPoint(request.getPointAmount());
         receiver.receivePoint(request.getPointAmount());
+        participation.rewarded();
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
@@ -235,7 +237,7 @@ public class PointService {
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
-        return CommonPointTransferResponse.of(transactionHistory);
+        return CommonPointTransferResponse.of(transactionHistory, participation.getId());
     }
 
     public CommonPointTransferResponse transferPointGoal(Long userId, GoalPointTransferRequest request) {
@@ -281,7 +283,7 @@ public class PointService {
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
-        return CommonPointTransferResponse.of(transactionHistory);
+        return CommonPointTransferResponse.of(transactionHistory, goal.getId());
     }
     @Transactional(readOnly = true)
     public CustomPageResponse<ReceivePointHistoryResponse> getReceivedPointHistory(Long userId, Pageable pageable) {
