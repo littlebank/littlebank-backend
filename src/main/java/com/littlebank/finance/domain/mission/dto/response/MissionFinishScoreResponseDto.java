@@ -11,11 +11,13 @@ import lombok.Getter;
 public class MissionFinishScoreResponseDto {
     private Long missionId;
     private Integer score;
+    private Boolean isRewarded;
 
     public static MissionFinishScoreResponseDto of(Mission mission, Integer score) {
         return MissionFinishScoreResponseDto.builder()
                 .missionId(mission.getId())
                 .score(score)
+                .isRewarded(true)
                 .build();
     }
 }

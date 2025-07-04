@@ -12,11 +12,13 @@ import lombok.Getter;
 public class ChallengeFinishScoreResponseDto {
     private Long participationId;
     private Integer score;
+    private Boolean isRewarded;
 
     public static ChallengeFinishScoreResponseDto of(ChallengeParticipation participation, Integer score) {
         return ChallengeFinishScoreResponseDto.builder()
                 .participationId(participation.getId())
                 .score(score)
+                .isRewarded(true)
                 .build();
     }
 }
