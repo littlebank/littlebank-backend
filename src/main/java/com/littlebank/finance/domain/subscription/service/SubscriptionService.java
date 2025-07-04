@@ -165,10 +165,7 @@ public class SubscriptionService {
     }
 
     public List<InviteCodeResponseDto> getInviteCodes(Long userId) {
-        List<InviteCode> inviteCodes = inviteCodeRepository.findAllByOwnerId(userId);
-
-        return inviteCodes.stream()
-                .map(InviteCodeResponseDto::from)
-                .toList();
+        List<InviteCodeResponseDto> response = inviteCodeRepository.findAllByOwnerId(userId);
+        return response;
     }
 }
