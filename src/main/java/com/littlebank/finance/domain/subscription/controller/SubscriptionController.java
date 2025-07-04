@@ -4,6 +4,7 @@ import com.littlebank.finance.domain.subscription.dto.request.FreeSubscriptionRe
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionCreateRequestDto;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionPurchaseRequestDto;
 import com.littlebank.finance.domain.subscription.dto.response.FreeSubscriptionResponseDto;
+import com.littlebank.finance.domain.subscription.dto.response.InviteCodeResponseDto;
 import com.littlebank.finance.domain.subscription.dto.response.SubscriptionResponseDto;
 import com.littlebank.finance.domain.subscription.dto.response.SubscriptionStatusResponseDto;
 import com.littlebank.finance.domain.subscription.service.PurchaseService;
@@ -75,6 +76,13 @@ public class SubscriptionController {
     @GetMapping("/my-status")
     public ResponseEntity<SubscriptionStatusResponseDto> getSubscriptionStatus(@AuthenticationPrincipal CustomUserDetails userDetails) {
         SubscriptionStatusResponseDto response = purchaseService.getSubscriptionStatus(userDetails.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "구독 초대코드 조회")
+    @GetMapping("/get/invidecode")
+    public ResponseEntity<List<InviteCodeResponseDto>> getSubscriptionInviteCode(@AuthenticationPrincipal CustomUserDetails user) {
+        List<InviteCodeResponseDto> response = subscriptionService.getInviteCodes(user.getId());
         return ResponseEntity.ok(response);
     }
 

@@ -11,9 +11,15 @@ import lombok.Getter;
 public class InviteCodeResponseDto {
     private String code;
     private boolean used;
-    private String redeemedByEmail;
+    private Long redeemedById;
+    private String redeemedByName;
 
-//    public static InviteCodeResponseDto of(InviteCode inviteCode) {
-//
-//    }
+    public static InviteCodeResponseDto from(InviteCode inviteCode) {
+        return InviteCodeResponseDto.builder()
+                .code(inviteCode.getCode())
+                .used(inviteCode.isUsed())
+                .redeemedById(inviteCode.getRedeemedBy() != null ? inviteCode.getRedeemedBy().getId() : null)
+                .redeemedByName(inviteCode.getRedeemedBy() != null ? inviteCode.getRedeemedBy().getName() : null)
+                .build();
+    }
 }
