@@ -10,6 +10,7 @@ import com.littlebank.finance.domain.subscription.domain.repository.TrialSubscri
 import com.littlebank.finance.domain.subscription.dto.request.FreeSubscriptionRequestDto;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionCreateRequestDto;
 import com.littlebank.finance.domain.subscription.dto.response.FreeSubscriptionResponseDto;
+import com.littlebank.finance.domain.subscription.dto.response.InviteCodeResponseDto;
 import com.littlebank.finance.domain.subscription.dto.response.SubscriptionResponseDto;
 import com.littlebank.finance.domain.subscription.exception.SubscriptionException;
 import com.littlebank.finance.domain.user.domain.User;
@@ -161,5 +162,10 @@ public class SubscriptionService {
 
         user.setSubscription(subscription);
         userRepository.save(user);
+    }
+
+    public List<InviteCodeResponseDto> getInviteCodes(Long userId) {
+        List<InviteCodeResponseDto> response = inviteCodeRepository.findAllByOwnerId(userId);
+        return response;
     }
 }
