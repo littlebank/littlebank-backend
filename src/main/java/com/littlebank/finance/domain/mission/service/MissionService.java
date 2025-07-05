@@ -1,8 +1,5 @@
 package com.littlebank.finance.domain.mission.service;
 
-
-import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
-import com.littlebank.finance.domain.challenge.exception.ChallengeException;
 import com.littlebank.finance.domain.family.domain.FamilyMember;
 import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.family.domain.repository.FamilyMemberRepository;
