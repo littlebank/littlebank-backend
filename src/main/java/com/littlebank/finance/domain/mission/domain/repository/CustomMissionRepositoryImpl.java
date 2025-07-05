@@ -29,6 +29,7 @@ public class CustomMissionRepositoryImpl implements CustomMissionRepository{
         Mission result = queryFactory
                 .selectFrom(m)
                 .where(m.child.id.eq(childId),
+                        fm.status.eq(com.littlebank.finance.domain.family.domain.Status.JOINED),
                         m.type.eq(type),
                         m.status.eq(MissionStatus.ACHIEVEMENT),
                         m.category.eq(category),
@@ -71,20 +72,26 @@ public class CustomMissionRepositoryImpl implements CustomMissionRepository{
 
     @Override
      public List<MissionAchievementNotificationDto> findMissionAchievementNotificationDto() {
+        QFamilyMember parentMember = new QFamilyMember("parentMember");
         LocalDateTime yesterdayStart = LocalDate.now().minusDays(1).atStartOfDay();
         LocalDateTime yesterdayEnd = LocalDate.now().minusDays(1).atTime(23, 59, 59);
         List<MissionAchievementNotificationDto> results = queryFactory
                 .select(Projections.constructor(MissionAchievementNotificationDto.class,
-                        m.createdBy.id,
+                        parentMember.user.id,
                         fm.nickname,
                         m.title,
                         m.id))
                 .from(m)
                 .join(fm).on(fm.user.id.eq(m.child.id))
+                .join(parentMember).on(parentMember.family.id.eq(fm.family.id))
+                .join(u).on(u.id.eq(parentMember.user.id))
                 .where(
                         m.status.eq(MissionStatus.ACHIEVEMENT),
                         m.endDate.between(yesterdayStart, yesterdayEnd),
-                        m.isDeleted.isFalse()
+                        m.isDeleted.isFalse(),
+                        fm.status.eq(com.littlebank.finance.domain.family.domain.Status.JOINED),
+                        parentMember.status.eq(com.littlebank.finance.domain.family.domain.Status.JOINED),
+                        u.role.eq(com.littlebank.finance.domain.user.domain.UserRole.PARENT)
                 )
                 .fetch();
         return results;

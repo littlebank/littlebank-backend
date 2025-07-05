@@ -124,9 +124,12 @@ public class FixPushNotificationService {
 
     public List<ChallengeAchievementNotificationDto> notifyParentsOfCompletedChallenges() {
         List<ChallengeAchievementNotificationDto> challengeResults = challengeParticipationRepository.findChallengeAchievementNotificationDto();
+        log.info("challengeResults.size() = {}", challengeResults.size());
+        log.info("확인1");
         try {
             challengeResults.stream().forEach(
                     r -> {
+                        log.info("확인2");
                         User parent = userRepository.findById(r.getParentId())
                                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
                         Notification notification = notificationRepository.save(Notification.builder()
@@ -137,6 +140,7 @@ public class FixPushNotificationService {
                                 .targetId(r.getChallengeId())
                                 .isRead(false)
                                 .build());
+                        log.info("receiver: {}", notification.getReceiver());
                         firebaseService.sendNotification(notification);
                     }
             );
