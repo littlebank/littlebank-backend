@@ -50,9 +50,9 @@ public class ChallengeParticipation extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private FamilyMember parent;
     @Column(name = "finish_score")
-    private Integer finsihScore;
+    private Integer finishScore;
 
-    public ChallengeParticipation(Challenge challenge, User user, ChallengeStatus challengeStatus, LocalDateTime startDate, LocalDateTime endDate, String title, String subject, LocalDateTime startTime, Integer totalStudyTime, Integer reward, Boolean isRewarded, FamilyMember parent, Integer finsihScore) {
+    public ChallengeParticipation(Challenge challenge, User user, ChallengeStatus challengeStatus, LocalDateTime startDate, LocalDateTime endDate, String title, String subject, LocalDateTime startTime, Integer totalStudyTime, Integer reward, Boolean isRewarded, FamilyMember parent, Integer finishScore) {
         this.challenge = challenge;
         this.user = user;
         this.challengeStatus = challengeStatus;
@@ -63,13 +63,13 @@ public class ChallengeParticipation extends BaseEntity {
         this.startTime = startTime;
         this.totalStudyTime = totalStudyTime;
         this.reward = reward;
-        this.isRewarded = false;
+        this.isRewarded = isRewarded;
         this.parent = parent;
-        this.finsihScore = finsihScore;
+        this.finishScore = finishScore;
     }
 
     public void storeScore(Integer score) {
-        this.finsihScore = score;
+        this.finishScore = score;
     }
     public void rewarded() {
         this.isRewarded = true;

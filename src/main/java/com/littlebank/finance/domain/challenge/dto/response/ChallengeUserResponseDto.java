@@ -21,7 +21,9 @@ public class ChallengeUserResponseDto {
     private LocalDateTime startTime;
     private Integer totalStudyTime;
     private Integer reward;
-    private boolean isAccepted;
+    private Boolean isAccepted;
+    private Boolean isRewarded;
+    private Integer finishScore;
 
     public static ChallengeUserResponseDto of(ChallengeParticipation participation) {
         return ChallengeUserResponseDto.builder()
@@ -36,6 +38,8 @@ public class ChallengeUserResponseDto {
                 .totalStudyTime(participation.getTotalStudyTime())
                 .reward(participation.getReward())
                 .isAccepted(participation.getIsAccepted())
+                .isRewarded(participation.getIsRewarded())
+                .finishScore(participation.getFinishScore())
                 .build();
     }
 }
