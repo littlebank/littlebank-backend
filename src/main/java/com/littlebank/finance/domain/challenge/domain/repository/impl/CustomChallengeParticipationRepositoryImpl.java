@@ -1,12 +1,15 @@
-package com.littlebank.finance.domain.challenge.domain.repository;
+package com.littlebank.finance.domain.challenge.domain.repository.impl;
 
 import com.littlebank.finance.domain.challenge.domain.ChallengeParticipation;
 import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
 import com.littlebank.finance.domain.challenge.domain.QChallenge;
 import com.littlebank.finance.domain.challenge.domain.QChallengeParticipation;
+import com.littlebank.finance.domain.challenge.domain.repository.CustomChallengeParticipationRepository;
 import com.littlebank.finance.domain.family.domain.QFamilyMember;
+import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.notification.dto.response.ChallengeAchievementNotificationDto;
 import com.littlebank.finance.domain.user.domain.QUser;
+import com.littlebank.finance.domain.user.domain.UserRole;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -103,21 +106,27 @@ public class CustomChallengeParticipationRepositoryImpl implements CustomChallen
 
     @Override
     public List<ChallengeAchievementNotificationDto> findChallengeAchievementNotificationDto() {
+        QFamilyMember parentMember = new QFamilyMember("parentMember");
         LocalDateTime yesterdayStart = LocalDate.now().minusDays(1).atStartOfDay();
         LocalDateTime yesterdayEnd = LocalDate.now().minusDays(1).atTime(23, 59, 59);
         List<ChallengeAchievementNotificationDto> results = queryFactory.select(
                 Projections.constructor(ChallengeAchievementNotificationDto.class,
-                        cp.parent.user.id,
+                        parentMember.user.id,
                         fm.nickname,
                         cp.title,
                         cp.id
                         ))
                 .from(cp)
                 .join(fm).on(fm.user.id.eq(cp.user.id))
+                .join(parentMember).on(parentMember.family.id.eq(fm.family.id))
+                .join(u).on(u.id.eq(parentMember.user.id)) // 부모 유저
                 .where(
                         cp.challengeStatus.eq(ChallengeStatus.ACHIEVEMENT),
                         cp.endDate.between(yesterdayStart, yesterdayEnd),
-                        cp.isDeleted.isFalse()
+                        cp.isDeleted.isFalse(),
+                        fm.status.eq(Status.JOINED),
+                        parentMember.status.eq(Status.JOINED),
+                        u.role.eq(UserRole.PARENT)
                 )
                 .fetch();
         return results;
