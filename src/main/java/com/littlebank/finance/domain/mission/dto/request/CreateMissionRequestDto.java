@@ -48,6 +48,7 @@ public class CreateMissionRequestDto {
                 .endDate(endDate)
                 .createdBy(createdBy)
                 .child(child)
+                .isRewarded(false)
                 .isDeleted(false)
                 .build();
     }

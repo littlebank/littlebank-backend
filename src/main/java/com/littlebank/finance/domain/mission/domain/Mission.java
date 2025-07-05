@@ -57,31 +57,30 @@ public class Mission extends BaseEntity {
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "child_id", nullable = false)
     private User child;
 
     @Column(name = "finish_score")
-    private Integer finsihScore;
+    private Integer finishScore;
 
     @Column(nullable = false)
     private Boolean isDeleted;
 
     @Builder
-    public Mission(String title, MissionType type, MissionCategory category, MissionSubject subject, MissionStatus status, Integer reward, Boolean isRewarded, LocalDateTime startDate, LocalDateTime endDate, User createdBy, User child, Boolean isDeleted, Integer finsihScore) {
+    public Mission(String title, MissionType type, MissionCategory category, MissionSubject subject, MissionStatus status, Integer reward, Boolean isRewarded, LocalDateTime startDate, LocalDateTime endDate, User createdBy, User child, Boolean isDeleted, Integer finishScore) {
         this.title = title;
         this.type = type;
         this.category = category;
         this.subject = subject;
         this.status = status;
         this.reward = reward;
-        this.isRewarded = false;
         this.startDate = startDate;
         this.endDate = endDate;
         this.createdBy = createdBy;
         this.child = child;
-        this.finsihScore = finsihScore;
+        this.finishScore = finishScore;
+        this.isRewarded = isRewarded;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 
@@ -90,14 +89,14 @@ public class Mission extends BaseEntity {
     }
 
     public void storeScore(Integer score) {
-        this.finsihScore = score;
+        this.finishScore = score;
     }
 
     public void setStatus(MissionStatus missionStatus) {
         this.status = MissionStatus.ACHIEVEMENT;
     }
 
-    public void rewarded() {
-        this.isRewarded = true;
+    public void rewarded(Boolean isRewarded) {
+        this.isRewarded = isRewarded;
     }
 }

@@ -21,7 +21,9 @@ public class CommonMissionResponseDto {
     private LocalDateTime endDate;
     private Long createdBy;
     private Long childId;
-    private boolean isDeleted;
+    private Boolean isRewarded;
+    private Integer finishScore;
+    private Boolean isDeleted;
 
     public static CommonMissionResponseDto of(Mission mission) {
         return CommonMissionResponseDto.builder()
@@ -36,6 +38,8 @@ public class CommonMissionResponseDto {
                 .endDate(mission.getEndDate())
                 .createdBy(mission.getCreatedBy().getId())
                 .childId(mission.getChild().getId())
+                .isRewarded(mission.getIsRewarded())
+                .finishScore(mission.getFinishScore())
                 .isDeleted(mission.getIsDeleted())
                 .build();
     }

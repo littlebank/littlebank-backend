@@ -1,7 +1,6 @@
 package com.littlebank.finance.domain.challenge.dto.response;
 
 import com.littlebank.finance.domain.challenge.domain.ChallengeParticipation;
-import com.littlebank.finance.domain.family.domain.FamilyMember;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
