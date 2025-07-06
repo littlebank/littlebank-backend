@@ -18,4 +18,7 @@ public class MissionPointTransferRequest {
     @NotNull
     @Schema(description = "포인트 지급 대상 미션 식별 id")
     private Long missionId;
+    @NotNull
+    @Schema(description = "보상 지급 여부")
+    private Boolean isRefused;
 }
