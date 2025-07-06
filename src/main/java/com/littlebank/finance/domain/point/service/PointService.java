@@ -94,6 +94,22 @@ public class PointService {
 
         payment.recordRemainingPoint(user);
 
+        try {
+            Notification notification = Notification.builder()
+                    .receiver(user)
+                    .message(payment.getAmount() + "포인트를 충전했습니다!")
+                    .subMessage("앱에 들어가서 확인해보세요!")
+                    .type(NotificationType.POINT_STORE)
+                    .targetId(payment.getId())
+                    .isRead(false)
+                    .build();
+            notificationRepository.save(notification);
+            firebaseService.sendNotification(notification);
+
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
+
         return PaymentInfoSaveResponse.of(payment);
     }
 
@@ -143,7 +159,7 @@ public class PointService {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
 
-        return CommonPointTransferResponse.of(transactionHistory, null);
+        return CommonPointTransferResponse.of(transactionHistory);
     }
 
     public CommonPointTransferResponse transferPointMission(Long userId, MissionPointTransferRequest request) {
@@ -160,7 +176,6 @@ public class PointService {
 
         sender.sendPoint(request.getPointAmount());
         receiver.receivePoint(request.getPointAmount());
-        mission.rewarded(true);
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
@@ -190,7 +205,7 @@ public class PointService {
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
-        return CommonPointTransferResponse.of(transactionHistory, mission.getId());
+        return CommonPointTransferResponse.of(transactionHistory);
     }
 
     public CommonPointTransferResponse transferPointChallenge(Long userId, ChallengePointTransferRequest request) {
@@ -207,7 +222,6 @@ public class PointService {
 
         sender.sendPoint(request.getPointAmount());
         receiver.receivePoint(request.getPointAmount());
-        participation.rewarded();
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
@@ -237,7 +251,7 @@ public class PointService {
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
-        return CommonPointTransferResponse.of(transactionHistory, participation.getId());
+        return CommonPointTransferResponse.of(transactionHistory);
     }
 
     public CommonPointTransferResponse transferPointGoal(Long userId, GoalPointTransferRequest request) {
@@ -283,7 +297,7 @@ public class PointService {
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
-        return CommonPointTransferResponse.of(transactionHistory, goal.getId());
+        return CommonPointTransferResponse.of(transactionHistory);
     }
     @Transactional(readOnly = true)
     public CustomPageResponse<ReceivePointHistoryResponse> getReceivedPointHistory(Long userId, Pageable pageable) {
@@ -357,6 +371,22 @@ public class PointService {
                         .depositTargetUser(user)
                         .build()
         );
+
+        try {
+            Notification notification = Notification.builder()
+                    .receiver(user)
+                    .message(processedAmount + "포인트를 꺼냈습니다!")
+                    .subMessage("앱에 들어가서 확인해보세요!")
+                    .type(NotificationType.POINT_REFUND)
+                    .targetId(refund.getId())
+                    .isRead(false)
+                    .build();
+            notificationRepository.save(notification);
+            firebaseService.sendNotification(notification);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("이미 동일한 알림이 존재합니다.");
+        }
+
         return PointRefundResponse.of(refund);
     }
 
@@ -397,9 +427,9 @@ public class PointService {
 
         try {
             Notification notification = Notification.builder()
-                    .receiver(depositTargetUser)
-                    .message(user.getName() + "님이 "+ depositTargetUser.getName() + "님의 계좌로 " + processedAmount + "포인트를 꺼냈습니다!")
-                    .subMessage("앱에서 확인해보세요!")
+                    .receiver(user)
+                    .message(processedAmount + "포인트를 꺼냈습니다!")
+                    .subMessage("앱에 들어가서 확인해보세요!")
                     .type(NotificationType.POINT_REFUND)
                     .targetId(refund.getId())
                     .isRead(false)
