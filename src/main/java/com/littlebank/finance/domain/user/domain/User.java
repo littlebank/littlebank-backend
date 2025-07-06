@@ -59,6 +59,8 @@ public class User extends BaseEntity {
     private Boolean isSubscribe;
     @Column(length = 200, nullable = false)
     private String fcmToken;
+    @Column(name = "target_amount")
+    private Integer targetAmount;
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -76,7 +78,7 @@ public class User extends BaseEntity {
     public User(
             String email, String password, String name, String statusMessage, String phone, String rrn, String bankName,
             String bankCode, String bankAccount, String accountPin, String profileImagePath, Integer point, Integer accumulatedPoint,
-            UserRole role, Authority authority, Boolean isSubscribe, String fcmToken, LocalDateTime lastLoginAt, Boolean isDeleted
+            UserRole role, Authority authority, Boolean isSubscribe, Integer targetAmount, String fcmToken, LocalDateTime lastLoginAt, Boolean isDeleted
     ) {
         this.email = email;
         this.password = password;
@@ -94,6 +96,7 @@ public class User extends BaseEntity {
         this.role = role;
         this.authority = authority;
         this.isSubscribe = isSubscribe == null ? false : isSubscribe;
+        this.targetAmount = targetAmount == null ? 0 : targetAmount;
         this.fcmToken = fcmToken == null ? "" : fcmToken;
         this.lastLoginAt = lastLoginAt;
         this.isDeleted = isDeleted == null ? false : isDeleted;
@@ -161,4 +164,8 @@ public class User extends BaseEntity {
     }
 
     public void setSubscription(Subscription subscription) {this.subscription = subscription;}
+
+    public void setTargetAmount(int targetAmount) {
+        this.targetAmount = targetAmount;
+    }
 }
