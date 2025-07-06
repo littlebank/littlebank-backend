@@ -19,7 +19,7 @@ public class CommonPointTransferResponse {
     private Long rewardId;
     private Boolean isRewarded;
 
-    public static CommonPointTransferResponse of(TransactionHistory transactionHistory, Long objectId) {
+    public static CommonPointTransferResponse of(TransactionHistory transactionHistory) {
         return CommonPointTransferResponse.builder()
                 .historyId(transactionHistory.getId())
                 .pointAmount(transactionHistory.getPointAmount())
