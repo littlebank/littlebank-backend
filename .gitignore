@@ -45,7 +45,6 @@ application-*.yml
 
 ### google-play ###
 /src/main/resources/google-play
-/src/main/resources/static/consents
 
 ### test file ###
 /src/main/java/com/littlebank/finance/global/test
