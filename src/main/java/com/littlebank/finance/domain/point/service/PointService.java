@@ -170,6 +170,7 @@ public class PointService {
         }
         Mission mission = missionRepository.findById(request.getMissionId())
                 .orElseThrow(() -> new MissionException(ErrorCode.MISSION_NOT_FOUND));
+        int pointAmount = request.getIsRefused() ? 0 : request.getPointAmount();
 
         User receiver = userRepository.findByIdWithLock(request.getReceiverId())
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -179,7 +180,7 @@ public class PointService {
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
-                        .pointAmount(request.getPointAmount())
+                        .pointAmount(pointAmount)
                         .message(request.getMessage())
                         .senderRemainingPoint(sender.getPoint())
                         .receiverRemainingPoint(receiver.getPoint())
@@ -191,17 +192,20 @@ public class PointService {
         );
 
         try {
-            Notification receiverNotification = notificationRepository.save(
+            String notificationMessage = pointAmount > 0
+                    ? sender.getName() + "님에게 미션 수행 보상으로 " + pointAmount + "포인트를 받았습니다!"
+                    : sender.getName() + "님이 보상을 지급하지 않았어요.";
+            Notification notification = notificationRepository.save(
                     Notification.builder()
                             .receiver(receiver)
-                            .message(sender.getName() + "님에게 미션 수행 보상으로 " + request.getPointAmount() + "포인트를 받았습니다!")
+                            .message(notificationMessage)
                             .subMessage("앱에 들어가서 확인해보세요!")
                             .type(NotificationType.POINT_TRANSFER)
                             .targetId(transactionHistory.getId())
                             .isRead(false)
                             .build()
             );
-            firebaseService.sendNotification(receiverNotification);
+            firebaseService.sendNotification(notification);
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
@@ -216,6 +220,7 @@ public class PointService {
         }
         ChallengeParticipation participation = challengeParticipationRepository.findById(request.getParticipationId())
                 .orElseThrow(() -> new ChallengeException(ErrorCode.CHALLENGE_NOT_FOUND));
+        int pointAmount = request.getIsRefused() ? 0 : request.getPointAmount();
 
         User receiver = userRepository.findByIdWithLock(request.getReceiverId())
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -225,7 +230,7 @@ public class PointService {
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
-                        .pointAmount(request.getPointAmount())
+                        .pointAmount(pointAmount)
                         .message(request.getMessage())
                         .senderRemainingPoint(sender.getPoint())
                         .receiverRemainingPoint(receiver.getPoint())
@@ -237,17 +242,21 @@ public class PointService {
         );
 
         try {
-            Notification receiverNotification = notificationRepository.save(
+            String notificationMessage = pointAmount > 0
+                    ? sender.getName() + "님에게 챌린지 수행 보상으로 " + pointAmount + "포인트를 받았습니다!"
+                    : sender.getName() + "님이 보상을 지급하지 않았어요.";
+
+            Notification notification = notificationRepository.save(
                     Notification.builder()
                             .receiver(receiver)
-                            .message(sender.getName() + "님에게 챌린지 참여 보상으로 " + request.getPointAmount() + "포인트를 받았습니다!")
+                            .message(notificationMessage)
                             .subMessage("앱에 들어가서 확인해보세요!")
                             .type(NotificationType.POINT_TRANSFER)
                             .targetId(transactionHistory.getId())
                             .isRead(false)
                             .build()
             );
-            firebaseService.sendNotification(receiverNotification);
+            firebaseService.sendNotification(notification);
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
@@ -262,6 +271,7 @@ public class PointService {
         }
         Goal goal = goalRepository.findById(request.getGoalId())
                 .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
+        int pointAmount = request.getIsRefused() ? 0 : request.getPointAmount();
 
         User receiver = userRepository.findByIdWithLock(request.getReceiverId())
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -271,7 +281,7 @@ public class PointService {
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
-                        .pointAmount(request.getPointAmount())
+                        .pointAmount(pointAmount)
                         .message(request.getMessage())
                         .senderRemainingPoint(sender.getPoint())
                         .receiverRemainingPoint(receiver.getPoint())
@@ -283,17 +293,21 @@ public class PointService {
         );
 
         try {
-            Notification receiverNotification = notificationRepository.save(
+            String notificationMessage = pointAmount > 0
+                    ? sender.getName() + "님에게 목표 수행 보상으로 " + pointAmount + "포인트를 받았습니다!"
+                    : sender.getName() + "님이 보상을 지급하지 않았어요.";
+
+            Notification notification = notificationRepository.save(
                     Notification.builder()
                             .receiver(receiver)
-                            .message(sender.getName() + "님에게 목표 실천 보상으로 " + request.getPointAmount() + "포인트를 받았습니다!")
+                            .message(notificationMessage)
                             .subMessage("앱에 들어가서 확인해보세요!")
                             .type(NotificationType.POINT_TRANSFER)
                             .targetId(transactionHistory.getId())
                             .isRead(false)
                             .build()
             );
-            firebaseService.sendNotification(receiverNotification);
+            firebaseService.sendNotification(notification);
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
