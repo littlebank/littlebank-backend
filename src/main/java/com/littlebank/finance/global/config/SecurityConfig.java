@@ -46,7 +46,7 @@ public class SecurityConfig {
             "/api-admin/*/public/**", "/api-user/*/public/**",
             "/ws/**",
             // view
-            "/view/public/**", "/view/**", "/css/**",
+            "/view/public/**", "/view/**", "/css/**", "/consents/**",
             // view-link-page
             "/deeplink/invite"
     };
