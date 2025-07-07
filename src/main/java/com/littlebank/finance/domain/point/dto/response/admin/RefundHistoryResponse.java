@@ -2,7 +2,7 @@ package com.littlebank.finance.domain.point.dto.response.admin;
 
 import com.littlebank.finance.domain.point.domain.Refund;
 import com.littlebank.finance.domain.point.domain.constant.RefundStatus;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

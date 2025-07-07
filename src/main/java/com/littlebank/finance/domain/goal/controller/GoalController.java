@@ -96,9 +96,10 @@ public class GoalController {
     @PatchMapping("/parent/apply/accept/{goalId}")
     public ResponseEntity<CommonGoalResponse> acceptApplyGoal(
             @Parameter(description = "신청을 수락할 목표 식별 id")
-            @PathVariable("goalId") Long goalId
+            @PathVariable("goalId") Long goalId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        CommonGoalResponse response = goalService.acceptApplyGoal(goalId);
+        CommonGoalResponse response = goalService.acceptApplyGoal(customUserDetails.getId(), goalId);
         return ResponseEntity.ok(response);
     }
 
@@ -108,9 +109,10 @@ public class GoalController {
             @Parameter(description = "확인 도장 찍을 목표 식별 id")
             @PathVariable("goalId") Long goalId,
             @Parameter(description = "월요일 - 1, 화요일 - 2, 수요일 - 3, ...")
-            @RequestParam("day") Integer day
+            @RequestParam("day") Integer day,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        CommonGoalResponse response = goalService.checkGoal(goalId, day);
+        CommonGoalResponse response = goalService.checkGoal(customUserDetails.getId(), goalId, day);
         return ResponseEntity.ok(response);
     }
 

@@ -1,6 +1,6 @@
 package com.littlebank.finance.global.security;
 
-import com.littlebank.finance.domain.user.domain.Authority;
+import com.littlebank.finance.domain.user.domain.constant.Authority;
 import com.littlebank.finance.domain.user.domain.User;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

@@ -11,10 +11,6 @@ import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
-@Setter
-@Table(name = "userConsent")
-@SQLDelete(sql = "UPDATE user_consent SET is_deleted = true WHERE user_id = ?")
-@Where(clause = "is_deleted = false")
 @NoArgsConstructor()
 public class UserConsent extends BaseEntity {
     @Id
@@ -39,8 +35,6 @@ public class UserConsent extends BaseEntity {
     private Boolean agreedDataProcessingDelegation;
     @Column(nullable = false)
     private Boolean agreedMarketing;
-    @Column(nullable = false)
-    private Boolean isDeleted;
 
     @Builder
     public UserConsent(
@@ -52,8 +46,7 @@ public class UserConsent extends BaseEntity {
             Boolean agreedRewardGuardian,
             Boolean agreedThirdPartySharing,
             Boolean agreedDataProcessingDelegation,
-            Boolean agreedMarketing,
-            Boolean isDeleted
+            Boolean agreedMarketing
     ) {
         this.user = user;
         this.agreedTermsOfService = agreedTermsOfService;
@@ -64,6 +57,5 @@ public class UserConsent extends BaseEntity {
         this.agreedThirdPartySharing = agreedThirdPartySharing;
         this.agreedDataProcessingDelegation = agreedDataProcessingDelegation;
         this.agreedMarketing = agreedMarketing;
-        this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 }

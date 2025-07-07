@@ -1,15 +1,18 @@
 package com.littlebank.finance.domain.user.service;
 
 import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
-import com.littlebank.finance.domain.user.domain.Authority;
+import com.littlebank.finance.domain.user.domain.UserWithdraw;
+import com.littlebank.finance.domain.user.domain.constant.Authority;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.UserConsent;
 import com.littlebank.finance.domain.user.domain.repository.UserConsentRepository;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
+import com.littlebank.finance.domain.user.domain.repository.UserWithdrawRepository;
 import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ public class UserService {
     private final FriendRepository friendRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserConsentRepository userConsentRepository;
+    private final UserWithdrawRepository userWithdrawRepository;
 
     @Transactional
     public SignupResponse saveUser(SignupRequest request, Authority authority) {
@@ -90,9 +94,13 @@ public class UserService {
         return UpdateStatusMessageResponse.of(user);
     }
 
-    public void deleteUser(Long userId) {
+    public void deleteUser(Long userId, UserDeleteRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        userWithdrawRepository.save(
+                UserWithdraw.of(user, request.getReason())
+        );
 
         userRepository.deleteById(user.getId());
     }

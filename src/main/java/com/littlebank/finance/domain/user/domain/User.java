@@ -3,23 +3,22 @@ package com.littlebank.finance.domain.user.domain;
 import com.littlebank.finance.domain.feed.domain.Feed;
 import com.littlebank.finance.domain.subscription.domain.Subscription;
 import com.littlebank.finance.domain.subscription.domain.TrialSubscription;
+import com.littlebank.finance.domain.user.domain.constant.Authority;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "users")
-@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE user_id = ?")
-@Where(clause = "is_deleted = false")
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     @Id
@@ -59,24 +58,21 @@ public class User extends BaseEntity {
     private Boolean isSubscribe;
     @Column(length = 200, nullable = false)
     private String fcmToken;
-    @Column(name = "last_login_at")
-    private LocalDateTime lastLoginAt;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Feed> feeds = new ArrayList<>();
-    @Column(nullable = false)
-    private Boolean isDeleted;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id")
     private Subscription subscription;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Feed> feeds = new ArrayList<>();
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private TrialSubscription trialSubscription;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private UserConsent userConsent;
+
     @Builder
     public User(
             String email, String password, String name, String statusMessage, String phone, String rrn, String bankName,
             String bankCode, String bankAccount, String accountPin, String profileImagePath, Integer point, Integer accumulatedPoint,
-            UserRole role, Authority authority, Boolean isSubscribe, String fcmToken, LocalDateTime lastLoginAt, Boolean isDeleted
+            UserRole role, Authority authority, Boolean isSubscribe, String fcmToken
     ) {
         this.email = email;
         this.password = password;
@@ -95,8 +91,6 @@ public class User extends BaseEntity {
         this.authority = authority;
         this.isSubscribe = isSubscribe == null ? false : isSubscribe;
         this.fcmToken = fcmToken == null ? "" : fcmToken;
-        this.lastLoginAt = lastLoginAt;
-        this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 
     public void encodePassword(PasswordEncoder passwordEncoder) {
