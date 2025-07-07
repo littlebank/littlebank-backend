@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.ranking.service;
 
+import com.littlebank.finance.domain.ranking.domain.repository.RankingRepository;
 import com.littlebank.finance.domain.ranking.dto.request.TargetRequestDto;
 import com.littlebank.finance.domain.ranking.dto.response.GoalRankingResponseDto;
 import com.littlebank.finance.domain.ranking.dto.response.TargetResponseDto;
@@ -12,7 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.YearMonth;
+
 
 @Slf4j
 @Service
@@ -20,12 +22,17 @@ import java.util.List;
 @AllArgsConstructor
 public class RankingService {
     private final UserRepository userRepository;
-
+    private final RankingRepository rankingRepository;
     public TargetResponseDto setTargetAmount(Long userId, TargetRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         Integer targetAmount = request.getTargetAmount();
         user.setTargetAmount(targetAmount);
         return TargetResponseDto.of(user,targetAmount);
+    }
+
+    public GoalRankingResponseDto getGoalRankingByTargetAmount(Long targetId, YearMonth month) {
+        GoalRankingResponseDto response = rankingRepository.findMonthlyTargetUserStat(targetId, month);
+        return response;
     }
 }
