@@ -262,6 +262,10 @@ public class PointService {
     }
 
     public CommonPointTransferResponse transferPointGoal(Long userId, GoalPointTransferRequest request) {
+        if (transactionHistoryRepository.existsByRewardTypeAndRewardId(RewardType.GOAL, request.getGoalId())) {
+            throw new GoalException(ErrorCode.ALREADY_PAY_COMPENSATION);
+        }
+
         User sender = userRepository.findByIdWithLock(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
         if (sender.getPoint() < request.getPointAmount()) {
