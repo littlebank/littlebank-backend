@@ -25,7 +25,7 @@ import com.littlebank.finance.domain.point.dto.request.*;
 import com.littlebank.finance.domain.point.dto.response.*;
 import com.littlebank.finance.domain.point.exception.PointException;
 import com.littlebank.finance.domain.user.domain.User;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.business.PointPolicy;
@@ -45,8 +45,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -441,9 +439,9 @@ public class PointService {
 
         try {
             Notification notification = Notification.builder()
-                    .receiver(user)
-                    .message(processedAmount + "포인트를 꺼냈습니다!")
-                    .subMessage("앱에 들어가서 확인해보세요!")
+                    .receiver(depositTargetUser)
+                    .message(user.getName() + "님이 "+ depositTargetUser.getName() + "님의 계좌로 " + processedAmount + "포인트를 꺼냈습니다!")
+                    .subMessage("앱에서 확인해보세요!")
                     .type(NotificationType.POINT_REFUND)
                     .targetId(refund.getId())
                     .isRead(false)

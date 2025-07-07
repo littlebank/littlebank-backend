@@ -14,7 +14,7 @@ import com.littlebank.finance.domain.notification.domain.Notification;
 import com.littlebank.finance.domain.notification.domain.NotificationType;
 import com.littlebank.finance.domain.notification.domain.repository.NotificationRepository;
 import com.littlebank.finance.domain.user.domain.User;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;

@@ -1,7 +1,7 @@
 package com.littlebank.finance.domain.user.domain.repository;
 
 import com.littlebank.finance.domain.user.domain.User;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -22,5 +22,5 @@ public interface UserRepository extends JpaRepository<User, Long>, CustomUserRep
     Optional<User> findByEmail(String email);
     Optional<User> findByBankCodeAndBankAccount(String bankCode, String account);
 
-    List<User> findAllByRoleAndIsDeletedFalse(UserRole role);
+    List<User> findAllByRole(UserRole role);
 }

@@ -9,7 +9,7 @@ import com.littlebank.finance.domain.family.dto.response.FamilyInfoResponse;
 import com.littlebank.finance.domain.family.dto.response.FamilyMemberInfoResponse;
 import com.littlebank.finance.domain.family.exception.FamilyException;
 import com.littlebank.finance.domain.user.domain.QUser;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;

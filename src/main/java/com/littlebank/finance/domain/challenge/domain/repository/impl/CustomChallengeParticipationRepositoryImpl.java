@@ -9,7 +9,7 @@ import com.littlebank.finance.domain.family.domain.QFamilyMember;
 import com.littlebank.finance.domain.family.domain.Status;
 import com.littlebank.finance.domain.notification.dto.response.ChallengeAchievementNotificationDto;
 import com.littlebank.finance.domain.user.domain.QUser;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

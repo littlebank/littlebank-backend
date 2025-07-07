@@ -11,7 +11,7 @@ import com.littlebank.finance.domain.goal.domain.repository.CustomGoalRepository
 import com.littlebank.finance.domain.goal.dto.response.ChildGoalResponse;
 import com.littlebank.finance.domain.notification.dto.GoalAchievementNotificationDto;
 import com.littlebank.finance.domain.user.domain.QUser;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberTemplate;

@@ -1,6 +1,6 @@
 package com.littlebank.finance.domain.user.service;
 
-import com.littlebank.finance.domain.user.domain.Authority;
+import com.littlebank.finance.domain.user.domain.constant.Authority;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.dto.request.*;

@@ -1,6 +1,6 @@
 package com.littlebank.finance.domain.family.dto.response;
 
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
