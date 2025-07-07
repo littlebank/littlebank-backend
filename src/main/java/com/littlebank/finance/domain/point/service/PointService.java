@@ -177,6 +177,7 @@ public class PointService {
 
         sender.sendPoint(request.getPointAmount());
         receiver.receivePoint(request.getPointAmount());
+        mission.rewarded();
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
@@ -227,6 +228,7 @@ public class PointService {
 
         sender.sendPoint(request.getPointAmount());
         receiver.receivePoint(request.getPointAmount());
+        participation.rewarded();
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
@@ -278,6 +280,7 @@ public class PointService {
 
         sender.sendPoint(request.getPointAmount());
         receiver.receivePoint(request.getPointAmount());
+        goal.rewarded();
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
