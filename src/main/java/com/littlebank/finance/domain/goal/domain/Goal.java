@@ -133,7 +133,7 @@ public class Goal extends BaseEntity {
         this.endDate = target.getEndDate();
     }
 
-    public void reward() {
+    public void rewarded() {
         this.isRewarded = true;
     }
 }
