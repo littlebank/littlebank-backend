@@ -39,6 +39,7 @@ public class FixPushNotificationService {
     private final MissionRepository missionRepository;
     private final ChallengeParticipationRepository challengeParticipationRepository;
     private final FamilyMemberRepository familyMemberRepository;
+
     public List<GoalAchievementNotificationDto> sendWeeklyGoalAchievementAlertToParents() {
         List<GoalAchievementNotificationDto> results = goalRepository.findGoalAchievementNotificationDto();
         try {
@@ -121,7 +122,6 @@ public class FixPushNotificationService {
         return missionResults;
     }
 
-
     public List<ChallengeAchievementNotificationDto> notifyParentsOfCompletedChallenges() {
         List<ChallengeAchievementNotificationDto> challengeResults = challengeParticipationRepository.findChallengeAchievementNotificationDto();
         log.info("challengeResults.size() = {}", challengeResults.size());
@@ -149,7 +149,6 @@ public class FixPushNotificationService {
         }
         return challengeResults;
     }
-
 
     public List<SuggestParentDto> suggestParentsMissionCreation() {
         List<User> parents = userRepository.findAllByRole(UserRole.PARENT);

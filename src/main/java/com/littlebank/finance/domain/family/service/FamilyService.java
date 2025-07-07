@@ -63,7 +63,7 @@ public class FamilyService {
                 });
 
         Optional<FamilyMember> optionalTargetMember =
-                familyMemberRepository.findByFamilyIdAndUserIdIncludingDeleted(
+                familyMemberRepository.findByFamilyIdAndUserId(
                         member.getFamily().getId(),
                         request.getTargetUserId()
                 );
