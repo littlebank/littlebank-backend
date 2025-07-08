@@ -14,7 +14,7 @@ import com.littlebank.finance.domain.notification.domain.repository.Notification
 import com.littlebank.finance.domain.notification.dto.GoalAchievementNotificationDto;
 import com.littlebank.finance.domain.notification.dto.response.*;
 import com.littlebank.finance.domain.user.domain.User;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
@@ -39,6 +39,7 @@ public class FixPushNotificationService {
     private final MissionRepository missionRepository;
     private final ChallengeParticipationRepository challengeParticipationRepository;
     private final FamilyMemberRepository familyMemberRepository;
+
     public List<GoalAchievementNotificationDto> sendWeeklyGoalAchievementAlertToParents() {
         List<GoalAchievementNotificationDto> results = goalRepository.findGoalAchievementNotificationDto();
         try {
@@ -64,7 +65,7 @@ public class FixPushNotificationService {
     }
 
     public List<SuggestChildDto> suggestNewWeeklyGoalToChildren() {
-        List<User> children = userRepository.findAllByRoleAndIsDeletedFalse(UserRole.CHILD);
+        List<User> children = userRepository.findAllByRole(UserRole.CHILD);
         List<SuggestChildDto> results = new ArrayList<>();
         try {
             children.forEach(child -> {
@@ -121,7 +122,6 @@ public class FixPushNotificationService {
         return missionResults;
     }
 
-
     public List<ChallengeAchievementNotificationDto> notifyParentsOfCompletedChallenges() {
         List<ChallengeAchievementNotificationDto> challengeResults = challengeParticipationRepository.findChallengeAchievementNotificationDto();
         log.info("challengeResults.size() = {}", challengeResults.size());
@@ -150,9 +150,8 @@ public class FixPushNotificationService {
         return challengeResults;
     }
 
-
     public List<SuggestParentDto> suggestParentsMissionCreation() {
-        List<User> parents = userRepository.findAllByRoleAndIsDeletedFalse(UserRole.PARENT);
+        List<User> parents = userRepository.findAllByRole(UserRole.PARENT);
         List<SuggestParentDto> results = new ArrayList<>();
 
         for (User parent : parents) {
@@ -188,7 +187,7 @@ public class FixPushNotificationService {
     }
 
     public List<SuggestChildDto> suggestChildrenParticipateChallenge() {
-        List<User> children = userRepository.findAllByRoleAndIsDeletedFalse(UserRole.CHILD);
+        List<User> children = userRepository.findAllByRole(UserRole.CHILD);
         List<SuggestChildDto> results = new ArrayList<>();
         try {
             children.forEach(child -> {

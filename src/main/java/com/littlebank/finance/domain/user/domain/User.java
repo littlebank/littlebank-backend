@@ -3,23 +3,26 @@ package com.littlebank.finance.domain.user.domain;
 import com.littlebank.finance.domain.feed.domain.Feed;
 import com.littlebank.finance.domain.subscription.domain.Subscription;
 import com.littlebank.finance.domain.subscription.domain.TrialSubscription;
+import com.littlebank.finance.domain.user.domain.constant.Authority;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "users")
-@SQLDelete(sql = "UPDATE users SET is_deleted = true WHERE user_id = ?")
-@Where(clause = "is_deleted = false")
 @Getter
-@Setter
+@SQLDelete(sql = "UPDATE family SET is_deleted = true WHERE user_id = ?")
+@Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     @Id
@@ -42,7 +45,7 @@ public class User extends BaseEntity {
     private String bankName;
     @Column(length = 3)
     private String bankCode;
-    @Column(length = 20, unique = true)
+    @Column(length = 20)
     private String bankAccount;
     @Column(length = 6)
     private String accountPin;
@@ -61,24 +64,21 @@ public class User extends BaseEntity {
     private String fcmToken;
     @Column(name = "target_amount")
     private Integer targetAmount;
-    @Column(name = "last_login_at")
-    private LocalDateTime lastLoginAt;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Feed> feeds = new ArrayList<>();
-    @Column(nullable = false)
-    private Boolean isDeleted;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id")
     private Subscription subscription;
+    @Column(nullable = false)
+    private Boolean isDeleted;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Feed> feeds = new ArrayList<>();
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private TrialSubscription trialSubscription;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private UserConsent userConsent;
+
     @Builder
     public User(
             String email, String password, String name, String statusMessage, String phone, String rrn, String bankName,
             String bankCode, String bankAccount, String accountPin, String profileImagePath, Integer point, Integer accumulatedPoint,
-            UserRole role, Authority authority, Boolean isSubscribe, Integer targetAmount, String fcmToken, LocalDateTime lastLoginAt, Boolean isDeleted
+            UserRole role, Authority authority, Boolean isSubscribe, Integer targetAmount, String fcmToken, Boolean isDeleted
     ) {
         this.email = email;
         this.password = password;
@@ -98,7 +98,6 @@ public class User extends BaseEntity {
         this.isSubscribe = isSubscribe == null ? false : isSubscribe;
         this.targetAmount = targetAmount == null ? 0 : targetAmount;
         this.fcmToken = fcmToken == null ? "" : fcmToken;
-        this.lastLoginAt = lastLoginAt;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 
@@ -164,8 +163,15 @@ public class User extends BaseEntity {
     }
 
     public void setSubscription(Subscription subscription) {this.subscription = subscription;}
-
+  
     public void setTargetAmount(int targetAmount) {
         this.targetAmount = targetAmount;
     }
+  
+    public void withdraw() {
+        this.email = "removed" + this.id;
+        this.phone = "removed" + this.id;
+        this.fcmToken = "removed" + this.id;
+    }
+  
 }

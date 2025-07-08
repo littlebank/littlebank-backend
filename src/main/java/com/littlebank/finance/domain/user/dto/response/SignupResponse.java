@@ -1,9 +1,9 @@
 package com.littlebank.finance.domain.user.dto.response;
 
-import com.littlebank.finance.domain.user.domain.Authority;
+import com.littlebank.finance.domain.user.domain.constant.Authority;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.UserConsent;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

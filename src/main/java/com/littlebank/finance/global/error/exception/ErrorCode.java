@@ -51,6 +51,7 @@ public enum ErrorCode {
     PAYMENT_ALREADY_EXISTS(409, "P003", "결제 정보가 이미 존재합니다"),
     INSUFFICIENT_POINT_BALANCE(400, "P004", "포인트가 부족합니다"),
     REFUND_NOT_FOUND(404, "P005", "환전 내역 데이터가 존재하지 않습니다"),
+    ALREADY_PAY_COMPENSATION(409, "P006", "이미 보상금을 지급하였습니다"),
 
     // Auth
     PASSWORD_NOT_MATCHED(401, "A001", "패스워드가 일치하지 않습니다"),
@@ -117,6 +118,7 @@ public enum ErrorCode {
     GOOGLE_ITEM_NOT_FOUND(409, "SS007", "구독 항목(lineItems)이 없습니다"),
     SUBSCRIPTION_NOT_FOUND(400, "SS008", "구독을 찾을 수 없습니다"),
     GOOGLE_VERIFICATION_FAIL(409, "SS009", "영수증을 검증할 수 없습니다");
+
     private final String code;
     private final String message;
     private final int status;

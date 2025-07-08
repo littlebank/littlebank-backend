@@ -133,7 +133,7 @@ public class GoalService {
         return goalRepository.findChildWeeklyGoalResponses(familyId);
     }
 
-    public CommonGoalResponse acceptApplyGoal(Long targetGoalId) {
+    public CommonGoalResponse acceptApplyGoal(Long userId, Long targetGoalId) {
         Goal goal = goalRepository.findById(targetGoalId)
                 .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
 
@@ -142,10 +142,12 @@ public class GoalService {
         }
 
         goal.acceptProposal();
+        FamilyMember member = familyMemberRepository.findByFamilyIdAndUserId(goal.getFamily().getId(), userId)
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
         try {
             Notification notification = notificationRepository.save(Notification.builder()
                             .receiver(goal.getCreatedBy())
-                            .message("우리 부모님(" + ")이 목표를 승낙했습니다!") //부모 중 누구인지 추가하기
+                            .message(member.getNickname() + "님이 목표를 수락했어요!")
                             .type(NotificationType.GOAL_ACCEPT)
                             .targetId(targetGoalId)
                             .isRead(false)
@@ -162,7 +164,7 @@ public class GoalService {
         return goalRepository.findAllChildGoalResponses(familyId);
     }
 
-    public CommonGoalResponse checkGoal(Long goalId, Integer day) {
+    public CommonGoalResponse checkGoal(Long userId, Long goalId, Integer day) {
         Goal goal = goalRepository.findById(goalId)
                 .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
 
@@ -183,11 +185,14 @@ public class GoalService {
         }
 
         // 알림
+        goal.acceptProposal();
+        FamilyMember member = familyMemberRepository.findByFamilyIdAndUserId(goal.getFamily().getId(), userId)
+                .orElseThrow(() -> new GoalException(ErrorCode.GOAL_NOT_FOUND));
         try {
             Notification notification = notificationRepository.save(Notification.builder()
                     .receiver(goal.getCreatedBy())
-                    .message("우리 부모님(" + ")이 목표 도장을 찍어줬어요!") //부모 중 누구인지 추가하기
-                    .subMessage("오늘 목표치도 화이팅!")
+                    .message(member.getNickname() + "님이 목표 도장을 찍어주셨어요!")
+                    .subMessage("남은 목표치도 화이팅!")
                     .type(NotificationType.PERMIT_GOAL)
                     .targetId(goal.getId())
                     .isRead(false)

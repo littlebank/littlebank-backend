@@ -7,6 +7,7 @@ import com.littlebank.finance.domain.mission.dto.response.MissionStatDto;
 import com.littlebank.finance.domain.notification.dto.response.MissionAchievementNotificationDto;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.littlebank.finance.domain.mission.domain.*;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -91,7 +92,7 @@ public class CustomMissionRepositoryImpl implements CustomMissionRepository{
                         m.isDeleted.isFalse(),
                         fm.status.eq(com.littlebank.finance.domain.family.domain.Status.JOINED),
                         parentMember.status.eq(com.littlebank.finance.domain.family.domain.Status.JOINED),
-                        u.role.eq(com.littlebank.finance.domain.user.domain.UserRole.PARENT)
+                        u.role.eq(UserRole.PARENT)
                 )
                 .fetch();
         return results;

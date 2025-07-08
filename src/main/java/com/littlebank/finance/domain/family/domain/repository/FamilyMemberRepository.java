@@ -14,7 +14,7 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long
     boolean existsByUserIdAndStatus(Long userId, Status status);
 
     @Query(value = "SELECT * FROM family_member WHERE family = :familyId AND user = :userId", nativeQuery = true)
-    Optional<FamilyMember> findByFamilyIdAndUserIdIncludingDeleted(@Param("familyId") Long familyId, @Param("userId") Long userId);
+    Optional<FamilyMember> findByFamilyIdAndUserId(@Param("familyId") Long familyId, @Param("userId") Long userId);
     List<FamilyMember> findAllByUserIdAndStatus(Long userId, Status status);
 
     @Modifying(clearAutomatically = true)

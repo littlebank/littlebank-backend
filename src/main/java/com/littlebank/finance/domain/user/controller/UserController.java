@@ -1,6 +1,6 @@
 package com.littlebank.finance.domain.user.controller;
 
-import com.littlebank.finance.domain.user.domain.Authority;
+import com.littlebank.finance.domain.user.domain.constant.Authority;
 import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.service.UserService;
@@ -90,11 +90,10 @@ public class UserController {
     @Operation(summary = "계정 탈퇴 API")
     @DeleteMapping
     public ResponseEntity<Void> deleteUser(
+            @RequestBody @Valid UserDeleteRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        userService.deleteUser(customUserDetails.getId());
-
-
+        userService.deleteUser(customUserDetails.getId(), request);
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, cookieUtil.deleteCookie().toString())
                 .build();

@@ -1,7 +1,7 @@
 package com.littlebank.finance.domain.user.dto.response;
 
 import com.littlebank.finance.domain.friend.dto.response.CommonFriendInfoResponse;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -20,5 +20,8 @@ public class UserDetailsInfoResponse {
     private String profileImagePath;
     private UserRole role;
     private CommonFriendInfoResponse friendInfo;
+    private Long friendCount;
+    private Long missionCount;
+    private Long challengeCount;
 
 }

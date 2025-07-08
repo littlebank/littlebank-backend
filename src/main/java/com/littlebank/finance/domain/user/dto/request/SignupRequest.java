@@ -1,10 +1,10 @@
 package com.littlebank.finance.domain.user.dto.request;
 
 
-import com.littlebank.finance.domain.user.domain.Authority;
+import com.littlebank.finance.domain.user.domain.constant.Authority;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.UserConsent;
-import com.littlebank.finance.domain.user.domain.UserRole;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -93,7 +93,6 @@ public class SignupRequest {
                 .agreedThirdPartySharing(this.agreedThirdPartySharing)
                 .agreedDataProcessingDelegation(this.agreedDataProcessingDelegation)
                 .agreedMarketing(this.agreedMarketing)
-                .isDeleted(false)
                 .build();
     }
 }

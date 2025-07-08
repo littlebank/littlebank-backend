@@ -1,7 +1,11 @@
 package com.littlebank.finance.domain.user.domain.repository.impl;
 
+import com.littlebank.finance.domain.challenge.domain.ChallengeStatus;
+import com.littlebank.finance.domain.challenge.domain.QChallengeParticipation;
 import com.littlebank.finance.domain.friend.domain.QFriend;
 import com.littlebank.finance.domain.friend.dto.response.CommonFriendInfoResponse;
+import com.littlebank.finance.domain.mission.domain.MissionStatus;
+import com.littlebank.finance.domain.mission.domain.QMission;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.littlebank.finance.domain.user.domain.repository.CustomUserRepository;
 import com.littlebank.finance.domain.user.dto.response.UserDetailsInfoResponse;
@@ -13,8 +17,11 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
+import static com.littlebank.finance.domain.challenge.domain.QChallengeParticipation.challengeParticipation;
 import static com.littlebank.finance.domain.friend.domain.QFriend.friend;
+import static com.littlebank.finance.domain.mission.domain.QMission.mission;
 import static com.littlebank.finance.domain.user.domain.QUser.user;
+import static com.querydsl.core.types.dsl.Expressions.constant;
 
 @RequiredArgsConstructor
 public class CustomUserRepositoryImpl implements CustomUserRepository {
@@ -22,9 +29,29 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
     private final QUser u = user;
     private final QFriend f = friend;
     private QFriend f1 = new QFriend("f1");
+    private QMission m = mission;
+    private QChallengeParticipation c = challengeParticipation;
 
     @Override
     public Optional<UserDetailsInfoResponse> findUserDetailsInfo(Long targetUserId, Long userId) {
+        long friendCount = queryFactory
+                .select(f.count())
+                .from(f)
+                .where(f.fromUser.id.eq(targetUserId).and(f.isBlocked.isFalse()))
+                .fetchOne();
+
+        long missionCount = queryFactory
+                .select(m.count())
+                .from(m)
+                .where(m.child.id.eq(targetUserId).and(m.status.eq(MissionStatus.ACHIEVEMENT)))
+                .fetchOne();
+
+        long challengeCount = queryFactory
+                .select(c.count())
+                .from(c)
+                .where(c.user.id.eq(targetUserId).and(c.challengeStatus.eq(ChallengeStatus.ACHIEVEMENT)))
+                .fetchOne();
+
         return Optional.ofNullable(
                 queryFactory
                         .select(Projections.constructor(
@@ -47,7 +74,10 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
                                         f.customName,
                                         f.isBlocked,
                                         f.isBestFriend
-                                )
+                                ),
+                                constant(friendCount),
+                                constant(missionCount),
+                                constant(challengeCount)
                         ))
                         .from(u)
                         .leftJoin(f).on(f.fromUser.id.eq(userId)

@@ -96,7 +96,7 @@ public class Mission extends BaseEntity {
         this.status = MissionStatus.ACHIEVEMENT;
     }
 
-    public void rewarded(Boolean isRewarded) {
-        this.isRewarded = isRewarded;
+    public void rewarded() {
+        this.isRewarded = true;
     }
 }
