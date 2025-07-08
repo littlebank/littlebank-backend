@@ -102,6 +102,8 @@ public class UserService {
                 UserWithdraw.of(user, request.getReason())
         );
 
+        user.withdraw();
+
         userRepository.deleteById(user.getId());
     }
 

@@ -20,5 +20,8 @@ public class UserDetailsInfoResponse {
     private String profileImagePath;
     private UserRole role;
     private CommonFriendInfoResponse friendInfo;
+    private Long friendCount;
+    private Long missionCount;
+    private Long challengeCount;
 
 }
