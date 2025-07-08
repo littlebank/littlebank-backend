@@ -162,8 +162,8 @@ public class User extends BaseEntity {
     public void setSubscription(Subscription subscription) {this.subscription = subscription;}
 
     public void withdraw() {
-        this.email = "removed";
-        this.phone = "removed";
-        this.fcmToken = "removed";
+        this.email = "removed" + this.id;
+        this.phone = "removed" + this.id;
+        this.fcmToken = "removed" + this.id;
     }
 }
