@@ -62,6 +62,8 @@ public class User extends BaseEntity {
     private Boolean isSubscribe;
     @Column(length = 200, nullable = false)
     private String fcmToken;
+    @Column(name = "target_amount")
+    private Integer targetAmount;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id")
     private Subscription subscription;
@@ -76,7 +78,7 @@ public class User extends BaseEntity {
     public User(
             String email, String password, String name, String statusMessage, String phone, String rrn, String bankName,
             String bankCode, String bankAccount, String accountPin, String profileImagePath, Integer point, Integer accumulatedPoint,
-            UserRole role, Authority authority, String fcmToken, Boolean isSubscribe, Boolean isDeleted
+            UserRole role, Authority authority, Boolean isSubscribe, Integer targetAmount, String fcmToken, Boolean isDeleted
     ) {
         this.email = email;
         this.password = password;
@@ -93,8 +95,9 @@ public class User extends BaseEntity {
         this.accumulatedPoint = accumulatedPoint == null ? 0 : accumulatedPoint;
         this.role = role;
         this.authority = authority;
-        this.fcmToken = fcmToken == null ? "" : fcmToken;
         this.isSubscribe = isSubscribe == null ? false : isSubscribe;
+        this.targetAmount = targetAmount == null ? 0 : targetAmount;
+        this.fcmToken = fcmToken == null ? "" : fcmToken;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 
@@ -160,10 +163,15 @@ public class User extends BaseEntity {
     }
 
     public void setSubscription(Subscription subscription) {this.subscription = subscription;}
-
+  
+    public void setTargetAmount(int targetAmount) {
+        this.targetAmount = targetAmount;
+    }
+  
     public void withdraw() {
         this.email = "removed" + this.id;
         this.phone = "removed" + this.id;
         this.fcmToken = "removed" + this.id;
     }
+  
 }
