@@ -11,6 +11,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
@@ -19,6 +21,8 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @Getter
+@SQLDelete(sql = "UPDATE family SET is_deleted = true WHERE user_id = ?")
+@Where(clause = "is_deleted = false")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     @Id
@@ -41,7 +45,7 @@ public class User extends BaseEntity {
     private String bankName;
     @Column(length = 3)
     private String bankCode;
-    @Column(length = 20, unique = true)
+    @Column(length = 20)
     private String bankAccount;
     @Column(length = 6)
     private String accountPin;
@@ -61,18 +65,18 @@ public class User extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id")
     private Subscription subscription;
+    @Column(nullable = false)
+    private Boolean isDeleted;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Feed> feeds = new ArrayList<>();
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private TrialSubscription trialSubscription;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private UserConsent userConsent;
 
     @Builder
     public User(
             String email, String password, String name, String statusMessage, String phone, String rrn, String bankName,
             String bankCode, String bankAccount, String accountPin, String profileImagePath, Integer point, Integer accumulatedPoint,
-            UserRole role, Authority authority, Boolean isSubscribe, String fcmToken
+            UserRole role, Authority authority, String fcmToken, Boolean isSubscribe, Boolean isDeleted
     ) {
         this.email = email;
         this.password = password;
@@ -89,8 +93,9 @@ public class User extends BaseEntity {
         this.accumulatedPoint = accumulatedPoint == null ? 0 : accumulatedPoint;
         this.role = role;
         this.authority = authority;
-        this.isSubscribe = isSubscribe == null ? false : isSubscribe;
         this.fcmToken = fcmToken == null ? "" : fcmToken;
+        this.isSubscribe = isSubscribe == null ? false : isSubscribe;
+        this.isDeleted = isDeleted == null ? false : isDeleted;
     }
 
     public void encodePassword(PasswordEncoder passwordEncoder) {
@@ -155,4 +160,10 @@ public class User extends BaseEntity {
     }
 
     public void setSubscription(Subscription subscription) {this.subscription = subscription;}
+
+    public void withdraw() {
+        this.email = "removed";
+        this.phone = "removed";
+        this.fcmToken = "removed";
+    }
 }

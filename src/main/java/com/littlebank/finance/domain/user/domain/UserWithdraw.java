@@ -15,18 +15,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserWithdraw {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "withdraw_id")
-    private Long id;
-    @Column(nullable = false)
     private Long userId;
-    @Column(length = 50, unique = true, nullable = false)
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+    @Column(length = 50)
     private String email;
-    @Column(length = 20, nullable = false)
+    @Column(length = 20)
     private String name;
-    @Column(length = 100, nullable = false)
+    @Column(length = 100)
     private String statusMessage;
-    @Column(length = 11, unique = true)
+    @Column(length = 11)
     private String phone;
     @Column(length = 6)
     private String rrn;
@@ -34,7 +34,7 @@ public class UserWithdraw {
     private String bankName;
     @Column(length = 3)
     private String bankCode;
-    @Column(length = 20, unique = true)
+    @Column(length = 20)
     private String bankAccount;
     @Column(length = 6)
     private String accountPin;
@@ -45,9 +45,7 @@ public class UserWithdraw {
     @Enumerated(EnumType.STRING)
     private UserRole role;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Authority authority;
-    @Column(nullable = false)
     private Boolean isSubscribe;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id")
@@ -57,12 +55,12 @@ public class UserWithdraw {
 
     @Builder
     public UserWithdraw(
-            Long userId, String email, String name, String statusMessage, String phone, String rrn,
+            User user, String email, String name, String statusMessage, String phone, String rrn,
             String bankName, String bankCode, String bankAccount, String accountPin, String profileImagePath,
             Integer point, Integer accumulatedPoint, UserRole role, Authority authority, Boolean isSubscribe,
             Subscription subscription, String reason
     ) {
-        this.userId = userId;
+        this.user = user;
         this.email = email;
         this.name = name;
         this.statusMessage = statusMessage;
@@ -84,7 +82,7 @@ public class UserWithdraw {
 
     public static UserWithdraw of(User user, String reason) {
         return UserWithdraw.builder()
-                .userId(user.getId())
+                .user(user)
                 .email(user.getEmail())
                 .name(user.getName())
                 .statusMessage(user.getStatusMessage())
