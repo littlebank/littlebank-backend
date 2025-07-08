@@ -42,7 +42,7 @@ public class RankingController {
             @DateTimeFormat(pattern = "yyyy-MM") YearMonth month
     ) {
         YearMonth queryMonth = month != null ? month : YearMonth.now();
-        GoalRankingResponseDto response = rankingService.getGoalRankingByTargetAmount(targetId, queryMonth);
+        GoalRankingResponseDto response = rankingService.getGoalRankingByTargetAmount(user.getId(), targetId, queryMonth);
         return ResponseEntity.ok(response);
     }
 }

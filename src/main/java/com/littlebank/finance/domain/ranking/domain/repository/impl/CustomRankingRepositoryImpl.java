@@ -33,20 +33,27 @@ public class CustomRankingRepositoryImpl implements CustomRankingRepository {
     private QChallengeParticipation cp = challengeParticipation;
 
     @Override
-    public GoalRankingResponseDto findMonthlyTargetUserStat(Long userId, YearMonth month) {
+    public GoalRankingResponseDto findMonthlyTargetUserStat(Long userId, Long targetId, YearMonth month) {
         LocalDate startDate = month.atDay(1);
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = month.atEndOfMonth().atTime(23, 59, 59);
 
         Tuple userInfo = queryFactory
-                .select(u.name, u.targetAmount)
+                .select(u.name, f.customName, u.targetAmount)
                 .from(u)
-                .where(u.id.eq(userId))
+                .leftJoin(f).on(
+                        f.fromUser.id.eq(userId)
+                                .and(f.toUser.id.eq(targetId))
+                                .and(f.isBlocked.isFalse())
+                )
+                .where(u.id.eq(targetId))
                 .fetchOne();
-
+        String displayName = "";
         String name = userInfo != null ? userInfo.get(u.name) : "";
+        String customName = userInfo != null ? userInfo.get(f.customName) : null;
         Integer targetAmount = userInfo != null ? userInfo.get(u.targetAmount) : 0;
 
+        displayName = (customName != null && !customName.isBlank()) ? customName : name;
 
         Long missionTotal = queryFactory.select(m.count())
                 .from(m)
@@ -58,7 +65,7 @@ public class CustomRankingRepositoryImpl implements CustomRankingRepository {
                 .fetchOne();
         Integer missionReward = queryFactory.select(m.reward.sum())
                 .from(m)
-                .where(m.child.id.eq(userId), m.status.eq(MissionStatus.ACHIEVEMENT), m.startDate.between(start, end))
+                .where(m.child.id.eq(userId), m.status.eq(MissionStatus.ACHIEVEMENT), m.isRewarded.eq(true), m.startDate.between(start, end))
                 .fetchOne();
 
         Long challengeTotal = queryFactory.select(cp.count())
@@ -71,7 +78,7 @@ public class CustomRankingRepositoryImpl implements CustomRankingRepository {
                 .fetchOne();
         Integer challengeReward = queryFactory.select(cp.reward.sum())
                 .from(cp)
-                .where(cp.user.id.eq(userId), cp.challengeStatus.eq(ChallengeStatus.ACHIEVEMENT), cp.startDate.between(start, end))
+                .where(cp.user.id.eq(userId), cp.challengeStatus.eq(ChallengeStatus.ACHIEVEMENT), cp.isRewarded.eq(true), cp.startDate.between(start, end))
                 .fetchOne();
 
         Long goalTotal = queryFactory.select(g.count())
@@ -84,11 +91,11 @@ public class CustomRankingRepositoryImpl implements CustomRankingRepository {
                 .fetchOne();
         Integer goalReward = queryFactory.select(g.reward.sum())
                 .from(g)
-                .where(g.createdBy.id.eq(userId), g.status.eq(GoalStatus.ACHIEVEMENT), g.startDate.between(start, end))
+                .where(g.createdBy.id.eq(userId), g.status.eq(GoalStatus.ACHIEVEMENT), g.isRewarded.eq(true), g.startDate.between(start, end))
                 .fetchOne();
         return GoalRankingResponseDto.builder()
-                .userId(userId)
-                .name(name != null ? name : "")
+                .userId(targetId)
+                .name(displayName)
                 .missionTotal(missionTotal != null ? missionTotal : 0L)
                 .missionCompleted(missionCompleted != null ? missionCompleted : 0L)
                 .missionReward(missionReward != null ? missionReward : 0)

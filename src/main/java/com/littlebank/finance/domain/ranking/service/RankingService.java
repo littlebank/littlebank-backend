@@ -31,8 +31,8 @@ public class RankingService {
         return TargetResponseDto.of(user,targetAmount);
     }
 
-    public GoalRankingResponseDto getGoalRankingByTargetAmount(Long targetId, YearMonth month) {
-        GoalRankingResponseDto response = rankingRepository.findMonthlyTargetUserStat(targetId, month);
+    public GoalRankingResponseDto getGoalRankingByTargetAmount(Long userId, Long targetId, YearMonth month) {
+        GoalRankingResponseDto response = rankingRepository.findMonthlyTargetUserStat(userId, targetId, month);
         return response;
     }
 }
