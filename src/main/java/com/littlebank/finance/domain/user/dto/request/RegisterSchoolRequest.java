@@ -2,8 +2,6 @@ package com.littlebank.finance.domain.user.dto.request;
 
 import com.littlebank.finance.domain.user.domain.SchoolType;
 import com.littlebank.finance.domain.user.domain.User;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter

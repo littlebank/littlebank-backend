@@ -72,6 +72,10 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                         u.bankCode,
                                         u.bankAccount,
                                         u.profileImagePath,
+                                        u.schoolName,
+                                        u.schoolType,
+                                        u.region,
+                                        u.address,
                                         u.role
                                 ),
                                 Projections.constructor(
@@ -123,6 +127,10 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                         u.bankCode,
                                         u.bankAccount,
                                         u.profileImagePath,
+                                        u.schoolName,
+                                        u.schoolType,
+                                        u.region,
+                                        u.address,
                                         u.role
                                 ),
                                 Projections.constructor(
@@ -173,6 +181,10 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                                 f.toUser.bankCode,
                                 f.toUser.bankAccount,
                                 f.toUser.profileImagePath,
+                                f.toUser.schoolName,
+                                f.toUser.schoolType,
+                                f.toUser.region,
+                                f.toUser.address,
                                 f.toUser.role
                         ),
                         Projections.constructor(
@@ -185,6 +197,10 @@ public class CustomFriendRepositoryImpl implements CustomFriendRepository {
                         )
                 ))
                 .from(f)
+                .leftJoin(f1).on(
+                        f1.toUser.id.eq(f.fromUser.id)
+                                .and(f1.fromUser.id.eq(f.toUser.id))
+                )
                 .where(
                         f.fromUser.id.eq(userId),
                         f.customName.containsIgnoreCase(keyword),
