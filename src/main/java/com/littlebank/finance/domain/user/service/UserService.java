@@ -12,7 +12,6 @@ import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.exception.UserException;
 import com.littlebank.finance.global.error.exception.ErrorCode;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,8 +28,8 @@ public class UserService {
     private final UserWithdrawRepository userWithdrawRepository;
 
     @Transactional
-    public SignupResponse saveUser(SignupRequest request, Authority authority) {
-        User user = request.toEntity(authority);
+    public SignupResponse saveUser(SignupRequest request) {
+        User user = request.toEntity(Authority.USER);
 
         verifyDuplicatedEmail(user.getEmail());
         verifyDuplicatedPhone(user.getPhone());
@@ -41,6 +40,13 @@ public class UserService {
         UserConsent consent = request.toUserConsentEntity(savedUser);
         userConsentRepository.save(consent);
         return SignupResponse.of(savedUser, consent);
+    }
+
+    @Transactional(readOnly = true)
+    public DuplicatedEmailCheckResponse checkDuplicatedEmail(DuplicatedEmailCheckRequest request) {
+        verifyDuplicatedEmail(request.getEmail());
+
+        return DuplicatedEmailCheckResponse.of(request.getEmail());
     }
 
     public ProfileImagePathUpdateResponse updateProfileImagePath(Long userId, String profileImagePath) {
@@ -152,4 +158,5 @@ public class UserService {
             throw new UserException(ErrorCode.PHONE_DUPLICATED);
         }
     }
+
 }

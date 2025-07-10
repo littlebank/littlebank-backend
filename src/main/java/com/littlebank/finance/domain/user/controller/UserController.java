@@ -1,6 +1,5 @@
 package com.littlebank.finance.domain.user.controller;
 
-import com.littlebank.finance.domain.user.domain.constant.Authority;
 import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.service.UserService;
@@ -33,8 +32,18 @@ public class UserController {
     public ResponseEntity<SignupResponse> saveUser(
             @RequestBody @Valid SignupRequest request
     ) {
-        SignupResponse response = userService.saveUser(request, Authority.USER);
+        SignupResponse response = userService.saveUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "이메일 중복 확인 API")
+    @SecurityRequirements()
+    @PostMapping("/public/check-email")
+    public ResponseEntity<DuplicatedEmailCheckResponse> checkDuplicatedEmail(
+            @RequestBody @Valid DuplicatedEmailCheckRequest request
+    ) {
+        DuplicatedEmailCheckResponse response = userService.checkDuplicatedEmail(request);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "프로필 이미지 path 업데이트 API")
@@ -147,4 +156,5 @@ public class UserController {
         AccountPinResetResponse response = userService.resetAccountPin(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
+
 }
