@@ -19,6 +19,7 @@ public class UserDetailsInfoResponse {
     private String bankCode;
     private String bankAccount;
     private String profileImagePath;
+    private Integer targetAmount;
     private String schoolName;
     private SchoolType schoolType;
     private Integer region;

@@ -26,6 +26,7 @@ public class MyInfoResponse {
     private String profileImagePath;
     private Integer point;
     private Integer accumulatedPoint;
+    private Integer targetAmount;
     private String schoolName;
     private SchoolType schoolType;
     private Integer region;
@@ -50,6 +51,7 @@ public class MyInfoResponse {
                 .profileImagePath(user.getProfileImagePath())
                 .point(user.getPoint())
                 .accumulatedPoint(user.getAccumulatedPoint())
+                .targetAmount(user.getTargetAmount())
                 .schoolName(user.getSchoolName())
                 .schoolType(user.getSchoolType())
                 .region(user.getRegion())

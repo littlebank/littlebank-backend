@@ -20,6 +20,7 @@ public class CommonUserInfoResponse {
     private String backCode;
     private String backAccount;
     private String profileImagePath;
+    private Integer targetAmount;
     private String schoolName;
     private SchoolType schoolType;
     private Integer region;
@@ -37,6 +38,7 @@ public class CommonUserInfoResponse {
                 .backCode(user.getBankCode())
                 .backAccount(user.getBankAccount())
                 .profileImagePath(user.getProfileImagePath())
+                .targetAmount(user.getTargetAmount())
                 .schoolName(user.getSchoolName())
                 .schoolType(user.getSchoolType())
                 .region(user.getRegion())
