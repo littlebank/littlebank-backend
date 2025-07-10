@@ -66,6 +66,11 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
                                 u.bankCode,
                                 u.bankAccount,
                                 u.profileImagePath,
+                                u.targetAmount,
+                                u.schoolName,
+                                u.schoolType,
+                                u.region,
+                                u.address,
                                 u.role,
                                 Projections.constructor(
                                         CommonFriendInfoResponse.class,

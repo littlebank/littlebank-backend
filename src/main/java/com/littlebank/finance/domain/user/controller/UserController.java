@@ -147,4 +147,14 @@ public class UserController {
         AccountPinResetResponse response = userService.resetAccountPin(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "학교 정보 저장 API")
+    @PostMapping("/school/my")
+    public ResponseEntity<MyInfoResponse> registerSchool (
+            @RequestBody @Valid RegisterSchoolRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        MyInfoResponse response = userService.registerSchool(customUserDetails.getId(), request);
+        return ResponseEntity.ok(response);
+    }
 }

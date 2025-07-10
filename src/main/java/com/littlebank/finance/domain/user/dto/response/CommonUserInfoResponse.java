@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.user.dto.response;
 
+import com.littlebank.finance.domain.user.domain.SchoolType;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,11 @@ public class CommonUserInfoResponse {
     private String backCode;
     private String backAccount;
     private String profileImagePath;
+    private Integer targetAmount;
+    private String schoolName;
+    private SchoolType schoolType;
+    private Integer region;
+    private String address;
     private UserRole role;
 
     public static CommonUserInfoResponse of(User user) {
@@ -32,6 +38,10 @@ public class CommonUserInfoResponse {
                 .backCode(user.getBankCode())
                 .backAccount(user.getBankAccount())
                 .profileImagePath(user.getProfileImagePath())
+                .targetAmount(user.getTargetAmount())
+                .schoolName(user.getSchoolName())
+                .schoolType(user.getSchoolType())
+                .region(user.getRegion())
                 .role(user.getRole())
                 .build();
     }
