@@ -282,7 +282,7 @@ public class PointService {
 
         sender.sendPoint(request.getPointAmount());
         receiver.receivePoint(request.getPointAmount());
-        goal.rewarded();
+        goal.reward();
 
         TransactionHistory transactionHistory = transactionHistoryRepository.save(
                 TransactionHistory.builder()
@@ -316,6 +316,7 @@ public class PointService {
         } catch (DataIntegrityViolationException e) {
             log.warn("이미 동일한 알림이 존재합니다.");
         }
+
         return CommonPointTransferResponse.of(transactionHistory);
     }
     @Transactional(readOnly = true)
@@ -482,4 +483,5 @@ public class PointService {
 
         refundRepository.deleteById(refund.getId());
     }
+
 }
