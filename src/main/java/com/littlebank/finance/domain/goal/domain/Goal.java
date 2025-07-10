@@ -4,9 +4,11 @@ import com.littlebank.finance.domain.family.domain.Family;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.global.common.BaseEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import javax.swing.text.StyledEditorKit;
 import java.time.LocalDateTime;
 
 @Entity
@@ -24,7 +26,7 @@ public class Goal extends BaseEntity {
     private GoalCategory category;
     @Column(nullable = false)
     private Integer reward;
-    @Column(name = "is_rewarded", nullable = false) @Setter(AccessLevel.PACKAGE)
+    @Column(name = "is_rewarded", nullable = false)
     private Boolean isRewarded;
     @Column(nullable = false)
     private LocalDateTime startDate;
@@ -55,7 +57,7 @@ public class Goal extends BaseEntity {
     private Boolean sun;
 
     @Builder
-    public Goal(String title, GoalCategory category, Integer reward, Boolean isrewarded, LocalDateTime startDate, LocalDateTime endDate,
+    public Goal(String title, GoalCategory category, Integer reward, LocalDateTime startDate, LocalDateTime endDate,
                 GoalStatus status, User createdBy, Family family,
                 Boolean mon, Boolean tue, Boolean wed, Boolean thu, Boolean fri, Boolean sat, Boolean sun
                 ) {
@@ -133,7 +135,7 @@ public class Goal extends BaseEntity {
         this.endDate = target.getEndDate();
     }
 
-    public void rewarded() {
+    public void reward() {
         this.isRewarded = true;
     }
 }
