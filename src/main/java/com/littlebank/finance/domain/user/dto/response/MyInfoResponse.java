@@ -1,5 +1,6 @@
 package com.littlebank.finance.domain.user.dto.response;
 
+import com.littlebank.finance.domain.user.domain.SchoolType;
 import com.littlebank.finance.domain.user.domain.constant.Authority;
 import com.littlebank.finance.domain.user.domain.User;
 import com.littlebank.finance.domain.user.domain.constant.UserRole;
@@ -25,6 +26,11 @@ public class MyInfoResponse {
     private String profileImagePath;
     private Integer point;
     private Integer accumulatedPoint;
+    private Integer targetAmount;
+    private String schoolName;
+    private SchoolType schoolType;
+    private Integer region;
+    private String address;
     private UserRole role;
     private Authority authority;
     private boolean isSubscribe;
@@ -45,6 +51,11 @@ public class MyInfoResponse {
                 .profileImagePath(user.getProfileImagePath())
                 .point(user.getPoint())
                 .accumulatedPoint(user.getAccumulatedPoint())
+                .targetAmount(user.getTargetAmount())
+                .schoolName(user.getSchoolName())
+                .schoolType(user.getSchoolType())
+                .region(user.getRegion())
+                .address(user.getAddress())
                 .role(user.getRole())
                 .authority(user.getAuthority())
                 .isSubscribe(user.getIsSubscribe())

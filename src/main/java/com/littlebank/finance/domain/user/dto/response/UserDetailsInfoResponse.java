@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.user.dto.response;
 
 import com.littlebank.finance.domain.friend.dto.response.CommonFriendInfoResponse;
+import com.littlebank.finance.domain.user.domain.SchoolType;
 import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +19,11 @@ public class UserDetailsInfoResponse {
     private String bankCode;
     private String bankAccount;
     private String profileImagePath;
+    private Integer targetAmount;
+    private String schoolName;
+    private SchoolType schoolType;
+    private Integer region;
+    private String address;
     private UserRole role;
     private CommonFriendInfoResponse friendInfo;
     private Long friendCount;

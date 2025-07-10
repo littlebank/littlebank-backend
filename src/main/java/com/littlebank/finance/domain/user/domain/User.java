@@ -67,6 +67,13 @@ public class User extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id")
     private Subscription subscription;
+    @Column(length = 150)
+    private String schoolName;
+    @Enumerated(EnumType.STRING)
+    private SchoolType schoolType;
+    private Integer region;
+    @Column(length = 200)
+    private String address;
     @Column(nullable = false)
     private Boolean isDeleted;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -78,7 +85,8 @@ public class User extends BaseEntity {
     public User(
             String email, String password, String name, String statusMessage, String phone, String rrn, String bankName,
             String bankCode, String bankAccount, String accountPin, String profileImagePath, Integer point, Integer accumulatedPoint,
-            UserRole role, Authority authority, Boolean isSubscribe, Integer targetAmount, String fcmToken, Boolean isDeleted
+            UserRole role, Authority authority, Boolean isSubscribe, Integer targetAmount,
+            String schoolName, SchoolType schoolType, Integer region, String address, String fcmToken, Boolean isDeleted
     ) {
         this.email = email;
         this.password = password;
@@ -97,6 +105,10 @@ public class User extends BaseEntity {
         this.authority = authority;
         this.isSubscribe = isSubscribe == null ? false : isSubscribe;
         this.targetAmount = targetAmount == null ? 0 : targetAmount;
+        this.schoolName = schoolName;
+        this.schoolType = schoolType;
+        this.region = region;
+        this.address = address;
         this.fcmToken = fcmToken == null ? "" : fcmToken;
         this.isDeleted = isDeleted == null ? false : isDeleted;
     }
@@ -173,5 +185,11 @@ public class User extends BaseEntity {
         this.phone = "removed" + this.id;
         this.fcmToken = "removed" + this.id;
     }
-  
+
+    public void setSchoolInfo (String schoolName, SchoolType schoolType, Integer region, String address) {
+        this.schoolName = schoolName;
+        this.schoolType = schoolType;
+        this.region = region;
+        this.address = address;
+    }
 }

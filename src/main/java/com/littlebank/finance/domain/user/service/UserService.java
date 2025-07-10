@@ -159,4 +159,12 @@ public class UserService {
         }
     }
 
+    public MyInfoResponse registerSchool(Long userId, RegisterSchoolRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        user.setSchoolInfo(request.getSchoolName(), request.getSchoolType(), request.getRegion(), request.getAddress());
+        return MyInfoResponse.of(user);
+    }
+  
 }
