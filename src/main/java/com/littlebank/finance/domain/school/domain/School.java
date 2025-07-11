@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(name = "school")
 @Getter
 @Setter(AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
