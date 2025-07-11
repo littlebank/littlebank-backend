@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.school.service;
+package com.littlebank.finance.domain.school.service.admin;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.littlebank.finance.domain.school.domain.RegionCode;
@@ -20,7 +20,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SchoolService {
+public class AdminSchoolService {
 
     private final SchoolRepository schoolRepository;
     private final RestTemplate restTemplate = new RestTemplate();
