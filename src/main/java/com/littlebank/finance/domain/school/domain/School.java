@@ -10,7 +10,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "school")
 @Getter
-@Setter(AccessLevel.PACKAGE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class School extends BaseEntity {
     @Id
