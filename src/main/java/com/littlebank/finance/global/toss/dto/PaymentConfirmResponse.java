@@ -15,7 +15,7 @@ public class PaymentConfirmResponse {
     private String paymentKey;
     private String orderId;
     private Integer amount;
-    private TossPaymentMethod method;
+    private String method;
     private TossPaymentStatus status;
     private OffsetDateTime approvedAt;
 }
