@@ -66,7 +66,7 @@ public class PointService {
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
         String orderName = "포인트 결제";
-        return AmountTempSaveResponse.of(request.getOrderId(), orderName, user);
+        return AmountTempSaveResponse.of(request.getOrderId(), request.getAmount(), orderName, user);
     }
 
         user.addPoint(payment.getAmount());

@@ -10,13 +10,15 @@ import lombok.Getter;
 @AllArgsConstructor
 public class AmountTempSaveResponse {
     private String orderId;
+    private Integer amount;
     private String orderName;
     private String customerEmail;
     private String customerName;
 
-    public static AmountTempSaveResponse of(String orderId, String orderName, User user) {
+    public static AmountTempSaveResponse of(String orderId, Integer amount, String orderName, User user) {
         return AmountTempSaveResponse.builder()
                 .orderId(orderId)
+                .amount(amount)
                 .orderName(orderName)
                 .customerEmail(user.getEmail())
                 .customerName(user.getName())
