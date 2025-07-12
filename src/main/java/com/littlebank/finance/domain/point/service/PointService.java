@@ -85,7 +85,7 @@ public class PointService {
                         Payment.builder()
                                 .tossPaymentKey(result.getBody().getPaymentKey())
                                 .tossOrderId(result.getBody().getOrderId())
-                                .amount(result.getBody().getAmount())
+                                .amount(result.getBody().getTotalAmount())
                                 .remainingPoint(user.getPoint())
                                 .tossPaymentMethod(TossPaymentMethod.fromValue(result.getBody().getMethod()))
                                 .tossPaymentStatus(result.getBody().getStatus())
@@ -96,7 +96,7 @@ public class PointService {
                 return PaymentConfirmToUserResponse.of(paymentHistory);
             } catch (Exception e) {
                 try {
-                    tossService.cancelPayment(result.getBody().getPaymentKey(), result.getBody().getAmount(), "결제 처리 중 오류 발생");
+                    tossService.cancelPayment(result.getBody().getPaymentKey(), result.getBody().getTotalAmount(), "결제 처리 중 오류 발생");
                 } catch (Exception cancelEx) {
                     // 환불도 오류 발생했을 경우 관리자에게 메일 발송
                     log.error("결제 환불 실패: {}", cancelEx.getMessage());
