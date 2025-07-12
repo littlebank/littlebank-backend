@@ -1,7 +1,8 @@
 package com.littlebank.finance.domain.point.controller.admin;
 
+import com.littlebank.finance.domain.point.dto.response.admin.ChargeHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.admin.RefundHistoryResponse;
-import com.littlebank.finance.domain.point.service.AdminPointService;
+import com.littlebank.finance.domain.point.service.admin.AdminPointService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,6 +18,13 @@ import java.util.List;
 @Tag(name = "Point")
 public class AdminPointController {
     private final AdminPointService adminPointService;
+
+    @Operation(summary = "모든 유저 포인트 충전 결제 내역 조회 API")
+    @GetMapping("/refund/history")
+    public ResponseEntity<List<ChargeHistoryResponse>> getUsersChargeHistory() {
+        List<ChargeHistoryResponse> response = adminPointService.getUsersChargeHistory();
+        return ResponseEntity.ok(response);
+    }
 
     @Operation(summary = "모든 유저 포인트 환전 내역 조회 API")
     @GetMapping("/refund/history")

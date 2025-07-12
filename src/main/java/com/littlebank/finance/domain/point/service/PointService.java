@@ -15,7 +15,6 @@ import com.littlebank.finance.domain.notification.domain.repository.Notification
 import com.littlebank.finance.domain.point.domain.Payment;
 import com.littlebank.finance.domain.point.domain.Refund;
 import com.littlebank.finance.domain.point.domain.TransactionHistory;
-import com.littlebank.finance.domain.point.domain.constant.PaymentStatus;
 import com.littlebank.finance.domain.point.domain.constant.RefundStatus;
 import com.littlebank.finance.domain.point.domain.constant.RewardType;
 import com.littlebank.finance.domain.point.domain.repository.PaymentRepository;
@@ -32,17 +31,17 @@ import com.littlebank.finance.global.business.PointPolicy;
 import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.firebase.FirebaseService;
-import com.littlebank.finance.global.portone.PortoneService;
-import com.littlebank.finance.global.portone.dto.PortonePaymentDto;
+import com.littlebank.finance.global.toss.TossService;
+import com.littlebank.finance.global.toss.dto.PaymentConfirmResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,60 +54,55 @@ public class PointService {
     private final UserRepository userRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
     private final RefundRepository refundRepository;
-    private final PortoneService portoneService;
     private final GoalRepository goalRepository;
     private final MissionRepository missionRepository;
     private final ChallengeParticipationRepository challengeParticipationRepository;
     private final NotificationRepository notificationRepository;
     private final FirebaseService firebaseService;
+    private final TossService tossService;
 
-    public PaymentInfoSaveResponse verifyAndSave(Long userId, PaymentInfoSaveRequest request) {
-        String token = portoneService.getAccessToken();
-        PortonePaymentDto paymentDto = portoneService.getPaymentInfo(request.getImpUid(), token);
-
-        if (paymentDto.getStatus() != PaymentStatus.PAID) {
-            throw new PointException(ErrorCode.PAYMENT_STATUS_NOT_PAID);
-        }
-
-        if (paymentRepository.existsByImpUid(request.getImpUid())) {
-            throw new PointException(ErrorCode.PAYMENT_ALREADY_EXISTS);
-        }
-
+    @Transactional(readOnly = true)
+    public AmountTempSaveResponse tempSave(Long userId, AmountTempSaveRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        Payment payment = paymentRepository.save(Payment.builder()
-                .impUid(paymentDto.getImpUid())
-                .merchantUid(paymentDto.getMerchantUid())
-                .amount(paymentDto.getAmount())
-                .payMethod(paymentDto.getPayMethod())
-                .pgProvider(paymentDto.getPgProvider())
-                .status(paymentDto.getStatus())
-                .paidAt(LocalDateTime.now())
-                .user(user)
-                .build());
+        String orderName = "포인트 결제";
+        return AmountTempSaveResponse.of(request.getOrderId(), request.getAmount(), orderName, user);
+    }
 
-        user.addPoint(payment.getAmount());
+    public PaymentConfirmToUserResponse confirmPayment(Long userId, ConfirmPaymentRequest request) {
+        ResponseEntity<PaymentConfirmResponse> result = tossService.confirm(request);
 
-        payment.recordRemainingPoint(user);
+        if (result.getStatusCode().is2xxSuccessful()) {
+            try {
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        try {
-            Notification notification = Notification.builder()
-                    .receiver(user)
-                    .message(payment.getAmount() + "포인트를 충전했습니다!")
-                    .subMessage("앱에 들어가서 확인해보세요!")
-                    .type(NotificationType.POINT_STORE)
-                    .targetId(payment.getId())
-                    .isRead(false)
-                    .build();
-            notificationRepository.save(notification);
-            firebaseService.sendNotification(notification);
+                user.chargePoint(request.getAmount());
 
-        } catch (DataIntegrityViolationException e) {
-            log.warn("이미 동일한 알림이 존재합니다.");
+                Payment paymentHistory = paymentRepository.save(
+                        Payment.builder()
+                                .tossPaymentKey(result.getBody().getPaymentKey())
+                                .tossOrderId(result.getBody().getOrderId())
+                                .amount(result.getBody().getAmount())
+                                .remainingPoint(user.getPoint())
+                                .tossPaymentMethod(result.getBody().getMethod())
+                                .tossPaymentStatus(result.getBody().getStatus())
+                                .paidAt(result.getBody().getApprovedAt())
+                                .user(user)
+                                .build()
+                );
+                return PaymentConfirmToUserResponse.of(paymentHistory);
+            } catch (Exception e) {
+                try {
+                    tossService.cancelPayment(result.getBody().getPaymentKey(), result.getBody().getAmount(), "결제 처리 중 오류 발생");
+                } catch (Exception cancelEx) {
+                    // 환불도 오류 발생했을 경우 관리자에게 메일 발송
+                    log.error("결제 환불 실패: {}", cancelEx.getMessage());
+                }
+            }
         }
-
-        return PaymentInfoSaveResponse.of(payment);
+        throw new PointException(ErrorCode.PAYMENT_PROCESS_ERROR);
     }
 
     @Transactional(readOnly = true)

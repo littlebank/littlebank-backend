@@ -46,12 +46,10 @@ public enum ErrorCode {
     INVALID_DELETE_STATUS(409, "G005", "목표는 신청 상태만 삭제 가능합니다"),
 
     // Point
-    PAYMENT_INVALID_STATUS(400, "P001", "결제 정보 저장 중 오류가 발생했습니다(지원하지 않는 결제 상태)"),
-    PAYMENT_STATUS_NOT_PAID(400, "P002", "결제 된 상태가 아닙니다"),
-    PAYMENT_ALREADY_EXISTS(409, "P003", "결제 정보가 이미 존재합니다"),
-    INSUFFICIENT_POINT_BALANCE(400, "P004", "포인트가 부족합니다"),
-    REFUND_NOT_FOUND(404, "P005", "환전 내역 데이터가 존재하지 않습니다"),
-    ALREADY_PAY_COMPENSATION(409, "P006", "이미 보상금을 지급하였습니다"),
+    PAYMENT_PROCESS_ERROR(500, "P001", "결제 승인 처리 중 오류가 발생했습니다"),
+    INSUFFICIENT_POINT_BALANCE(400, "P002", "포인트가 부족합니다"),
+    REFUND_NOT_FOUND(404, "P003", "환전 내역 데이터가 존재하지 않습니다"),
+    ALREADY_PAY_COMPENSATION(409, "P004", "이미 보상금을 지급하였습니다"),
 
     // Auth
     PASSWORD_NOT_MATCHED(401, "A001", "패스워드가 일치하지 않습니다"),

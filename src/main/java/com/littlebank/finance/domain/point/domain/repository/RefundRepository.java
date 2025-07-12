@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface RefundRepository extends JpaRepository<Refund, Long>, CustomRefundRepository {
-
     // Admin
     @Query("SELECT r FROM Refund r JOIN FETCH r.user")
     List<Refund> findAllFetchJoinUser();

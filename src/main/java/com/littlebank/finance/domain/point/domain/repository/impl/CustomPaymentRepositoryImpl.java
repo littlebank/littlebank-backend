@@ -1,8 +1,8 @@
 package com.littlebank.finance.domain.point.domain.repository.impl;
 
-import com.littlebank.finance.domain.point.domain.constant.PaymentStatus;
 import com.littlebank.finance.domain.point.domain.QPayment;
 import com.littlebank.finance.domain.point.domain.constant.RewardType;
+import com.littlebank.finance.domain.point.domain.constant.TossPaymentStatus;
 import com.littlebank.finance.domain.point.domain.repository.CustomPaymentRepository;
 import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryResponse;
@@ -35,14 +35,14 @@ public class CustomPaymentRepositoryImpl implements CustomPaymentRepository {
                                 p.amount,
                                 p.remainingPoint,
                                 u.name,
-                                p.pgProvider,
-                                p.payMethod,
+                                Expressions.stringTemplate("토스"),
+                                p.tossPaymentMethod,
                                 p.paidAt
                         ))
                         .from(p)
                         .join(u).on(u.id.eq(p.user.id))
                         .where(p.user.id.eq(userId)
-                                .and(p.status.eq(PaymentStatus.PAID)))
+                                .and(p.tossPaymentStatus.eq(TossPaymentStatus.DONE)))
                         .offset(pageable.getOffset())
                         .limit(pageable.getPageSize())
                         .orderBy(p.paidAt.desc())
@@ -59,17 +59,17 @@ public class CustomPaymentRepositoryImpl implements CustomPaymentRepository {
                         p.id,
                         Expressions.constant("PAYMENT"),
                         p.amount,
-                        Expressions.stringTemplate("CONCAT({0}, '에서 ', {1}, '포인트 충전')", p.pgProvider, p.amount),
+                        Expressions.stringTemplate("CONCAT({0}, '(으)로 ', {1}, '포인트 충전')", p.tossPaymentMethod, p.amount),
                         p.remainingPoint,
                         Expressions.nullExpression(Long.class),
-                        p.pgProvider,
+                        p.tossPaymentMethod,
                         p.paidAt,
                         Expressions.nullExpression(RewardType.class),
                         Expressions.nullExpression(Long.class)
                 ))
                 .from(p)
                 .where(p.user.id.eq(userId)
-                        .and(p.status.eq(PaymentStatus.PAID)))
+                        .and(p.tossPaymentStatus.eq(TossPaymentStatus.DONE)))
                 .fetch();
 
         return results;

@@ -140,17 +140,17 @@ public class User extends BaseEntity {
         this.statusMessage = statusMessage;
     }
 
-    public void addPoint(Integer amount) {
-        this.point += amount;
-        this.accumulatedPoint += amount;
-    }
-
     public void login(String fcmToken) {
         this.fcmToken = fcmToken;
     }
 
     public void logout() {
         this.fcmToken = "";
+    }
+
+    public void chargePoint(Integer point) {
+        this.point += point;
+        this.accumulatedPoint += point;
     }
 
     public void sendPoint(Integer point) {
