@@ -88,7 +88,7 @@ public class PointService {
                                 .remainingPoint(user.getPoint())
                                 .tossPaymentMethod(result.getBody().getMethod())
                                 .tossPaymentStatus(result.getBody().getStatus())
-                                .paidAt(result.getBody().getApprovedAt())
+                                .paidAt(result.getBody().getApprovedAt().toLocalDateTime())
                                 .user(user)
                                 .build()
                 );

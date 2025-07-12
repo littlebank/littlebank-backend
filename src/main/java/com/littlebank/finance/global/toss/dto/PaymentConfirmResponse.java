@@ -6,7 +6,7 @@ import com.littlebank.finance.domain.point.domain.constant.TossPaymentStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -17,5 +17,5 @@ public class PaymentConfirmResponse {
     private Integer amount;
     private TossPaymentMethod method;
     private TossPaymentStatus status;
-    private LocalDateTime approvedAt;
+    private OffsetDateTime approvedAt;
 }
