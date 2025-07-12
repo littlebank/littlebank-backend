@@ -56,4 +56,8 @@ public class Subscription extends BaseEntity {
         this.inviteCodes.add(inviteCode);
         inviteCode.setSubscription(this);
     }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
 }

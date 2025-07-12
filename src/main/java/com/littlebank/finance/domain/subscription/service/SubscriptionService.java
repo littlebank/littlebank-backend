@@ -9,6 +9,7 @@ import com.littlebank.finance.domain.subscription.domain.repository.Subscription
 import com.littlebank.finance.domain.subscription.domain.repository.TrialSubscriptionRepository;
 import com.littlebank.finance.domain.subscription.dto.request.FreeSubscriptionRequestDto;
 import com.littlebank.finance.domain.subscription.dto.request.SubscriptionCreateRequestDto;
+import com.littlebank.finance.domain.subscription.dto.request.SubscriptionDeleteRequest;
 import com.littlebank.finance.domain.subscription.dto.response.FreeSubscriptionResponseDto;
 import com.littlebank.finance.domain.subscription.dto.response.InviteCodeResponseDto;
 import com.littlebank.finance.domain.subscription.dto.response.SubscriptionResponseDto;
@@ -84,6 +85,17 @@ public class SubscriptionService {
         return subscriptions.stream()
                 .map(s -> SubscriptionResponseDto.of(s))
                 .collect(Collectors.toList());
+    }
+
+    public void deleteSubscription(Long userId, SubscriptionDeleteRequest request) {
+        Subscription subscription = subscriptionRepository.findTopByOwnerIdOrderByStartDateDesc(userId)
+                .orElseThrow(() -> new SubscriptionException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+
+        if (!subscription.getOwner().getId().equals(userId)) {
+            throw new SubscriptionException(ErrorCode.SUBSCRIPTION_NOT_FOUND);
+        }
+        subscription.setIsDeleted(true);
+        subscription.getInviteCodes().forEach(inviteCode -> inviteCode.setIsDeleted(true));
     }
 
     public SubscriptionResponseDto redeemSubscription(Long userId, String code) {
@@ -168,4 +180,5 @@ public class SubscriptionService {
         List<InviteCodeResponseDto> response = inviteCodeRepository.findAllByOwnerId(userId);
         return response;
     }
+
 }

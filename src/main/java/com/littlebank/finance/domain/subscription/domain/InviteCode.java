@@ -55,4 +55,8 @@ public class InviteCode extends BaseEntity {
     public boolean isUsed() {
         return this.used;
     }
+
+    public void setIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
 }
