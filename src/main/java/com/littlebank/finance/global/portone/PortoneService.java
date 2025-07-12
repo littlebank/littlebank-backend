@@ -3,7 +3,6 @@ package com.littlebank.finance.global.portone;
 import com.google.gson.JsonObject;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.portone.dto.AccountHolderDto;
-import com.littlebank.finance.global.portone.dto.PortonePaymentDto;
 import com.littlebank.finance.global.portone.dto.PortoneTokenDto;
 import com.littlebank.finance.global.portone.config.PortoneProperties;
 import com.littlebank.finance.global.portone.exception.PortoneException;
@@ -36,24 +35,6 @@ public class PortoneService {
                 .body(PortoneTokenDto.class);
 
         return dto.getResponse().getAccessToken();
-    }
-
-    /**
-     * impUid에 대응되는 결제 정보 조회
-     */
-    public PortonePaymentDto getPaymentInfo(String impUid, String accessToken) {
-        Map<String, Object> data = (Map<String, Object>) restClient.get()
-                .uri(BASE_URL + "/payments/" + impUid)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                .retrieve()
-                .body(Map.class)
-                .get("response");
-
-        if (data == null || data.isEmpty()) {
-            throw new PortoneException(ErrorCode.PAYMENT_INFO_NOT_EXISTS);
-        }
-
-        return PortonePaymentDto.of(data);
     }
 
     /**

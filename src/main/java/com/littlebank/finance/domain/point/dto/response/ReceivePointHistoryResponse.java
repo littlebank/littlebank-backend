@@ -3,7 +3,6 @@ package com.littlebank.finance.domain.point.dto.response;
 import com.littlebank.finance.domain.point.domain.constant.RewardType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ReceivePointHistoryResponse {
     private Long historyId;
-    private String type; // "RECEIVE" or "REFUND"
+    private String type;
     private Integer pointAmount;
     private String message;
     private Integer remainingPoint;

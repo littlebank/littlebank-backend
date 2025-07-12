@@ -12,10 +12,8 @@ import com.littlebank.finance.domain.mission.exception.MissionException;
 import com.littlebank.finance.domain.notification.domain.Notification;
 import com.littlebank.finance.domain.notification.domain.NotificationType;
 import com.littlebank.finance.domain.notification.domain.repository.NotificationRepository;
-import com.littlebank.finance.domain.point.domain.Payment;
 import com.littlebank.finance.domain.point.domain.Refund;
 import com.littlebank.finance.domain.point.domain.TransactionHistory;
-import com.littlebank.finance.domain.point.domain.constant.PaymentStatus;
 import com.littlebank.finance.domain.point.domain.constant.RefundStatus;
 import com.littlebank.finance.domain.point.domain.constant.RewardType;
 import com.littlebank.finance.domain.point.domain.repository.PaymentRepository;
@@ -32,8 +30,6 @@ import com.littlebank.finance.global.business.PointPolicy;
 import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.firebase.FirebaseService;
-import com.littlebank.finance.global.portone.PortoneService;
-import com.littlebank.finance.global.portone.dto.PortonePaymentDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -42,7 +38,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +50,6 @@ public class PointService {
     private final UserRepository userRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
     private final RefundRepository refundRepository;
-    private final PortoneService portoneService;
     private final GoalRepository goalRepository;
     private final MissionRepository missionRepository;
     private final ChallengeParticipationRepository challengeParticipationRepository;
@@ -66,27 +60,14 @@ public class PointService {
         String token = portoneService.getAccessToken();
         PortonePaymentDto paymentDto = portoneService.getPaymentInfo(request.getImpUid(), token);
 
-        if (paymentDto.getStatus() != PaymentStatus.PAID) {
-            throw new PointException(ErrorCode.PAYMENT_STATUS_NOT_PAID);
-        }
-
-        if (paymentRepository.existsByImpUid(request.getImpUid())) {
-            throw new PointException(ErrorCode.PAYMENT_ALREADY_EXISTS);
-        }
-
+    @Transactional(readOnly = true)
+    public AmountTempSaveResponse tempSave(Long userId, AmountTempSaveRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        Payment payment = paymentRepository.save(Payment.builder()
-                .impUid(paymentDto.getImpUid())
-                .merchantUid(paymentDto.getMerchantUid())
-                .amount(paymentDto.getAmount())
-                .payMethod(paymentDto.getPayMethod())
-                .pgProvider(paymentDto.getPgProvider())
-                .status(paymentDto.getStatus())
-                .paidAt(LocalDateTime.now())
-                .user(user)
-                .build());
+        String orderName = "포인트 결제";
+        return AmountTempSaveResponse.of(request.getOrderId(), orderName, user);
+    }
 
         user.addPoint(payment.getAmount());
 
