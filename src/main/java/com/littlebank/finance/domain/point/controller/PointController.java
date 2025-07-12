@@ -55,6 +55,16 @@ public class PointController {
         return ResponseEntity.ok(VerifyTempSaveAmountResponse.builder().code(200).message("결제 정보가 일치합니다").build());
     }
 
+    @Operation(summary = "결제 승인 API")
+    @PostMapping("/payment/confirm")
+    public ResponseEntity<PaymentConfirmToUserResponse> confirmPayment(
+            @RequestBody ConfirmPaymentRequest confirmPaymentRequest,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        PaymentConfirmToUserResponse response = pointService.confirmPayment(customUserDetails.getId(), confirmPaymentRequest);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "포인트 충전 내역 조회 API")
     @GetMapping("/charge/payment/history")
     public ResponseEntity<CustomPageResponse<PaymentHistoryResponse>> getPaymentHistory(
