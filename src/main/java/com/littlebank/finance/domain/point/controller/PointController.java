@@ -40,6 +40,21 @@ public class PointController {
         return ResponseEntity.ok(pointService.tempSave(customUserDetails.getId(), saveAmountRequest));
     }
 
+    @Operation(summary = "임시 저장한 결제 정보 검증 API")
+    @PostMapping("/temp/verify-amount")
+    public ResponseEntity<VerifyTempSaveAmountResponse> verifyTempSaveAmount(
+            HttpSession session,
+            @RequestBody @Valid AmountTempSaveRequest saveAmountRequest
+    ) {
+        Integer amount = (Integer) session.getAttribute(saveAmountRequest.getOrderId());
+
+        if(amount == null || !amount.equals(saveAmountRequest.getAmount()))
+            return ResponseEntity.badRequest().body(VerifyTempSaveAmountResponse.builder().code(400).message("결제 정보가 일치하지 않습니다").build());
+
+        session.removeAttribute(saveAmountRequest.getOrderId());
+        return ResponseEntity.ok(VerifyTempSaveAmountResponse.builder().code(200).message("결제 정보가 일치합니다").build());
+    }
+
     @Operation(summary = "포인트 충전 내역 조회 API")
     @GetMapping("/charge/payment/history")
     public ResponseEntity<CustomPageResponse<PaymentHistoryResponse>> getPaymentHistory(
