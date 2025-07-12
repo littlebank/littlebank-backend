@@ -15,7 +15,7 @@ import java.time.OffsetDateTime;
 public class PaymentConfirmResponse {
     private String paymentKey;
     private String orderId;
-    private Integer amount;
+    private Integer totalAmount;
     private String method;
     private TossPaymentStatus status;
     private OffsetDateTime approvedAt;
