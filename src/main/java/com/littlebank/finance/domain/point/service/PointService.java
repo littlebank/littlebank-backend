@@ -17,6 +17,7 @@ import com.littlebank.finance.domain.point.domain.Refund;
 import com.littlebank.finance.domain.point.domain.TransactionHistory;
 import com.littlebank.finance.domain.point.domain.constant.RefundStatus;
 import com.littlebank.finance.domain.point.domain.constant.RewardType;
+import com.littlebank.finance.domain.point.domain.constant.TossPaymentMethod;
 import com.littlebank.finance.domain.point.domain.repository.PaymentRepository;
 import com.littlebank.finance.domain.point.domain.repository.RefundRepository;
 import com.littlebank.finance.domain.point.domain.repository.TransactionHistoryRepository;
@@ -86,7 +87,7 @@ public class PointService {
                                 .tossOrderId(result.getBody().getOrderId())
                                 .amount(result.getBody().getAmount())
                                 .remainingPoint(user.getPoint())
-                                .tossPaymentMethod(result.getBody().getMethod())
+                                .tossPaymentMethod(TossPaymentMethod.fromValue(result.getBody().getMethod()))
                                 .tossPaymentStatus(result.getBody().getStatus())
                                 .paidAt(result.getBody().getApprovedAt().toLocalDateTime())
                                 .user(user)
