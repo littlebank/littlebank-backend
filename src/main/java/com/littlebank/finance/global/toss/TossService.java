@@ -6,6 +6,7 @@ import com.littlebank.finance.global.toss.config.TossProperties;
 import com.littlebank.finance.global.toss.dto.PaymentConfirmResponse;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TossService {
@@ -41,11 +43,17 @@ public class TossService {
                 "amount", request.getAmount()
         );
 
-        return restClient.post()
+        ResponseEntity<PaymentConfirmResponse> result = restClient.post()
                 .uri("/v1/payments/confirm")
                 .body(payload)
                 .retrieve()
                 .toEntity(PaymentConfirmResponse.class);
+
+        log.info("Toss 결제 승인 응답 StatusCode: {}", result.getStatusCode());
+        log.info("Toss 결제 승인 응답 Headers: {}", result.getHeaders());
+        log.info("Toss 결제 승인 응답 Body: {}", result.getBody());
+
+        return result;
     }
 
     public void cancelPayment(String paymentKey, int cancelAmount, String reason) {
