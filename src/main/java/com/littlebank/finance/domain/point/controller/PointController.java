@@ -4,6 +4,7 @@ import com.littlebank.finance.domain.point.dto.request.*;
 import com.littlebank.finance.domain.point.dto.response.*;
 import com.littlebank.finance.domain.point.service.PointService;
 
+import com.littlebank.finance.global.common.CommonCodeResponse;
 import com.littlebank.finance.global.common.CustomPageResponse;
 import com.littlebank.finance.global.common.PaginationPolicy;
 import com.littlebank.finance.global.security.CustomUserDetails;
@@ -42,17 +43,17 @@ public class PointController {
 
     @Operation(summary = "임시 저장한 결제 정보 검증 API")
     @PostMapping("/temp/verify-amount")
-    public ResponseEntity<VerifyTempSaveAmountResponse> verifyTempSaveAmount(
+    public ResponseEntity<CommonCodeResponse> verifyTempSaveAmount(
             HttpSession session,
             @RequestBody @Valid AmountTempSaveRequest saveAmountRequest
     ) {
         Integer amount = (Integer) session.getAttribute(saveAmountRequest.getOrderId());
 
         if(amount == null || !amount.equals(saveAmountRequest.getAmount()))
-            return ResponseEntity.badRequest().body(VerifyTempSaveAmountResponse.builder().code(400).message("결제 정보가 일치하지 않습니다").build());
+            return ResponseEntity.badRequest().body(CommonCodeResponse.builder().code(400).message("결제 정보가 일치하지 않습니다").build());
 
         session.removeAttribute(saveAmountRequest.getOrderId());
-        return ResponseEntity.ok(VerifyTempSaveAmountResponse.builder().code(200).message("결제 정보가 일치합니다").build());
+        return ResponseEntity.ok(CommonCodeResponse.builder().code(200).message("결제 정보가 일치합니다").build());
     }
 
     @Operation(summary = "결제 승인 API")

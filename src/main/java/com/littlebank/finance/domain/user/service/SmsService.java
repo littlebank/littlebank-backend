@@ -1,6 +1,6 @@
 package com.littlebank.finance.domain.user.service;
 
-import com.littlebank.finance.domain.user.dto.request.CertificationNumberSendRequest;
+import com.littlebank.finance.domain.user.dto.request.CertificationCodeSendRequest;
 import com.littlebank.finance.global.coolsms.CoolsmsUtil;
 import com.littlebank.finance.global.redis.RedisDao;
 import com.littlebank.finance.global.redis.RedisPolicy;
@@ -15,7 +15,7 @@ public class SmsService {
     private final CoolsmsUtil coolsmsUtil;
     private final RedisDao redisDao;
 
-    public void sendCertificationCode(CertificationNumberSendRequest request) {
+    public void sendCertificationCode(CertificationCodeSendRequest request) {
         String toNumber = request.getToNumber();
         String certificationCode = createRandomNumberSixDigit();
         registerCertificationCodeToRedis(toNumber, certificationCode);
