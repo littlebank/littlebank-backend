@@ -1,7 +1,7 @@
 package com.littlebank.finance.domain.user.service;
 
-import com.littlebank.finance.domain.user.domain.constant.Authority;
 import com.littlebank.finance.domain.user.domain.User;
+import com.littlebank.finance.domain.user.domain.constant.Authority;
 import com.littlebank.finance.domain.user.domain.repository.UserRepository;
 import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.AccountHolderVerifyResponse;
@@ -10,6 +10,7 @@ import com.littlebank.finance.domain.user.dto.response.PasswordMatchResponse;
 import com.littlebank.finance.domain.user.dto.response.ReissueResponse;
 import com.littlebank.finance.domain.user.exception.AuthException;
 import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.common.CommonCodeResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import com.littlebank.finance.global.jwt.TokenProvider;
 import com.littlebank.finance.global.jwt.dto.TokenDto;
@@ -222,4 +223,16 @@ public class AuthService {
 
         return PasswordMatchResponse.of(user);
     }
+
+    @Transactional(readOnly = true)
+    public CommonCodeResponse verifyCertificationCode(CertificationCodeVerifyRequest request) {
+        String certificationCodeKey = RedisPolicy.CERTIFICATION_CODE_KEY_PREFIX + request.getToNumber();
+        if (!redisDao.existData(certificationCodeKey) ||
+                !request.getCode().equals(redisDao.getValues(certificationCodeKey))
+        ) {
+            return CommonCodeResponse.builder().code(400).message("인증코드가 일치하지 않습니다").build();
+        }
+        return CommonCodeResponse.builder().code(200).message("인증코드가 일치합니다").build();
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.littlebank.finance.domain.point.dto.response;
+package com.littlebank.finance.global.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class VerifyTempSaveAmountResponse {
+public class CommonCodeResponse {
     private Integer code;
     private String message;
 }

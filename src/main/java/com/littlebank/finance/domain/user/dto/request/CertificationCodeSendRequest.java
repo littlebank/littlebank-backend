@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class CertificationNumberSendRequest {
+public class CertificationCodeSendRequest {
     @NotBlank
-    @Schema(description = "인증번호를 보낼 전화번호", example = "01012345678")
+    @Schema(description = "인증번호를 받을 전화번호", example = "01012345678")
     private String toNumber;
 }

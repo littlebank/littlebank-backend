@@ -3,6 +3,7 @@ package com.littlebank.finance.domain.user.controller;
 import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.service.AuthService;
+import com.littlebank.finance.global.common.CommonCodeResponse;
 import com.littlebank.finance.global.jwt.dto.TokenDto;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import com.littlebank.finance.global.util.CookieUtil;
@@ -110,4 +111,15 @@ public class AuthController {
         PasswordMatchResponse response = authService.verifyPassword(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "휴대폰 인증번호 검증 API")
+    @SecurityRequirements()
+    @PostMapping("/public/certification-code/verify")
+    public ResponseEntity<CommonCodeResponse> sendCertificationCode(
+            @RequestBody @Valid CertificationCodeVerifyRequest request
+    ) {
+        CommonCodeResponse response = authService.verifyCertificationCode(request);
+        return ResponseEntity.ok(response);
+    }
+
 }
