@@ -20,7 +20,7 @@ public class AdminPointController {
     private final AdminPointService adminPointService;
 
     @Operation(summary = "모든 유저 포인트 충전 결제 내역 조회 API")
-    @GetMapping("/refund/history")
+    @GetMapping("/charge/history")
     public ResponseEntity<List<ChargeHistoryResponse>> getUsersChargeHistory() {
         List<ChargeHistoryResponse> response = adminPointService.getUsersChargeHistory();
         return ResponseEntity.ok(response);
