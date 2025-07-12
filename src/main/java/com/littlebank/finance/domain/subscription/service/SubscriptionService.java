@@ -72,17 +72,8 @@ public class SubscriptionService {
     }
 
     public List<SubscriptionResponseDto> getMySubscription(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
-        List<Subscription> subscriptions = new ArrayList<>();
-        List<Subscription> owned = subscriptionRepository.findByOwner(user);
-        subscriptions.addAll(owned);
-
-        if (user.getSubscription() != null && !owned.contains(user.getSubscription())) {
-            subscriptions.add(user.getSubscription());
-        }
-        subscriptions.sort((a,b) -> b.getStartDate().compareTo(a.getStartDate()));
-        return subscriptions.stream()
+        List<Subscription> subscriptionss = subscriptionRepository.findAllByUserId(userId);
+        return subscriptionss.stream()
                 .map(s -> SubscriptionResponseDto.of(s))
                 .collect(Collectors.toList());
     }
