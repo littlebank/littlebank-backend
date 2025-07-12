@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api-user/point")
 @RequiredArgsConstructor
@@ -34,25 +36,29 @@ public class PointController {
     @PostMapping("/temp/save-amount")
     public ResponseEntity<AmountTempSaveResponse> tempSave(
             HttpSession session,
-            @RequestBody @Valid AmountTempSaveRequest saveAmountRequest,
+            @RequestBody @Valid AmountTempSaveRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        session.setAttribute(saveAmountRequest.getOrderId(), saveAmountRequest.getAmount());
-        return ResponseEntity.ok(pointService.tempSave(customUserDetails.getId(), saveAmountRequest));
+        log.info("결제 정보 orderId 임시 저장 : " + request.getOrderId());
+        log.info("결제 정보 amount 임시 저장 : " + request.getAmount());
+        session.setAttribute(request.getOrderId(), request.getAmount());
+        return ResponseEntity.ok(pointService.tempSave(customUserDetails.getId(), request));
     }
 
     @Operation(summary = "임시 저장한 결제 정보 검증 API")
     @PostMapping("/temp/verify-amount")
     public ResponseEntity<CommonCodeResponse> verifyTempSaveAmount(
             HttpSession session,
-            @RequestBody @Valid AmountTempSaveRequest saveAmountRequest
+            @RequestBody @Valid AmountTempSaveRequest request
     ) {
-        Integer amount = (Integer) session.getAttribute(saveAmountRequest.getOrderId());
+        log.info("결제 정보 orderId 임시 저장 : " + request.getOrderId());
+        log.info("결제 정보 amount 임시 저장 : " + request.getAmount());
+        Integer amount = (Integer) session.getAttribute(request.getOrderId());
 
-        if(amount == null || !amount.equals(saveAmountRequest.getAmount()))
+        if(amount == null || !amount.equals(request.getAmount()))
             return ResponseEntity.badRequest().body(CommonCodeResponse.builder().code(400).message("결제 정보가 일치하지 않습니다").build());
 
-        session.removeAttribute(saveAmountRequest.getOrderId());
+        session.removeAttribute(request.getOrderId());
         return ResponseEntity.ok(CommonCodeResponse.builder().code(200).message("결제 정보가 일치합니다").build());
     }
 
