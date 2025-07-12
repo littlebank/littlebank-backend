@@ -84,6 +84,9 @@ dependencies {
 	//google
 	implementation 'com.google.apis:google-api-services-androidpublisher:v3-rev20241003-2.0.0'
 
+	//coolsms
+	implementation 'net.nurigo:sdk:4.2.7'
+
 }
 
 tasks.named('test') {
