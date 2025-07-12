@@ -47,6 +47,7 @@ public class Payment extends BaseEntity {
         this.tossPaymentKey = tossPaymentKey;
         this.tossOrderId = tossOrderId;
         this.amount = amount;
+        this.remainingPoint = remainingPoint;
         this.tossPaymentMethod = tossPaymentMethod;
         this.tossPaymentStatus = tossPaymentStatus;
         this.user = user;

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Tag(name = "Mail")
 public class MailController {
-
     private final MailService mailService;
 
     @Operation(summary = "이메일 확인 메일 발신 API")
