@@ -11,11 +11,14 @@ import com.littlebank.finance.domain.user.domain.repository.UserWithdrawReposito
 import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.common.CommonCodeResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -26,6 +29,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserConsentRepository userConsentRepository;
     private final UserWithdrawRepository userWithdrawRepository;
+    private final MailService mailService;
 
     @Transactional
     public SignupResponse saveUser(SignupRequest request) {
@@ -138,6 +142,33 @@ public class UserService {
         return CommonUserInfoResponse.of(target);
     }
 
+    public PasswordReissueResponse reissuePassword(PasswordReissueRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        String tempPassword = UUID.randomUUID().toString();
+        user.reissuePassword(tempPassword);
+        user.encodePassword(passwordEncoder);
+
+        mailService.sendPasswordReissueMail(user.getEmail(), tempPassword);
+
+        return PasswordReissueResponse.of(user);
+    }
+
+    public CommonCodeResponse resetPassword(Long userId, PasswordResetRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            return CommonCodeResponse.builder().code(400).message("패스워드가 일치하지 않습니다").build();
+        }
+
+        user.resetPassword(request.getNewPassword());
+        user.encodePassword(passwordEncoder);
+
+        return CommonCodeResponse.builder().code(200).message("비밀번호를 재설정 하였습니다").build();
+    }
+
     public AccountPinResetResponse resetAccountPin(Long userId, AccountPinResetRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -166,5 +197,5 @@ public class UserService {
         user.setSchoolInfo(request.getSchoolName(), request.getSchoolType(), request.getRegion(), request.getAddress());
         return MyInfoResponse.of(user);
     }
-  
+
 }

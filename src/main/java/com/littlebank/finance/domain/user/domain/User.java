@@ -170,6 +170,14 @@ public class User extends BaseEntity {
         this.point += point;
     }
 
+    public void reissuePassword(String tempPassword) {
+        this.password = tempPassword;
+    }
+
+    public void resetPassword(String newPassword) {
+        this.password = newPassword;
+    }
+
     public void resetPin(String pin) {
         this.accountPin = pin;
     }
@@ -192,4 +200,5 @@ public class User extends BaseEntity {
         this.region = region;
         this.address = address;
     }
+
 }
