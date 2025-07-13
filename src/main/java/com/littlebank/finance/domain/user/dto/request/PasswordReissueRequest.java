@@ -1,12 +1,14 @@
 package com.littlebank.finance.domain.user.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class ProfileImagePathUpdateRequest {
+public class PasswordReissueRequest {
+    @Email
     @NotBlank
-    @Schema(description = "s3 이미지 업로드 경로 (path)")
-    private String profileImagePath;
+    @Schema(description = "비밀번호 재발급 할 계정의 이메일")
+    private String email;
 }

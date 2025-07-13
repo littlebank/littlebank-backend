@@ -17,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserConsentRepository userConsentRepository;
     private final UserWithdrawRepository userWithdrawRepository;
+    private final MailService mailService;
 
     @Transactional
     public SignupResponse saveUser(SignupRequest request) {
@@ -138,6 +141,19 @@ public class UserService {
         return CommonUserInfoResponse.of(target);
     }
 
+    public PasswordReissueResponse reissuePassword(PasswordReissueRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        String tempPassword = UUID.randomUUID().toString();
+        user.reissuePassword(tempPassword);
+        user.encodePassword(passwordEncoder);
+
+        mailService.sendPasswordReissueMail(user.getEmail(), tempPassword);
+
+        return PasswordReissueResponse.of(user);
+    }
+
     public AccountPinResetResponse resetAccountPin(Long userId, AccountPinResetRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
@@ -166,5 +182,5 @@ public class UserService {
         user.setSchoolInfo(request.getSchoolName(), request.getSchoolType(), request.getRegion(), request.getAddress());
         return MyInfoResponse.of(user);
     }
-  
+
 }

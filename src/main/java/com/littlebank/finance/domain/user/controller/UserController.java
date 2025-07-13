@@ -147,6 +147,15 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "임시 비밀번호 발급 API")
+    @PostMapping("/public/password/reissue")
+    public ResponseEntity<PasswordReissueResponse> reissuePassword(
+            @RequestBody @Valid PasswordReissueRequest request
+    ) {
+        PasswordReissueResponse response = userService.reissuePassword(request);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "계좌 pin 번호 재설정 API")
     @PatchMapping("/account/pin/reset")
     public ResponseEntity<AccountPinResetResponse> resetAccountPin(
