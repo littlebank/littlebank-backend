@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/api-user/point")
 @RequiredArgsConstructor
@@ -39,8 +38,6 @@ public class PointController {
             @RequestBody @Valid AmountTempSaveRequest request,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        log.info("결제 정보 orderId 임시 저장 : " + request.getOrderId());
-        log.info("결제 정보 amount 임시 저장 : " + request.getAmount());
         session.setAttribute(request.getOrderId(), request.getAmount());
         return ResponseEntity.ok(pointService.tempSave(customUserDetails.getId(), request));
     }
@@ -51,12 +48,9 @@ public class PointController {
             HttpSession session,
             @RequestBody @Valid AmountTempSaveRequest request
     ) {
-        log.info("결제 정보 orderId 검증 : " + request.getOrderId());
-        log.info("결제 정보 amount 검증 : " + request.getAmount());
         Integer amount = (Integer) session.getAttribute(request.getOrderId());
 
         if(amount == null || !amount.equals(request.getAmount())) {
-            log.error("결제정보가 일치하지 않음");
             return ResponseEntity.badRequest().body(CommonCodeResponse.builder().code(400).message("결제 정보가 일치하지 않습니다").build());
         }
 
