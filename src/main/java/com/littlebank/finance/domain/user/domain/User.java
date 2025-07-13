@@ -174,6 +174,10 @@ public class User extends BaseEntity {
         this.password = tempPassword;
     }
 
+    public void resetPassword(String newPassword) {
+        this.password = newPassword;
+    }
+
     public void resetPin(String pin) {
         this.accountPin = pin;
     }

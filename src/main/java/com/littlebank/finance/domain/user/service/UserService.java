@@ -11,6 +11,7 @@ import com.littlebank.finance.domain.user.domain.repository.UserWithdrawReposito
 import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.exception.UserException;
+import com.littlebank.finance.global.common.CommonCodeResponse;
 import com.littlebank.finance.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -152,6 +153,20 @@ public class UserService {
         mailService.sendPasswordReissueMail(user.getEmail(), tempPassword);
 
         return PasswordReissueResponse.of(user);
+    }
+
+    public CommonCodeResponse resetPassword(Long userId, PasswordResetRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            return CommonCodeResponse.builder().code(400).message("패스워드가 일치하지 않습니다").build();
+        }
+
+        user.resetPassword(request.getNewPassword());
+        user.encodePassword(passwordEncoder);
+
+        return CommonCodeResponse.builder().code(200).message("비밀번호를 재설정 하였습니다").build();
     }
 
     public AccountPinResetResponse resetAccountPin(Long userId, AccountPinResetRequest request) {

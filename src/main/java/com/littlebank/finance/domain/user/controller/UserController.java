@@ -3,6 +3,7 @@ package com.littlebank.finance.domain.user.controller;
 import com.littlebank.finance.domain.user.dto.request.*;
 import com.littlebank.finance.domain.user.dto.response.*;
 import com.littlebank.finance.domain.user.service.UserService;
+import com.littlebank.finance.global.common.CommonCodeResponse;
 import com.littlebank.finance.global.security.CustomUserDetails;
 import com.littlebank.finance.global.util.CookieUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -153,6 +154,16 @@ public class UserController {
             @RequestBody @Valid PasswordReissueRequest request
     ) {
         PasswordReissueResponse response = userService.reissuePassword(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "비밀번호 재설정 API")
+    @PatchMapping("/password/reset")
+    public ResponseEntity<CommonCodeResponse> resetPassword(
+            @RequestBody @Valid PasswordResetRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        CommonCodeResponse response = userService.resetPassword(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
 

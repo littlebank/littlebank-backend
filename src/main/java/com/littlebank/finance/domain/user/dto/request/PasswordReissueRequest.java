@@ -9,6 +9,6 @@ import lombok.Getter;
 public class PasswordReissueRequest {
     @Email
     @NotBlank
-    @Schema(description = "비밀번호 재발급 할 계정의 이메일")
+    @Schema(description = "임시 비밀번호를 발급할 계정의 이메일")
     private String email;
 }
