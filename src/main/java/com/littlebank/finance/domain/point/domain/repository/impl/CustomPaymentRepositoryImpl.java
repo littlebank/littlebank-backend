@@ -67,7 +67,7 @@ public class CustomPaymentRepositoryImpl implements CustomPaymentRepository {
                         p.id,
                         Expressions.constant("PAYMENT"),
                         p.amount,
-                        Expressions.stringTemplate("CONCAT('토스페이먼츠에서 ', {0}, '포인트 충전')", p.amount),
+                        Expressions.stringTemplate("CONCAT('토스페이먼츠로 ', {0}, '포인트 충전')", p.amount),
                         p.remainingPoint,
                         Expressions.nullExpression(Long.class),
                         new CaseBuilder()
