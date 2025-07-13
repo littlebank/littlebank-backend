@@ -2,12 +2,14 @@ package com.littlebank.finance.domain.point.domain.repository.impl;
 
 import com.littlebank.finance.domain.point.domain.QPayment;
 import com.littlebank.finance.domain.point.domain.constant.RewardType;
+import com.littlebank.finance.domain.point.domain.constant.TossPaymentMethod;
 import com.littlebank.finance.domain.point.domain.constant.TossPaymentStatus;
 import com.littlebank.finance.domain.point.domain.repository.CustomPaymentRepository;
 import com.littlebank.finance.domain.point.dto.response.PaymentHistoryResponse;
 import com.littlebank.finance.domain.point.dto.response.ReceivePointHistoryResponse;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +37,14 @@ public class CustomPaymentRepositoryImpl implements CustomPaymentRepository {
                                 p.amount,
                                 p.remainingPoint,
                                 u.name,
-                                Expressions.stringTemplate("토스페이먼츠"),
-                                p.tossPaymentMethod.stringValue(),
+                                Expressions.constant("토스페이먼츠"),
+                                new CaseBuilder()
+                                        .when(p.tossPaymentMethod.eq(TossPaymentMethod.CARD)).then("카드")
+                                        .when(p.tossPaymentMethod.eq(TossPaymentMethod.ACCOUNT_TRANSFER)).then("계좌이체")
+                                        .when(p.tossPaymentMethod.eq(TossPaymentMethod.VIRTUAL_ACCOUNT)).then("가상계좌")
+                                        .when(p.tossPaymentMethod.eq(TossPaymentMethod.EASY_PAYMENT)).then("간편결제")
+                                        .when(p.tossPaymentMethod.eq(TossPaymentMethod.MOBILE_PHONE)).then("휴대폰")
+                                        .otherwise("기타"),
                                 p.paidAt
                         ))
                         .from(p)
@@ -62,7 +70,13 @@ public class CustomPaymentRepositoryImpl implements CustomPaymentRepository {
                         Expressions.stringTemplate("CONCAT({0}, '(으)로 ', {1}, '포인트 충전')", p.tossPaymentMethod, p.amount),
                         p.remainingPoint,
                         Expressions.nullExpression(Long.class),
-                        p.tossPaymentMethod.stringValue(),
+                        new CaseBuilder()
+                                .when(p.tossPaymentMethod.eq(TossPaymentMethod.CARD)).then("카드")
+                                .when(p.tossPaymentMethod.eq(TossPaymentMethod.ACCOUNT_TRANSFER)).then("계좌이체")
+                                .when(p.tossPaymentMethod.eq(TossPaymentMethod.VIRTUAL_ACCOUNT)).then("가상계좌")
+                                .when(p.tossPaymentMethod.eq(TossPaymentMethod.EASY_PAYMENT)).then("간편결제")
+                                .when(p.tossPaymentMethod.eq(TossPaymentMethod.MOBILE_PHONE)).then("휴대폰")
+                                .otherwise("기타"),
                         p.paidAt,
                         Expressions.nullExpression(RewardType.class),
                         Expressions.nullExpression(Long.class)
