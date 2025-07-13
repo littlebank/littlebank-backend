@@ -166,7 +166,6 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
     /**
      * [자녀 목표 달성 시 부모 푸시 알림 대상 조회]
      * - Goal의 startDate가 지난주(월~일)
-     * - Goal의 도장 요일(true 개수) ≥ Family.minStampCount
      * - 자녀/부모 모두 FamilyMember.status = JOINED
      * - 부모의 User.role = PARENT
      */
@@ -206,8 +205,7 @@ public class CustomGoalRepositoryImpl implements CustomGoalRepository {
                         g.startDate.between(lastMonday.atStartOfDay(), lastSunday.atTime(LocalTime.MAX)),
                         fm.status.eq(Status.JOINED),
                         parentMember.status.eq(Status.JOINED),
-                        u.role.eq(UserRole.PARENT),
-                        g.status.eq(GoalStatus.ACHIEVEMENT)
+                        u.role.eq(UserRole.PARENT)
                 )
                 .fetch();
 

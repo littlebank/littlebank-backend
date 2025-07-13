@@ -35,8 +35,8 @@ public class CustomPaymentRepositoryImpl implements CustomPaymentRepository {
                                 p.amount,
                                 p.remainingPoint,
                                 u.name,
-                                Expressions.stringTemplate("토스"),
-                                p.tossPaymentMethod,
+                                Expressions.stringTemplate("토스페이먼츠"),
+                                p.tossPaymentMethod.stringValue(),
                                 p.paidAt
                         ))
                         .from(p)
@@ -62,7 +62,7 @@ public class CustomPaymentRepositoryImpl implements CustomPaymentRepository {
                         Expressions.stringTemplate("CONCAT({0}, '(으)로 ', {1}, '포인트 충전')", p.tossPaymentMethod, p.amount),
                         p.remainingPoint,
                         Expressions.nullExpression(Long.class),
-                        p.tossPaymentMethod,
+                        p.tossPaymentMethod.stringValue(),
                         p.paidAt,
                         Expressions.nullExpression(RewardType.class),
                         Expressions.nullExpression(Long.class)
