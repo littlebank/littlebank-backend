@@ -1,6 +1,7 @@
 package com.littlebank.finance.domain.chat.controller;
 
 import com.littlebank.finance.domain.chat.dto.request.ChatRoomCreateRequest;
+import com.littlebank.finance.domain.chat.dto.request.ChatRoomNameUpdateRequest;
 import com.littlebank.finance.domain.chat.dto.response.*;
 import com.littlebank.finance.domain.chat.service.ChatService;
 
@@ -37,6 +38,16 @@ public class ChatController {
     ) {
         ChatRoomCreateResponse createdRoom = chatService.createRoom(customUserDetails.getId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRoom);
+    }
+
+    @Operation(summary = "채팅방 이름 수정 API")
+    @PatchMapping("/room/name/update")
+    public ResponseEntity<ChatRoomNameUpdateResponse> updateRoomName(
+            @RequestBody @Valid ChatRoomNameUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        ChatRoomNameUpdateResponse response = chatService.updateRoomName(customUserDetails.getId(), request);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "채팅방 목록 조회 API")

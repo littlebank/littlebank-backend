@@ -23,6 +23,8 @@ public class UserChatRoom extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_chat_room_id")
     private Long id;
+    @Column(nullable = false, length = 50)
+    private String customRoomName;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room", nullable = false)
     private ChatRoom room;
@@ -41,7 +43,8 @@ public class UserChatRoom extends BaseEntity {
     private Long version;
 
     @Builder
-    public UserChatRoom(ChatRoom room, User user, LocalDateTime displayIdx, Long lastReadMessageId, Boolean isJoined, LocalDateTime joinedDate) {
+    public UserChatRoom(String customRoomName, ChatRoom room, User user, LocalDateTime displayIdx, Long lastReadMessageId, Boolean isJoined, LocalDateTime joinedDate) {
+        this.customRoomName = customRoomName;
         this.room = room;
         this.user = user;
         this.displayIdx = displayIdx == null ? LocalDateTime.now() : displayIdx;
@@ -63,6 +66,10 @@ public class UserChatRoom extends BaseEntity {
 
     public void leavePrivateRoom() {
         this.isJoined = false;
+    }
+
+    public void renameRoom(String name) {
+        this.customRoomName = name;
     }
 
 }

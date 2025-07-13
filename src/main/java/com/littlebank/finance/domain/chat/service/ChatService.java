@@ -9,6 +9,7 @@ import com.littlebank.finance.domain.chat.domain.constant.RoomRange;
 import com.littlebank.finance.domain.chat.domain.repository.*;
 import com.littlebank.finance.domain.chat.dto.UserFriendInfoDto;
 import com.littlebank.finance.domain.chat.dto.request.ChatRoomCreateRequest;
+import com.littlebank.finance.domain.chat.dto.request.ChatRoomNameUpdateRequest;
 import com.littlebank.finance.domain.chat.dto.response.*;
 import com.littlebank.finance.domain.chat.exception.ChatException;
 import com.littlebank.finance.domain.friend.domain.repository.FriendRepository;
@@ -26,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 
 @Service
 @Transactional
@@ -80,6 +80,7 @@ public class ChatService {
                 .forEach(u -> {
                     UserChatRoom joinedUser = userChatRoomRepository.save(
                                     UserChatRoom.builder()
+                                            .customRoomName(room.getName())
                                             .room(room)
                                             .user(u)
                                             .build()
@@ -96,6 +97,15 @@ public class ChatService {
                 });
 
         return ChatRoomCreateResponse.of(room);
+    }
+
+    public ChatRoomNameUpdateResponse updateRoomName(Long userId, ChatRoomNameUpdateRequest request) {
+        UserChatRoom userChatRoom = userChatRoomRepository.findByUserIdAndRoomId(userId, request.getRoomId())
+                .orElseThrow(() -> new ChatException(ErrorCode.USER_CHAT_ROOM_NOT_FOUND));
+
+        userChatRoom.renameRoom(request.getName());
+
+        return ChatRoomNameUpdateResponse.of(userChatRoom);
     }
 
     @Transactional(readOnly = true)
@@ -146,4 +156,5 @@ public class ChatService {
 
         return responses;
     }
+
 }
