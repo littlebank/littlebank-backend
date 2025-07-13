@@ -12,7 +12,6 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum TossPaymentMethod {
-
     CARD("카드"),
     ACCOUNT_TRANSFER("계좌이체"),
     VIRTUAL_ACCOUNT("가상계좌"),
