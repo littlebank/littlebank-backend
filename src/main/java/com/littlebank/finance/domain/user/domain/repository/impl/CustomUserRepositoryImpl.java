@@ -164,6 +164,7 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
                                 u.isDeleted.eq(false)
                         )
                         .orderBy(u.schoolName.asc())
+                        .limit(10)
                         .fetch();
         return results;
     }
