@@ -12,10 +12,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.littlebank.finance.domain.school.domain.QSchool.school;
+
 @RequiredArgsConstructor
 public class CustomSchoolRepositoryImpl implements CustomSchoolRepository {
+
     private final JPAQueryFactory queryFactory;
     private final QSchool sch = school;
+
     @Override
     public Optional<SchoolSearchResponse> findSchoolSearchResponse(String schoolName) {
         List<SchoolInfoResponse> results = queryFactory
