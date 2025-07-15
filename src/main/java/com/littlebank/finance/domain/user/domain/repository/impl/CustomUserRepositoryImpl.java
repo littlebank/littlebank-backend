@@ -8,6 +8,7 @@ import com.littlebank.finance.domain.mission.domain.MissionStatus;
 import com.littlebank.finance.domain.mission.domain.QMission;
 import com.littlebank.finance.domain.user.domain.QUser;
 import com.littlebank.finance.domain.user.domain.repository.CustomUserRepository;
+import com.littlebank.finance.domain.user.dto.response.CommonUserInfoResponse;
 import com.littlebank.finance.domain.user.dto.response.UserDetailsInfoResponse;
 import com.littlebank.finance.domain.user.dto.response.UserSearchResponse;
 import com.querydsl.core.types.Projections;
@@ -15,6 +16,7 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.littlebank.finance.domain.challenge.domain.QChallengeParticipation.challengeParticipation;
@@ -133,5 +135,37 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
                         )
                         .fetchOne()
         );
+    }
+
+    @Override
+    public List<CommonUserInfoResponse> findSchoolUserBySchoolName(String schoolName) {
+        List<CommonUserInfoResponse> results =
+                queryFactory.select(Projections.constructor(
+                                CommonUserInfoResponse.class,
+                                u.id,
+                                u.name,
+                                u.rrn,
+                                u.phone,
+                                u.statusMessage,
+                                u.bankName,
+                                u.bankCode,
+                                u.bankAccount,
+                                u.profileImagePath,
+                                u.targetAmount,
+                                u.schoolName,
+                                u.schoolType,
+                                u.region,
+                                u.address,
+                                u.role
+                        ))
+                        .from(u)
+                        .where (
+                                u.schoolName.contains(schoolName),
+                                u.isDeleted.eq(false)
+                        )
+                        .orderBy(u.schoolName.asc())
+                        .limit(10)
+                        .fetch();
+        return results;
     }
 }

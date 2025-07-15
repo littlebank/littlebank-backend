@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api-user/user")
@@ -186,5 +187,21 @@ public class UserController {
         MyInfoResponse response = userService.registerSchool(customUserDetails.getId(), request);
         return ResponseEntity.ok(response);
     }
-  
+
+    @Operation(summary = "학교별 유저 조회")
+    @GetMapping("/get-schoolUser")
+    public ResponseEntity<List<CommonUserInfoResponse>> getSchoolUser (
+            @Parameter(
+                    name = "schoolName",
+                    description = "학교명 키워드",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "진주"
+            )
+            @RequestParam(value = "schoolName") String schoolName,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        List<CommonUserInfoResponse> response = userService.searchSchoolUser(schoolName);
+        return ResponseEntity.ok(response);
+    }
 }
