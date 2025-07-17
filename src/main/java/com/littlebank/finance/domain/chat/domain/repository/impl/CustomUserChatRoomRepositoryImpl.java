@@ -135,7 +135,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public List<ChatRoomSummaryResponse> findChatRoomSummaryList(Long userId) {
         List<Tuple> myRooms = queryFactory
-                .select(cr.id, cr.name, cr.range, ucr.displayIdx, cr.lastMessageId, ucr.joinedDate)
+                .select(cr.id, ucr.customRoomName, cr.range, ucr.displayIdx, cr.lastMessageId, ucr.joinedDate)
                 .from(ucr)
                 .join(ucr.room, cr)
                 .where(
@@ -156,7 +156,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
 
         return myRooms.stream().map(tuple -> {
             Long roomId = tuple.get(cr.id);
-            String roomName = tuple.get(cr.name);
+            String roomName = tuple.get(ucr.customRoomName);
             RoomRange roomRange = tuple.get(cr.range);
             LocalDateTime displayIdx = tuple.get(ucr.displayIdx);
             Long lastMessageId = tuple.get(cr.lastMessageId);
@@ -265,7 +265,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
     @Override
     public Optional<ChatRoomDetailsResponse> findChatRoomDetails(Long userId, Long roomId) {
         Tuple roomInfo = queryFactory
-                .select(cr.id, cr.name, cr.range, ucr.lastReadMessageId, cr.lastMessageId)
+                .select(cr.id, ucr.customRoomName, cr.range, ucr.lastReadMessageId, cr.lastMessageId)
                 .from(ucr)
                 .join(ucr.room, cr)
                 .where(
@@ -278,7 +278,7 @@ public class CustomUserChatRoomRepositoryImpl implements CustomUserChatRoomRepos
         if (roomInfo == null) throw new ChatException(ErrorCode.USER_CHAT_ROOM_NOT_FOUND);
 
         Long fetchedRoomId = roomInfo.get(cr.id);
-        String roomName = roomInfo.get(cr.name);
+        String roomName = roomInfo.get(ucr.customRoomName);
         RoomRange roomRange = roomInfo.get(cr.range);
         Long lastReadMessageId = roomInfo.get(ucr.lastReadMessageId);
         Long lastSendMessageId = roomInfo.get(cr.lastMessageId);

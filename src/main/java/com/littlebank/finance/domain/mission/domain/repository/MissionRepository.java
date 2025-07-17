@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
-public interface MissionRepository extends JpaRepository<Mission, Long>, CustomMissionRepository {
+public interface MissionRepository extends JpaRepository<Mission, Long>, CustomMissionRepository, CustomAnalyzeRepository {
     Page<Mission> findByChild(User user, Pageable pageable);
     default Map<Long, String> findIdTitleMapByIds(List<Long> ids) {
         return findAllById(ids).stream()
