@@ -1,25 +1,27 @@
-package com.littlebank.finance.domain.mission.domain.repository;
+package com.littlebank.finance.domain.mission.domain.repository.impl;
 
+import com.littlebank.finance.domain.challenge.domain.QChallengeParticipation;
 import com.littlebank.finance.domain.family.domain.QFamilyMember;
-import com.littlebank.finance.domain.friend.domain.QFriend;
-import com.littlebank.finance.domain.mission.domain.QMission;
+import com.littlebank.finance.domain.goal.domain.QGoal;
+import com.littlebank.finance.domain.mission.domain.*;
+import com.littlebank.finance.domain.mission.domain.repository.CustomMissionRepository;
 import com.littlebank.finance.domain.mission.dto.response.MissionStatDto;
 import com.littlebank.finance.domain.notification.dto.response.MissionAchievementNotificationDto;
 import com.littlebank.finance.domain.user.domain.QUser;
-import com.littlebank.finance.domain.mission.domain.*;
 import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RequiredArgsConstructor
-public class CustomMissionRepositoryImpl implements CustomMissionRepository{
-    private QFriend f = QFriend.friend;
+public class CustomMissionRepositoryImpl implements CustomMissionRepository {
     private QMission m = QMission.mission;
+    private QChallengeParticipation cp = QChallengeParticipation.challengeParticipation;
+    private QGoal g = QGoal.goal;
     private QUser u = QUser.user;
     private QFamilyMember fm = QFamilyMember.familyMember;
     private final JPAQueryFactory queryFactory;
@@ -72,7 +74,7 @@ public class CustomMissionRepositoryImpl implements CustomMissionRepository{
     }
 
     @Override
-     public List<MissionAchievementNotificationDto> findMissionAchievementNotificationDto() {
+    public List<MissionAchievementNotificationDto> findMissionAchievementNotificationDto() {
         QFamilyMember parentMember = new QFamilyMember("parentMember");
         LocalDateTime yesterdayStart = LocalDate.now().minusDays(1).atStartOfDay();
         LocalDateTime yesterdayEnd = LocalDate.now().minusDays(1).atTime(23, 59, 59);
@@ -97,4 +99,5 @@ public class CustomMissionRepositoryImpl implements CustomMissionRepository{
                 .fetch();
         return results;
     }
+
 }

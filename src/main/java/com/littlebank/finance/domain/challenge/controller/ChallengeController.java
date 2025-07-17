@@ -28,7 +28,7 @@ public class ChallengeController {
     @Operation(summary = "챌린지 참여하기 API")
     @PostMapping("/join/{challengeId}")
     public ResponseEntity<ChallengeUserResponseDto> joinChallenge(
-            @PathVariable Long challengeId,
+            @PathVariable(name = "challengeId") Long challengeId,
             @RequestBody ChallengeUserRequestDto request,
             @AuthenticationPrincipal CustomUserDetails user) {
         ChallengeUserResponseDto response = challengeService.joinChallenge(user.getId(), challengeId, request);
