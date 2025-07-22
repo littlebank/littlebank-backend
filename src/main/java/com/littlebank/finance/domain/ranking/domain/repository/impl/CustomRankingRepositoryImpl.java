@@ -10,6 +10,7 @@ import com.littlebank.finance.domain.mission.domain.QMission;
 import com.littlebank.finance.domain.ranking.domain.repository.CustomRankingRepository;
 import com.littlebank.finance.domain.ranking.dto.response.GoalRankingResponseDto;
 import com.littlebank.finance.domain.user.domain.QUser;
+import com.littlebank.finance.domain.user.domain.constant.UserRole;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,8 @@ public class CustomRankingRepositoryImpl implements CustomRankingRepository {
                                 .and(f.toUser.id.eq(targetId))
                                 .and(f.isBlocked.isFalse())
                 )
-                .where(u.id.eq(targetId))
+                .where(u.id.eq(targetId)
+                        .and(u.role.eq(UserRole.CHILD)))
                 .fetchOne();
         String displayName = "";
         String name = userInfo != null ? userInfo.get(u.name) : "";
